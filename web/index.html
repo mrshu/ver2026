@@ -461,6 +461,46 @@
     gap: 12px;
   }
 
+  .preset-section {
+    margin-top: 14px;
+  }
+
+  .preset-section h3 {
+    margin: 0 0 8px;
+    color: #28313b;
+    font-size: 14px;
+  }
+
+  .preset-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    max-height: 160px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.66);
+    padding: 10px;
+  }
+
+  .preset-chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #b8c3cc;
+    background: #fff;
+    color: var(--ink);
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .preset-chip:hover,
+  .preset-chip:focus-visible {
+    border-color: var(--brand);
+    color: var(--brand-dark);
+    outline: 0;
+  }
+
   .preset-card {
     display: block;
     border: 1px solid var(--line);
@@ -554,7 +594,6 @@
       <h1>Prehľad výsledkov VER 2026 naprieč inštitúciami</h1>
       <p class="lede">
         Pracovný prehliadač pre slovenské akademické prostredie: umožňuje
-        porovnať profily kvality, filtrovať podľa oblastí hodnotenia a
         porovnať profily kvality, filtrovať podľa oblastí hodnotenia a zdieľať
         hotové analytické pohľady cez URL.
       </p>
@@ -634,6 +673,14 @@
         <code>?q=Fakulta matematiky, fyziky a informatiky</code>
       </a>
     </div>
+    <div class="preset-section">
+      <h3>Skupiny oblastí hodnotenia</h3>
+      <div class="preset-chip-list" id="group-presets"></div>
+    </div>
+    <div class="preset-section">
+      <h3>Oblasti hodnotenia</h3>
+      <div class="preset-chip-list" id="area-presets"></div>
+    </div>
   </section>
 
   <section class="workspace" aria-labelledby="browser-title">
@@ -645,6 +692,10 @@
       <div class="filter-block">
         <label for="area-select">Oblasť hodnotenia</label>
         <select id="area-select"></select>
+      </div>
+      <div class="filter-block">
+        <label for="group-select">Skupina oblastí</label>
+        <select id="group-select"></select>
       </div>
       <div class="filter-block">
         <label for="type-select">Typ inštitúcie</label>
@@ -728,6 +779,7 @@ const state = {
   raw: [],
   search: "",
   area: "",
+  group: "",
   type: "",
   minEmp: 0,
   sortKey: "celkovy__score",
@@ -813,6 +865,10 @@ function buildControls() {
   areaSelect.innerHTML = `<option value="">Všetky oblasti</option>` +
     meta.eval_areas.map((area) => `<option value="${esc(area)}">${esc(area)}</option>`).join("");
 
+  const groupSelect = document.getElementById("group-select");
+  groupSelect.innerHTML = `<option value="">Všetky skupiny</option>` +
+    meta.eval_groups.map((group) => `<option value="${esc(group)}">${esc(group)}</option>`).join("");
+
   const sortSelect = document.getElementById("sort-key");
   sortSelect.innerHTML = SORT_OPTIONS.map(([value, label]) =>
     `<option value="${esc(value)}">${esc(label)}</option>`
@@ -825,6 +881,19 @@ function buildControls() {
     <button type="button" data-area="${esc(area)}">
       <span>${esc(area)}</span><span class="count">${counts.get(area) || 0}</span>
     </button>
+  `).join("");
+}
+
+function presetHref(params) {
+  return "?" + new URLSearchParams(params).toString();
+}
+
+function renderPresetChips() {
+  document.getElementById("group-presets").innerHTML = meta.eval_groups.map((group) => `
+    <a class="preset-chip" href="${presetHref({ group, sort: "celkovy__score" })}">${esc(group)}</a>
+  `).join("");
+  document.getElementById("area-presets").innerHTML = meta.eval_areas.map((area) => `
+    <a class="preset-chip" href="${presetHref({ area, sort: "celkovy__score" })}">${esc(area)}</a>
   `).join("");
 }
 
@@ -846,6 +915,7 @@ function applyFilters() {
   const q = state.search.trim().toLocaleLowerCase("sk-SK");
   return state.raw.filter((row) => {
     if (state.area && row.eval_area !== state.area) return false;
+    if (state.group && row.eval_group !== state.group) return false;
     if (state.type && row.inst_type !== state.type) return false;
     if (state.minEmp && (row.employees || 0) < state.minEmp) return false;
     if (q) {
@@ -916,12 +986,14 @@ function renderResults() {
 function resetFilters() {
   state.search = "";
   state.area = "";
+  state.group = "";
   state.type = "";
   state.minEmp = 0;
   state.sortKey = "celkovy__score";
   state.sortAsc = defaultSortAsc(state.sortKey);
   document.getElementById("search").value = "";
   document.getElementById("area-select").value = "";
+  document.getElementById("group-select").value = "";
   document.getElementById("type-select").value = "";
   document.getElementById("min-emp").value = "0";
   document.getElementById("sort-key").value = state.sortKey;
@@ -934,6 +1006,7 @@ function readUrlState() {
   const sortKeys = new Set(SORT_OPTIONS.map(([key]) => key));
   state.search = params.get("q") || "";
   state.area = meta.eval_areas.includes(params.get("area")) ? params.get("area") : "";
+  state.group = meta.eval_groups.includes(params.get("group")) ? params.get("group") : "";
   state.type = meta.inst_types.includes(params.get("type")) ? params.get("type") : "";
   state.minEmp = parseInt(params.get("min_emp") || "0", 10) || 0;
   state.sortKey = sortKeys.has(params.get("sort")) ? params.get("sort") : "celkovy__score";
@@ -943,6 +1016,7 @@ function readUrlState() {
 function applyStateToControls() {
   document.getElementById("search").value = state.search;
   document.getElementById("area-select").value = state.area;
+  document.getElementById("group-select").value = state.group;
   document.getElementById("type-select").value = state.type;
   document.getElementById("min-emp").value = String(state.minEmp);
   document.getElementById("sort-key").value = state.sortKey;
@@ -952,6 +1026,7 @@ function writeUrlState() {
   const params = new URLSearchParams();
   if (state.search) params.set("q", state.search);
   if (state.area) params.set("area", state.area);
+  if (state.group) params.set("group", state.group);
   if (state.type) params.set("type", state.type);
   if (state.minEmp) params.set("min_emp", String(state.minEmp));
   if (state.sortKey !== "celkovy__score") params.set("sort", state.sortKey);
@@ -974,6 +1049,7 @@ async function load() {
     buildRankIndex();
     applyStateToControls();
     renderOverview();
+    renderPresetChips();
     renderResults();
   } catch (err) {
     document.querySelector("main").insertAdjacentHTML("afterbegin", `
@@ -996,6 +1072,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("area-select").addEventListener("change", (event) => {
     state.area = event.target.value;
+    if (state.area) {
+      state.group = "";
+      document.getElementById("group-select").value = "";
+    }
+    writeUrlState();
+    renderResults();
+  });
+  document.getElementById("group-select").addEventListener("change", (event) => {
+    state.group = event.target.value;
+    if (state.group) {
+      state.area = "";
+      document.getElementById("area-select").value = "";
+    }
     writeUrlState();
     renderResults();
   });
@@ -1033,6 +1122,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const button = event.target.closest("button[data-area]");
     if (!button) return;
     state.area = state.area === button.dataset.area ? "" : button.dataset.area;
+    if (state.area) {
+      state.group = "";
+      document.getElementById("group-select").value = "";
+    }
     document.getElementById("area-select").value = state.area;
     writeUrlState();
     renderResults();
