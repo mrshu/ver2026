@@ -16,6 +16,8 @@ fields) is bundled here as `data/VER2026data.xlsx`. This repo gives you:
 - A static Slovak-language dashboard with pre-built analysis links and
   URL-reproducible filters for sharing specific comparisons.
 
+Live viewer: <https://mrshu.github.io/ver2026/>
+
 ## Quick start
 
 ```bash
