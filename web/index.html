@@ -3,7 +3,82 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VER 2026 - prehľad výsledkov inštitúcií</title>
+<title>VER 2026: prehľad výsledkov, financovania a profilov kvality</title>
+<meta name="description" content="Interaktívny prehliadač verejných výsledkov VER 2026: profily kvality, financovanie výskumu 2020-2024, filtre podľa oblastí, inštitúcií, VVI a VVŠ." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://mrshu.github.io/ver2026/" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="sk_SK" />
+<meta property="og:site_name" content="VER 2026 prehliadač" />
+<meta property="og:title" content="VER 2026: prehľad výsledkov a financovania" />
+<meta property="og:description" content="Filtrovanie a zdieľanie verejných výsledkov VER 2026 naprieč slovenskými akademickými pracoviskami." />
+<meta property="og:url" content="https://mrshu.github.io/ver2026/" />
+<meta property="og:image" content="https://mrshu.github.io/ver2026/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Ukážka prehliadača výsledkov VER 2026 s tabuľkou profilov kvality a financovania." />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="VER 2026: prehľad výsledkov a financovania" />
+<meta name="twitter:description" content="Interaktívny prehliadač verejných výsledkov VER 2026 pre slovenské akademické prostredie." />
+<meta name="twitter:image" content="https://mrshu.github.io/ver2026/og-image.png" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Dataset",
+      "@id": "https://mrshu.github.io/ver2026/#dataset",
+      "name": "VER 2026 - výsledky hodnotenia vedy a výskumu",
+      "description": "Spracovaný verejný dataset výsledkov VER 2026 s profilmi kvality, počtom zamestnancov a financovaním výskumu za roky 2020-2024.",
+      "inLanguage": "sk",
+      "url": "https://mrshu.github.io/ver2026/",
+      "license": "https://www.minedu.sk/vysledky-periodickeho-hodnotenia-ver-2026/",
+      "isBasedOn": [
+        "https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx",
+        "https://ver.cvtisr.sk/vysledky/"
+      ],
+      "distribution": [
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/json",
+          "contentUrl": "https://mrshu.github.io/ver2026/data.json"
+        },
+        {
+          "@type": "DataDownload",
+          "encodingFormat": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "contentUrl": "https://mrshu.github.io/ver2026/VER2026data.xlsx"
+        }
+      ],
+      "creator": {
+        "@type": "Person",
+        "name": "Marek Šuppa"
+      },
+      "keywords": [
+        "VER 2026",
+        "hodnotenie vedy a výskumu",
+        "profily kvality",
+        "financovanie výskumu",
+        "verejné vysoké školy",
+        "verejné výskumné inštitúcie",
+        "Slovensko"
+      ]
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://mrshu.github.io/ver2026/#app",
+      "name": "VER 2026 prehliadač výsledkov",
+      "applicationCategory": "DataVisualizationApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "sk",
+      "url": "https://mrshu.github.io/ver2026/",
+      "description": "Webový prehliadač na filtrovanie, triedenie a zdieľanie výsledkov periodického hodnotenia VER 2026.",
+      "isBasedOn": {
+        "@id": "https://mrshu.github.io/ver2026/#dataset"
+      }
+    }
+  ]
+}
+</script>
 <style>
   :root {
     --paper: #f4f7f8;
@@ -487,6 +562,31 @@
     color: #3c4652;
   }
 
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding: 22px 0 30px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .site-footer .shell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+
+  .site-footer nav {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .overview {
     padding: 26px 0 18px;
   }
@@ -658,6 +758,13 @@
     th, td {
       padding: 9px 8px;
       font-size: 13px;
+    }
+    .site-footer .shell {
+      display: block;
+    }
+    .site-footer nav {
+      justify-content: flex-start;
+      margin-top: 8px;
     }
   }
 </style>
@@ -861,6 +968,20 @@
     </div>
   </section>
 </main>
+
+<footer class="site-footer">
+  <div class="shell">
+    <p>
+      Vytvoril <a href="https://mareksuppa.com" rel="author">Marek Šuppa</a>.
+      Neoficiálne open-source rozhranie nad verejnými dátami VER 2026.
+    </p>
+    <nav aria-label="Odkazy na zdroje a projekt">
+      <a href="https://github.com/mrshu/ver2026">Zdrojový kód</a>
+      <a href="https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx">XLSX MŠVVaM SR</a>
+      <a href="https://ver.cvtisr.sk/vysledky/">Oficiálne výsledky</a>
+    </nav>
+  </div>
+</footer>
 
 <script>
 const AREA_ACCENTS = {
