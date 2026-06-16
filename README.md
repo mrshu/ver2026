@@ -65,6 +65,8 @@ For each profile you can sort by:
 - `<slug>__top1` — the percentage at the top level (e.g. % of outputs that are
   world-class). `higher is better`.
 - `<slug>__top2` — the percentage at the top two levels.
+- `<slug>__top2_per_100_emp` — top-two percentage points per 100 employees.
+  This is a headcount-efficiency proxy, not a financial ROI metric.
 - `<slug>__<LevelName>` — the percentage at one specific level (e.g.
   `vystupy__Svetová` for the % of world-class outputs).
 
@@ -105,6 +107,7 @@ spend, project IDs, or evaluator comments), the loader in
 
 ```
 data/VER2026data.xlsx      # The official dataset, 270 institutions × 28 columns
+docs/bang-for-buck.md      # Headcount-efficiency analysis notes
 docs/fmfi-summary.md       # How the FMFI UK summary view is reproduced
 src/ver2026/
   __init__.py              # Loader, Institution dataclass, filter/sort helpers

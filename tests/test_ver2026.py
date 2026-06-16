@@ -68,6 +68,24 @@ def test_top1_sums_correctly(data):
     assert r.top_two_pct("vystupy") == r.profiles["vystupy"][0] + r.profiles["vystupy"][1]
 
 
+def test_top_two_per_100_employees(data):
+    row = next(r for r in data if r.employees)
+    assert row.top_two_per_100_employees("celkovy") == pytest.approx(
+        row.top_two_pct("celkovy") * 100 / row.employees
+    )
+    assert row.as_dict()["celkovy__top2_per_100_emp"] == pytest.approx(
+        row.top_two_per_100_employees("celkovy")
+    )
+
+
+def test_sort_by_top_two_per_100_employees(data):
+    rows = [r for r in data if r.employees]
+    ranked = sort_rows(rows, by="celkovy__top2_per_100_emp", descending=True)
+    assert ranked[0].top_two_per_100_employees("celkovy") >= ranked[-1].top_two_per_100_employees(
+        "celkovy"
+    )
+
+
 def test_fmfi_summary_values_match_reference_table(data):
     """Guard the FMFI UK three-area summary shown by the static viewer."""
     expected = {

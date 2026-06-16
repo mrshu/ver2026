@@ -423,6 +423,52 @@
     font-size: 13px;
   }
 
+  .efficiency {
+    padding: 18px 0 12px;
+  }
+
+  .efficiency-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.42fr) minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .method-box {
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--blue);
+    background: rgba(255, 255, 255, 0.75);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .method-box p {
+    margin: 0 0 10px;
+    color: #3c4652;
+  }
+
+  .method-box code {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    background: #eef4f7;
+    color: #1b3e52;
+    white-space: normal;
+  }
+
+  .eff-bar {
+    display: grid;
+    grid-template-columns: var(--pct, 0%) 1fr;
+    height: 9px;
+    margin-top: 5px;
+    border: 1px solid #c7d0d8;
+    background: #edf2f5;
+  }
+
+  .eff-bar span {
+    background: var(--blue);
+  }
+
   .error {
     margin: 22px 0;
     border: 1px solid #d3a5a5;
@@ -432,7 +478,7 @@
   }
 
   @media (max-width: 900px) {
-    .hero-grid, .workspace, .cards {
+    .hero-grid, .workspace, .cards, .efficiency-layout {
       grid-template-columns: 1fr;
     }
 
@@ -515,6 +561,47 @@
     </p>
   </section>
 
+  <section class="efficiency" aria-labelledby="efficiency-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Bang for the buck</p>
+        <h2 id="efficiency-title">Kto dosahuje najviac profilu na počet ľudí</h2>
+      </div>
+      <p class="hint">Proxy metrika, nie finančné ROI: dataset neobsahuje rozpočty.</p>
+    </div>
+    <div class="efficiency-layout">
+      <div class="method-box">
+        <p>
+          Keďže XLSX obsahuje iba počet zamestnancov, používame
+          <strong>headcount-efficiency</strong>: koľko percentuálnych bodov
+          celkového profilu 1+2 pripadá na 100 zamestnancov.
+        </p>
+        <code>celkový profil 1+2 × 100 / počet zamestnancov</code>
+        <p class="note">
+          Tabuľka používa minimálne 10 zamestnancov, aby ju nedeformovali
+          úplne malé hodnotené jednotky. V prehliadači nižšie sa dá prah
+          nastaviť ručne.
+        </p>
+      </div>
+      <div class="table-wrap">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th class="num">#</th>
+              <th>Inštitúcia</th>
+              <th>Oblasť</th>
+              <th class="num">Zam.</th>
+              <th class="num">Celkový 1+2</th>
+              <th class="num">Efektivita / 100 zam.</th>
+              <th class="num">Skóre</th>
+            </tr>
+          </thead>
+          <tbody id="efficiency-summary"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section class="workspace" aria-labelledby="browser-title">
     <aside>
       <div class="filter-block">
@@ -572,6 +659,7 @@
               <th data-sort="spolocensky_dosah__top2" class="num">Dosah 1+2</th>
               <th data-sort="tvorive_prostredie__top2" class="num">Prostredie 1+2</th>
               <th data-sort="celkovy__top2" class="num">Celkový 1+2</th>
+              <th data-sort="celkovy__top2_per_100_emp" class="num">Efekt. / 100 zam.</th>
               <th data-sort="celkovy__score" class="num">Skóre</th>
             </tr>
           </thead>
@@ -602,6 +690,7 @@ const SORT_OPTIONS = [
   ["vystupy__top2", "Výstupy 1+2"],
   ["spolocensky_dosah__top2", "Spoločenský dosah 1+2"],
   ["tvorive_prostredie__top2", "Tvorivé prostredie 1+2"],
+  ["celkovy__top2_per_100_emp", "Bang for buck: celkový 1+2 na 100 zam."],
   ["employees", "Počet zamestnancov"],
   ["institution", "Názov inštitúcie"],
 ];
@@ -640,6 +729,13 @@ function score(value) {
   return value == null ? "-" : value.toLocaleString("sk-SK", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
+  });
+}
+
+function number(value) {
+  return value == null ? "-" : value.toLocaleString("sk-SK", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
   });
 }
 
@@ -735,6 +831,38 @@ function renderFmfiSummary() {
   `).join("");
 }
 
+function renderEfficiencySummary() {
+  const rows = state.raw
+    .filter((row) => FMFI_AREAS.includes(row.eval_area) && (row.employees || 0) >= 10)
+    .slice()
+    .sort(compareBy("celkovy__top2_per_100_emp", false))
+    .slice(0, 10);
+  const max = Math.max(...rows.map((row) => row.celkovy__top2_per_100_emp || 0), 1);
+
+  document.getElementById("efficiency-summary").innerHTML = rows.map((row, index) => {
+    const fmfi = isFmfi(row);
+    const width = Math.max(0, Math.min(100, ((row.celkovy__top2_per_100_emp || 0) / max) * 100));
+    return `
+      <tr>
+        <td class="num"><b>${index + 1}</b></td>
+        <td class="institution">
+          <strong>${esc(row.institution)}</strong>
+          <span>${esc(row.inst_level)}</span>
+          ${fmfi ? `<span class="tag fmfi">FMFI UK</span>` : ""}
+        </td>
+        <td>${esc(row.eval_area)}</td>
+        <td class="num">${row.employees ?? "-"}</td>
+        <td class="num">${pct(row.celkovy__top2)}</td>
+        <td class="num">
+          <strong>${number(row.celkovy__top2_per_100_emp)}</strong>
+          <div class="eff-bar" style="--pct:${width}%"><span></span></div>
+        </td>
+        <td class="num">${score(row.celkovy__score)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
 function applyFilters() {
   const q = state.search.trim().toLocaleLowerCase("sk-SK");
   return state.raw.filter((row) => {
@@ -800,6 +928,7 @@ function renderResults() {
         <td class="num">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
         <td class="num">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
         <td class="num">${metricCell(row, "celkovy__top2", accent)}</td>
+        <td class="num"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
         <td class="num"><strong>${score(row.celkovy__score)}</strong></td>
       </tr>
     `;
@@ -832,6 +961,7 @@ async function load() {
       `${meta.institutions.length} inštitúcií, ${meta.eval_areas.length} oblastí hodnotenia`;
     buildControls();
     renderFmfiSummary();
+    renderEfficiencySummary();
     renderResults();
   } catch (err) {
     document.querySelector("main").insertAdjacentHTML("afterbegin", `

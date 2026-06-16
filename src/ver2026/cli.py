@@ -112,6 +112,7 @@ def cmd_metrics(args) -> int:
         print(f"    {slug}__score  (weighted score 1..5, lower = better)")
         print(f"    {slug}__top1   (% at level 1)")
         print(f"    {slug}__top2   (% at levels 1+2)")
+        print(f"    {slug}__top2_per_100_emp   (top2 percentage points per 100 employees)")
         for lvl in levels:
             print(f"    {slug}__{lvl}   (% at level '{lvl}')")
     return 0

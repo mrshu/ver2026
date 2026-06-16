@@ -77,6 +77,12 @@ class Institution:
         levels = self.profiles.get(slug) or []
         return (levels[0] or 0) + (levels[1] or 0) if levels else 0.0
 
+    def top_two_per_100_employees(self, slug: str) -> float | None:
+        """Top-two percentage points per 100 employees, a headcount proxy."""
+        if not self.employees:
+            return None
+        return self.top_two_pct(slug) * 100 / self.employees
+
     def as_dict(self) -> dict:
         out = {
             "request_id": self.request_id,
@@ -95,6 +101,7 @@ class Institution:
             out[f"{slug}__score"] = self.score(slug)
             out[f"{slug}__top1"] = self.top_pct(slug)
             out[f"{slug}__top2"] = self.top_two_pct(slug)
+            out[f"{slug}__top2_per_100_emp"] = self.top_two_per_100_employees(slug)
         return out
 
 
@@ -204,6 +211,8 @@ def sort_rows(
             return r.top_pct(slug)
         if metric == "top2":
             return r.top_two_pct(slug)
+        if metric == "top2_per_100_emp":
+            return r.top_two_per_100_employees(slug) or 0.0
         # Specific level like "vystupy__Svetová" — find the index.
         levels = PROFILE_GROUPS[slug][2]
         if metric in levels:
