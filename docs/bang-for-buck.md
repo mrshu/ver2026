@@ -31,7 +31,13 @@ workplaces that perform well, but it has two important limitations:
 
 ## Reproducing the ranking
 
-The homepage leaderboard is reproducible from the CLI:
+The size-normalized analysis is available as a pre-built website link:
+
+```text
+http://localhost:8766/?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10
+```
+
+The same ranking is reproducible from the CLI:
 
 ```bash
 uv run ver2026 efficiency

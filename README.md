@@ -13,8 +13,8 @@ fields) is bundled here as `data/VER2026data.xlsx`. This repo gives you:
   results as JSON.
 - A static web viewer (`web/index.html`) that lets you slice, sort, and search
   the full dataset in the browser — no build step, no server, no framework.
-- A static Slovak-language dashboard with a dataset-wide headcount-normalized
-  view and URL-reproducible filters for sharing specific comparisons.
+- A static Slovak-language dashboard with pre-built analysis links and
+  URL-reproducible filters for sharing specific comparisons.
 
 ## Quick start
 

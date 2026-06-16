@@ -451,37 +451,53 @@
     text-transform: uppercase;
   }
 
-  .efficiency {
+  .presets {
     padding: 18px 0 18px;
   }
 
-  .efficiency-layout {
+  .preset-layout {
     display: grid;
-    grid-template-columns: minmax(280px, 0.42fr) minmax(0, 1fr);
-    gap: 18px;
-    align-items: start;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
   }
 
-  .method-box {
+  .preset-card {
+    display: block;
     border: 1px solid var(--line);
-    border-left: 5px solid var(--blue);
     background: rgba(255, 255, 255, 0.75);
     padding: 16px;
     box-shadow: var(--shadow);
+    color: var(--ink);
+    text-decoration: none;
   }
 
-  .method-box p {
-    margin: 0 0 10px;
-    color: #3c4652;
+  .preset-card:hover,
+  .preset-card:focus-visible {
+    border-color: var(--brand);
+    outline: 0;
   }
 
-  .method-box code {
+  .preset-card strong {
     display: block;
-    margin: 10px 0;
-    padding: 10px;
+    margin-bottom: 7px;
+    color: var(--brand-dark);
+    font-size: 16px;
+  }
+
+  .preset-card span {
+    display: block;
+    color: #3c4652;
+    font-size: 13px;
+  }
+
+  .preset-card code {
+    display: block;
+    margin-top: 12px;
+    padding: 8px;
     background: #eef4f7;
     color: #1b3e52;
     white-space: normal;
+    font-size: 12px;
   }
 
   .eff-bar {
@@ -506,7 +522,7 @@
   }
 
   @media (max-width: 900px) {
-    .hero-grid, .workspace, .cards, .efficiency-layout, .overview-grid {
+    .hero-grid, .workspace, .cards, .preset-layout, .overview-grid {
       grid-template-columns: 1fr;
     }
 
@@ -539,7 +555,8 @@
       <p class="lede">
         Pracovný prehliadač pre slovenské akademické prostredie: umožňuje
         porovnať profily kvality, filtrovať podľa oblastí hodnotenia a
-        reprodukovať jednoduchú veľkostne normalizovanú analýzu.
+        porovnať profily kvality, filtrovať podľa oblastí hodnotenia a zdieľať
+        hotové analytické pohľady cez URL.
       </p>
     </div>
     <div class="source-box">
@@ -577,45 +594,45 @@
     </p>
   </section>
 
-  <section class="efficiency" aria-labelledby="efficiency-title">
+  <section class="presets" aria-labelledby="presets-title">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Veľkostne normalizovaný pohľad</p>
-        <h2 id="efficiency-title">Celkový profil 1+2 na 100 zamestnancov</h2>
+        <p class="eyebrow">Hotové analytické pohľady</p>
+        <h2 id="presets-title">Otvoriť prednastavenú tabuľku</h2>
       </div>
-      <p class="hint">Celá databáza, min. 10 zamestnancov. Orientačná metrika, nie finančné ROI.</p>
+      <p class="hint">Každý odkaz iba nastaví filtre a triedenie v tabuľke nižšie.</p>
     </div>
-    <div class="efficiency-layout">
-      <div class="method-box">
-        <p>
-          Keďže XLSX neobsahuje rozpočty ani grantové príjmy, používame iba
-          dostupný menovateľ: počet zamestnancov. Metrika ukazuje, koľko
-          percentuálnych bodov celkového profilu 1+2 pripadá na 100
-          zamestnancov.
-        </p>
-        <code>celkový profil 1+2 × 100 / počet zamestnancov</code>
-        <p class="note">
-          Tabuľka používa celú databázu a minimálne 10 zamestnancov, aby ju
-          nedeformovali úplne malé hodnotené jednotky. Rovnaké poradie sa dá
-          reprodukovať príkazom <code>uv run ver2026 efficiency</code>.
-        </p>
-      </div>
-      <div class="table-wrap">
-        <table class="summary-table">
-          <thead>
-            <tr>
-              <th class="num">#</th>
-              <th>Inštitúcia</th>
-              <th>Oblasť</th>
-              <th class="num">Zam.</th>
-              <th class="num">Celkový 1+2</th>
-              <th class="num">Efektivita / 100 zam.</th>
-              <th class="num">Skóre</th>
-            </tr>
-          </thead>
-          <tbody id="efficiency-summary"></tbody>
-        </table>
-      </div>
+    <div class="preset-layout" id="preset-links">
+      <a class="preset-card" href="?sort=celkovy__score">
+        <strong>Najlepší celkový profil</strong>
+        <span>Celá databáza zoradená podľa najnižšieho skóre celkového profilu kvality.</span>
+        <code>?sort=celkovy__score</code>
+      </a>
+      <a class="preset-card" href="?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10">
+        <strong>Celkový profil vzhľadom na veľkosť</strong>
+        <span>Orientačný pohľad: celkový profil 1+2 na 100 zamestnancov, min. 10 zamestnancov.</span>
+        <code>?sort=celkovy__top2_per_100_emp&amp;dir=desc&amp;min_emp=10</code>
+      </a>
+      <a class="preset-card" href="?type=VVI&sort=celkovy__score">
+        <strong>Verejné výskumné inštitúcie</strong>
+        <span>Len VVI, zoradené podľa celkového profilu kvality.</span>
+        <code>?type=VVI&amp;sort=celkovy__score</code>
+      </a>
+      <a class="preset-card" href="?type=VV%C5%A0&sort=celkovy__score">
+        <strong>Verejné vysoké školy a fakulty</strong>
+        <span>Len VVŠ, zoradené podľa celkového profilu kvality.</span>
+        <code>?type=VVŠ&amp;sort=celkovy__score</code>
+      </a>
+      <a class="preset-card" href="?area=Informa%C4%8Dn%C3%A9%20a%20komunika%C4%8Dn%C3%A9%20vedy&sort=celkovy__score">
+        <strong>Informačné a komunikačné vedy</strong>
+        <span>Ukážka jednej oblasti hodnotenia s poradím v oblasti.</span>
+        <code>?area=Informačné a komunikačné vedy</code>
+      </a>
+      <a class="preset-card" href="?q=Fakulta%20matematiky%2C%20fyziky%20a%20informatiky&sort=eval_area">
+        <strong>Reprodukcia tabuľky FMFI UK</strong>
+        <span>Tri riadky získané obyčajným textovým filtrom a triedením podľa oblasti.</span>
+        <code>?q=Fakulta matematiky, fyziky a informatiky</code>
+      </a>
     </div>
   </section>
 
@@ -646,7 +663,7 @@
         <select id="sort-key"></select>
       </div>
       <div class="filter-block button-row">
-        <button class="btn" type="button" id="efficiency-sort">Efektivita</button>
+        <button class="btn" type="button" id="copy-link">Kopírovať URL</button>
         <button class="btn secondary" type="button" id="reset">Reset</button>
       </div>
       <div class="filter-block">
@@ -825,36 +842,6 @@ function renderOverview() {
   `).join("");
 }
 
-function renderEfficiencySummary() {
-  const rows = state.raw
-    .filter((row) => (row.employees || 0) >= 10)
-    .slice()
-    .sort(compareBy("celkovy__top2_per_100_emp", false))
-    .slice(0, 10);
-  const max = Math.max(...rows.map((row) => row.celkovy__top2_per_100_emp || 0), 1);
-
-  document.getElementById("efficiency-summary").innerHTML = rows.map((row, index) => {
-    const width = Math.max(0, Math.min(100, ((row.celkovy__top2_per_100_emp || 0) / max) * 100));
-    return `
-      <tr>
-        <td class="num"><b>${index + 1}</b></td>
-        <td class="institution">
-          <strong>${esc(row.institution)}</strong>
-          <span>${esc(row.inst_level)}</span>
-        </td>
-        <td>${esc(row.eval_area)}</td>
-        <td class="num">${row.employees ?? "-"}</td>
-        <td class="num">${pct(row.celkovy__top2)}</td>
-        <td class="num">
-          <strong>${number(row.celkovy__top2_per_100_emp)}</strong>
-          <div class="eff-bar" style="--pct:${width}%"><span></span></div>
-        </td>
-        <td class="num">${score(row.celkovy__score)}</td>
-      </tr>
-    `;
-  }).join("");
-}
-
 function applyFilters() {
   const q = state.search.trim().toLocaleLowerCase("sk-SK");
   return state.raw.filter((row) => {
@@ -987,7 +974,6 @@ async function load() {
     buildRankIndex();
     applyStateToControls();
     renderOverview();
-    renderEfficiencySummary();
     renderResults();
   } catch (err) {
     document.querySelector("main").insertAdjacentHTML("afterbegin", `
@@ -1029,12 +1015,18 @@ document.addEventListener("DOMContentLoaded", () => {
     writeUrlState();
     renderResults();
   });
-  document.getElementById("efficiency-sort").addEventListener("click", () => {
-    state.sortKey = "celkovy__top2_per_100_emp";
-    state.sortAsc = false;
-    document.getElementById("sort-key").value = state.sortKey;
+  document.getElementById("copy-link").addEventListener("click", async () => {
     writeUrlState();
-    renderResults();
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      document.getElementById("copy-link").textContent = "URL skopírovaná";
+      setTimeout(() => {
+        document.getElementById("copy-link").textContent = "Kopírovať URL";
+      }, 1400);
+    } catch {
+      window.prompt("Skopírujte URL", url);
+    }
   });
   document.getElementById("reset").addEventListener("click", resetFilters);
   document.getElementById("area-list").addEventListener("click", (event) => {
