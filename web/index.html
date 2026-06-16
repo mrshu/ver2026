@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VER 2026 – Prehľadávanie výsledkov inštitúcií</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #1a2027;
+    --panel-2: #232b34;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #4ea1ff;
+    --accent-2: #ff7b72;
+    --good: #3fb950;
+    --bad: #f85149;
+    --border: #30363d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+  }
+  header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { margin: 0 0 6px; font-size: 18px; }
+  header .meta { color: var(--muted); font-size: 12px; }
+  .layout { display: flex; min-height: calc(100vh - 60px); }
+  aside {
+    width: 280px;
+    flex: 0 0 280px;
+    padding: 16px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow: auto;
+  }
+  main { flex: 1 1 auto; overflow: auto; }
+  .controls { display: flex; gap: 8px; align-items: center; padding: 12px 16px; flex-wrap: wrap; background: var(--panel-2); border-bottom: 1px solid var(--border); position: sticky; top: 60px; z-index: 5; }
+  .controls input, .controls select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font: inherit;
+  }
+  .controls input[type=search] { min-width: 260px; }
+  .controls label { color: var(--muted); font-size: 12px; }
+  .stat { color: var(--muted); margin-left: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { position: sticky; top: 110px; background: var(--panel); z-index: 4; cursor: pointer; user-select: none; }
+  th .arrow { color: var(--muted); margin-left: 4px; }
+  th.active { color: var(--accent); }
+  tbody tr:hover { background: var(--panel-2); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.pct { text-align: right; font-variant-numeric: tabular-nums; }
+  td .bar { display: inline-block; height: 6px; background: var(--accent); border-radius: 3px; vertical-align: middle; margin-left: 6px; }
+  td .group { display: block; font-size: 11px; color: var(--muted); }
+  .heatmap {
+    display: flex; gap: 2px; align-items: center; min-width: 160px;
+  }
+  .heatmap .seg {
+    height: 16px; min-width: 0; border-radius: 2px; display: inline-block;
+  }
+  .heatmap .label { font-size: 11px; color: var(--muted); margin-left: 6px; white-space: nowrap; }
+  .facet h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 14px 0 6px; }
+  .facet ul { list-style: none; margin: 0; padding: 0; }
+  .facet li { padding: 4px 0; cursor: pointer; display: flex; justify-content: space-between; }
+  .facet li:hover { color: var(--accent); }
+  .facet li .count { color: var(--muted); }
+  .facet li.active { color: var(--accent-2); font-weight: 600; }
+  .legend { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+  details { margin-top: 16px; }
+  details summary { cursor: pointer; color: var(--muted); }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: var(--panel-2); color: var(--muted); }
+  .pill.vvi { background: #1f3a55; color: #79c0ff; }
+  .pill.vvs { background: #553a1f; color: #ffa657; }
+</style>
+</head>
+<body>
+<header>
+  <h1>VER 2026 – Výsledky hodnotenia inštitúcií</h1>
+  <div class="meta" id="meta"></div>
+</header>
+<div class="layout">
+  <aside>
+    <div class="facet">
+      <h3>Oblasť hodnotenia</h3>
+      <ul id="area-facet"></ul>
+    </div>
+    <div class="facet">
+      <h3>Skupina oblastí</h3>
+      <ul id="group-facet"></ul>
+    </div>
+    <div class="facet">
+      <h3>Typ inštitúcie</h3>
+      <ul id="type-facet">
+        <li data-type="VVI">VVI <span class="pill vvi">SAV</span></li>
+        <li data-type="VVŠ">VVŠ <span class="pill vvs">univerzita</span></li>
+      </ul>
+    </div>
+    <details>
+      <summary>Metriky a čo znamenajú</summary>
+      <p class="legend">
+        Každý profil kvality (výstupy, spoločenský dosah, tvorivé prostredie, celkový) je rozdelený do 5 úrovní.
+        Tabuľka zobrazuje percentuálne zastúpenie jednotlivých úrovní.
+        <br><br>
+        <strong>Skóre 1–5</strong>: vážený priemer (1 = najlepšie, 5 = najhoršie).
+        <br>
+        <strong>Top 1 / Top 2</strong>: súčet % na úrovniach 1 a 2.
+      </p>
+    </details>
+  </aside>
+  <main>
+    <div class="controls">
+      <input type="search" id="search" placeholder="Hľadať inštitúciu…" />
+      <label>Min. zamestnancov
+        <input type="number" id="min-emp" min="0" value="0" style="width: 80px" />
+      </label>
+      <label>Triediť podľa
+        <select id="sort-key"></select>
+      </label>
+      <label><input type="checkbox" id="sort-asc" /> vzostupne</label>
+      <span class="stat" id="stat"></span>
+    </div>
+    <table id="results">
+      <thead>
+        <tr>
+          <th data-sort="institution">Inštitúcia</th>
+          <th data-sort="eval_area">Oblasť</th>
+          <th data-sort="eval_group">Skupina</th>
+          <th data-sort="inst_type">Typ</th>
+          <th data-sort="employees" class="num">Zam</th>
+          <th data-sort="vystupy__top1" class="num">Výst. Top1</th>
+          <th data-sort="vystupy__top2" class="num">Výst. Top2</th>
+          <th data-sort="vystupy__score" class="num">Výst. Skóre</th>
+          <th data-sort="spolocensky_dosah__top1" class="num">SD Top1</th>
+          <th data-sort="spolocensky_dosah__top2" class="num">SD Top2</th>
+          <th data-sort="tvorive_prostredie__top1" class="num">TP Top1</th>
+          <th data-sort="tvorive_prostredie__top2" class="num">TP Top2</th>
+          <th data-sort="celkovy__top1" class="num">Celk Top1</th>
+          <th data-sort="celkovy__top2" class="num">Celk Top2</th>
+          <th data-sort="celkovy__score" class="num">Celk Skóre</th>
+          <th>Profily</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+</div>
+<script>
+const COLORS = {
+  vystupy: ["#2ea043", "#3fb950", "#d29922", "#db6d28", "#8b949e"],
+  spolocensky_dosah: ["#1f6feb", "#58a6ff", "#d29922", "#db6d28", "#8b949e"],
+  tvorive_prostredie: ["#a371f7", "#bc8cff", "#d29922", "#db6d28", "#8b949e"],
+  celkovy: ["#f85149", "#ff7b72", "#d29922", "#db6d28", "#8b949e"],
+};
+
+const state = {
+  raw: [],
+  areaFilter: null,
+  groupFilter: null,
+  typeFilter: null,
+  search: "",
+  minEmp: 0,
+  sortKey: "celkovy__score",
+  sortAsc: false,
+};
+
+let meta = null;
+
+async function load() {
+  const res = await fetch("./data.json");
+  const data = await res.json();
+  meta = data;
+  state.raw = data.institutions;
+  document.getElementById("meta").textContent =
+    `${data.institutions.length} inštitúcií · ${data.eval_areas.length} oblastí hodnotenia · ${data.inst_types.length} typy inštitúcií`;
+  buildFacets();
+  buildSortOptions();
+  render();
+}
+
+function buildFacets() {
+  const counts = (key) => {
+    const m = new Map();
+    for (const r of state.raw) m.set(r[key], (m.get(r[key]) || 0) + 1);
+    return m;
+  };
+  const areaCounts = counts("eval_area");
+  const groupCounts = counts("eval_group");
+
+  const areaList = document.getElementById("area-facet");
+  areaList.innerHTML = "";
+  for (const a of meta.eval_areas) {
+    const li = document.createElement("li");
+    li.dataset.area = a;
+    li.innerHTML = `<span>${a}</span><span class="count">${areaCounts.get(a) || 0}</span>`;
+    li.onclick = () => { state.areaFilter = state.areaFilter === a ? null : a; render(); };
+    areaList.appendChild(li);
+  }
+  const groupList = document.getElementById("group-facet");
+  groupList.innerHTML = "";
+  for (const g of meta.eval_groups) {
+    const li = document.createElement("li");
+    li.dataset.group = g;
+    li.innerHTML = `<span>${g}</span><span class="count">${groupCounts.get(g) || 0}</span>`;
+    li.onclick = () => { state.groupFilter = state.groupFilter === g ? null : g; render(); };
+    groupList.appendChild(li);
+  }
+  document.querySelectorAll("#type-facet li").forEach(li => {
+    li.onclick = () => {
+      const t = li.dataset.type;
+      state.typeFilter = state.typeFilter === t ? null : t;
+      render();
+    };
+  });
+}
+
+function buildSortOptions() {
+  const sel = document.getElementById("sort-key");
+  sel.innerHTML = "";
+  const groups = [
+    ["vystupy", "Výstupy"],
+    ["spolocensky_dosah", "Spoločenský dosah"],
+    ["tvorive_prostredie", "Tvorivé prostredie"],
+    ["celkovy", "Celkový profil"],
+  ];
+  for (const [slug, label] of groups) {
+    const og = document.createElement("optgroup");
+    og.label = label;
+    for (const k of ["top1", "top2", "score"]) {
+      const opt = document.createElement("option");
+      opt.value = `${slug}__${k}`;
+      opt.textContent = k === "score" ? `${label}: skóre` : `${label}: ${k}`;
+      if (opt.value === state.sortKey) opt.selected = true;
+      og.appendChild(opt);
+    }
+    sel.appendChild(og);
+  }
+}
+
+function applyFilters() {
+  return state.raw.filter(r => {
+    if (state.areaFilter && r.eval_area !== state.areaFilter) return false;
+    if (state.groupFilter && r.eval_group !== state.groupFilter) return false;
+    if (state.typeFilter && r.inst_type !== state.typeFilter) return false;
+    if (state.minEmp && (r.employees || 0) < state.minEmp) return false;
+    if (state.search && !r.institution.toLowerCase().includes(state.search.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function sortRows(rows) {
+  const k = state.sortKey;
+  const lower = k.endsWith("__score");
+  const dir = (state.sortAsc && !lower) || (!state.sortAsc && lower) ? 1 : -1;
+  return rows.slice().sort((a, b) => {
+    const av = a[k] ?? (lower ? 99 : -1);
+    const bv = b[k] ?? (lower ? 99 : -1);
+    return (av - bv) * dir;
+  });
+}
+
+function heatmap(slug, pcts) {
+  const cols = COLORS[slug];
+  const html = pcts.map((p, i) =>
+    `<span class="seg" style="width:${(p / 100) * 24}px;background:${cols[i]}" title="${meta.profile_meta[slug].levels[i]}: ${p ?? 0}%"></span>`
+  ).join("");
+  return `<div class="heatmap">${html}</div>`;
+}
+
+function fmtPct(v) { return v == null ? "–" : v.toFixed(1) + "%"; }
+function fmtScore(v) { return v == null ? "–" : v.toFixed(2); }
+
+function render() {
+  document.querySelectorAll("#area-facet li").forEach(li => li.classList.toggle("active", li.dataset.area === state.areaFilter));
+  document.querySelectorAll("#group-facet li").forEach(li => li.classList.toggle("active", li.dataset.group === state.groupFilter));
+  document.querySelectorAll("#type-facet li").forEach(li => li.classList.toggle("active", li.dataset.type === state.typeFilter));
+
+  document.querySelectorAll("th[data-sort]").forEach(th => {
+    th.classList.toggle("active", th.dataset.sort === state.sortKey);
+    th.querySelector(".arrow")?.remove();
+    if (th.dataset.sort === state.sortKey) {
+      const a = document.createElement("span");
+      a.className = "arrow";
+      a.textContent = state.sortAsc ? "▲" : "▼";
+      th.appendChild(a);
+    }
+  });
+
+  const rows = sortRows(applyFilters());
+  const tbody = document.querySelector("#results tbody");
+  tbody.innerHTML = "";
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${r.institution}</strong><span class="group">${r.inst_level}</span></td>
+      <td>${r.eval_area}</td>
+      <td>${r.eval_group}</td>
+      <td><span class="pill ${r.inst_type === "VVI" ? "vvi" : "vvs"}">${r.inst_type}</span></td>
+      <td class="num">${r.employees ?? "–"}</td>
+      <td class="pct">${fmtPct(r.vystupy__top1)}</td>
+      <td class="pct">${fmtPct(r.vystupy__top2)}</td>
+      <td class="pct">${fmtScore(r.vystupy__score)}</td>
+      <td class="pct">${fmtPct(r.spolocensky_dosah__top1)}</td>
+      <td class="pct">${fmtPct(r.spolocensky_dosah__top2)}</td>
+      <td class="pct">${fmtPct(r.tvorive_prostredie__top1)}</td>
+      <td class="pct">${fmtPct(r.tvorive_prostredie__top2)}</td>
+      <td class="pct">${fmtPct(r.celkovy__top1)}</td>
+      <td class="pct">${fmtPct(r.celkovy__top2)}</td>
+      <td class="pct">${fmtScore(r.celkovy__score)}</td>
+      <td>${heatmap("vystupy", [r["vystupy__Svetová"], r["vystupy__Významná medzinárodná"], r["vystupy__Medzinárodná"], r["vystupy__Národná"], r["vystupy__Nezaradené"]])}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+  document.getElementById("stat").textContent = `Zobrazených: ${rows.length} / ${state.raw.length}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  load();
+  document.getElementById("search").addEventListener("input", e => { state.search = e.target.value; render(); });
+  document.getElementById("min-emp").addEventListener("input", e => { state.minEmp = parseInt(e.target.value) || 0; render(); });
+  document.getElementById("sort-key").addEventListener("change", e => { state.sortKey = e.target.value; render(); });
+  document.getElementById("sort-asc").addEventListener("change", e => { state.sortAsc = e.target.checked; render(); });
+  document.querySelectorAll("th[data-sort]").forEach(th => {
+    th.addEventListener("click", () => {
+      if (state.sortKey === th.dataset.sort) state.sortAsc = !state.sortAsc;
+      else { state.sortKey = th.dataset.sort; state.sortAsc = false; }
+      render();
+    });
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+"""Tests for the VER 2026 loader and sort/filter helpers."""
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from ver2026 import filter_rows, load, sort_rows
+
+DATA = Path(__file__).resolve().parent.parent / "data" / "VER2026data.xlsx"
+
+
+@pytest.fixture(scope="module")
+def data():
+    return load(DATA)
+
+
+def test_load_returns_all_270_institutions(data):
+    assert len(data) == 270
+
+
+def test_profiles_are_populated(data):
+    # Every row should have 4 profiles × 5 levels each.
+    for r in data:
+        assert set(r.profiles.keys()) == {"vystupy", "spolocensky_dosah", "tvorive_prostredie", "celkovy"}
+        for slug, levels in r.profiles.items():
+            assert len(levels) == 5, f"{r.institution} {slug} has {len(levels)} levels"
+            assert all(0 <= (p or 0) <= 100 for p in levels)
+
+
+def test_score_lower_is_better(data):
+    # The institution with the highest % world-class outputs should have the
+    # lowest (best) vystupy score among rows where any outputs are scored.
+    scored = sorted(data, key=lambda r: r.score("vystupy"))
+    best = scored[0]
+    worst = scored[-1]
+    assert best.score("vystupy") <= worst.score("vystupy")
+
+
+def test_filter_by_area(data):
+    chem = filter_rows(data, eval_area="Chemické vedy")
+    assert all(r.eval_area == "Chemické vedy" for r in chem)
+    assert len(chem) > 0
+
+
+def test_filter_by_type_vvi(data):
+    vvi = filter_rows(data, inst_type="VVI")
+    assert all(r.inst_type == "VVI" for r in vvi)
+    assert len(vvi) == 48
+
+
+def test_filter_by_contains(data):
+    sav = filter_rows(data, institution_contains="akadémie vied")
+    assert all("akadémie vied" in r.institution.lower() for r in sav)
+    assert len(sav) > 0
+
+
+def test_sort_by_overall_score_ascending(data):
+    rows = sort_rows(data, by="celkovy__score", descending=False)
+    # First rows should have the lowest (best) scores.
+    assert rows[0].score("celkovy") <= rows[-1].score("celkovy")
+
+
+def test_top1_sums_correctly(data):
+    # For the vystupy profile, top1 + top2 = sum of first two levels.
+    r = data[0]
+    assert r.top_pct("vystupy") == r.profiles["vystupy"][0]
+    assert r.top_two_pct("vystupy") == r.profiles["vystupy"][0] + r.profiles["vystupy"][1]
