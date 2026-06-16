@@ -357,6 +357,12 @@
     box-shadow: var(--shadow);
   }
 
+  .filter-panel-head {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
   .filter-block + .filter-block {
     margin-top: 14px;
     padding-top: 14px;
@@ -891,6 +897,9 @@
 
   <section class="workspace" aria-labelledby="browser-title">
     <aside id="filters-panel">
+      <div class="filter-panel-head">
+        <button class="btn secondary small" type="button" id="toggle-filters" aria-controls="filters-panel" aria-expanded="true">Skryť filtre</button>
+      </div>
       <div class="filter-block">
         <label for="search">Hľadať inštitúciu</label>
         <input type="search" id="search" placeholder="Napr. Komenského, SAV..." />
@@ -937,7 +946,6 @@
           <h2 id="browser-title">Prehliadač inštitúcií</h2>
         </div>
         <div class="toolbar-actions">
-          <button class="btn secondary small" type="button" id="toggle-filters" aria-controls="filters-panel" aria-expanded="true">Skryť filtre</button>
           <div class="stat" id="stat"></div>
         </div>
       </div>
