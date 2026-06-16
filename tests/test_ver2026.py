@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from ver2026 import filter_rows, load, sort_rows
+from ver2026.cli import main
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "VER2026data.xlsx"
 
@@ -84,6 +85,14 @@ def test_sort_by_top_two_per_100_employees(data):
     assert ranked[0].top_two_per_100_employees("celkovy") >= ranked[-1].top_two_per_100_employees(
         "celkovy"
     )
+
+
+def test_efficiency_cli_outputs_reproducible_table(capsys):
+    rc = main(["efficiency", "--limit", "3"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "CTop2/100zam" in out
+    assert "Ústav orientalistiky Slovenskej akadémie vied" in out
 
 
 def test_fmfi_summary_values_match_reference_table(data):

@@ -32,6 +32,9 @@ uv run ver2026 top --area "Informačné a komunikačné vedy" --by vystupy__Svet
 # All VVI (Slovak Academy) institutes, sorted by overall quality (best first)
 uv run ver2026 list --type VVI --by celkovy__score --limit 20
 
+# Headcount-efficiency proxy: overall top-two profile per 100 employees
+uv run ver2026 efficiency --min-employees 10 --limit 20
+
 # Export filtered+sorted rows as JSON for downstream tooling
 uv run ver2026 top --area "Chemické vedy" --by celkovy__score --json --limit 5
 ```

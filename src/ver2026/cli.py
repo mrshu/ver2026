@@ -30,6 +30,10 @@ def _fmt_int(v):
     return f"{v:>4}" if v is not None else "  - "
 
 
+def _fmt_float(v):
+    return f"{v:6.1f}" if v is not None else "   -  "
+
+
 def render_table(rows, *, columns=None) -> str:
     """Pretty-print a slice of institutions as a fixed-width table."""
     if columns is None:
@@ -118,6 +122,38 @@ def cmd_metrics(args) -> int:
     return 0
 
 
+def cmd_efficiency(args) -> int:
+    data = load(args.data)
+    rows = filter_rows(
+        data,
+        eval_area=args.area,
+        eval_group=args.group,
+        inst_type=args.type,
+        min_employees=args.min_employees,
+        institution_contains=args.contains,
+    )
+    rows = sort_rows(rows, by=args.by, descending=not args.ascending)
+    rows = rows[: args.limit]
+    if args.json:
+        print(json.dumps([r.as_dict() for r in rows], ensure_ascii=False, indent=2))
+    else:
+        print(render_table(rows, columns=[
+            ("area", "Oblasť", lambda r: r.eval_area),
+            ("institution", "Inštitúcia", lambda r: r.institution),
+            ("level", "Úroveň", lambda r: r.inst_level),
+            ("type", "Typ", lambda r: r.inst_type),
+            ("emp", "Zam", lambda r: _fmt_int(r.employees)),
+            ("c2", "CTop2%", lambda r: _fmt_pct(r.top_two_pct("celkovy"))),
+            (
+                "eff",
+                "CTop2/100zam",
+                lambda r: _fmt_float(r.top_two_per_100_employees("celkovy")),
+            ),
+            ("cs", "CScore", lambda r: f"{r.score('celkovy'):.2f}"),
+        ]))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--data", default=str(DEFAULT_DATA), help="Path to VER2026data.xlsx")
@@ -137,6 +173,14 @@ def build_parser() -> argparse.ArgumentParser:
     for name, fn in [("top", cmd_top), ("list", cmd_list)]:
         sp = sub.add_parser(name, parents=[common], help=fn.__doc__)
         sp.set_defaults(func=fn)
+
+    sp = sub.add_parser(
+        "efficiency",
+        parents=[common],
+        help="Rank institutions by top-two profile per 100 employees",
+    )
+    sp.set_defaults(func=cmd_efficiency)
+    sp.set_defaults(by="celkovy__top2_per_100_emp", min_employees=10, limit=20)
 
     sp = sub.add_parser("summary", help="Print counts and unique values")
     sp.set_defaults(func=cmd_summary)

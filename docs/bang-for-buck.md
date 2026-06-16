@@ -13,17 +13,17 @@ For each profile, the generated JSON includes:
 <profile>__top2_per_100_emp = <profile>__top2 * 100 / employees
 ```
 
-For the main website table and the summary analysis, the most useful version is
+For the website and CLI leaderboard, the default metric is
 `celkovy__top2_per_100_emp`: overall top-two quality profile percentage points
 per 100 employees.
 
 ## Interpretation
 
 Higher values mean a smaller evaluated unit achieved a higher share of
-excellent or very good overall profile. That can be useful for spotting compact
+excellent or very good overall profile. This is useful for spotting compact
 teams that perform well, but it has two important limitations:
 
-- It is sensitive to very small headcounts, so the homepage summary uses a
+- It is sensitive to very small headcounts, so the default leaderboard uses a
   minimum of 10 employees.
 - It does not measure money. If budget or grant-spend data becomes available,
   this metric should be replaced or complemented by a real cost-normalized
@@ -31,55 +31,52 @@ teams that perform well, but it has two important limitations:
 
 ## Reproducing the ranking
 
-The website computes the top table from `web/data.json`, limited to the three
-FMFI-related areas:
-
-- Matematické vedy
-- Fyzikálne vedy
-- Informačné a komunikačné vedy
-
-The same idea can be reproduced from the CLI:
+The homepage leaderboard is reproducible from the CLI:
 
 ```bash
-uv run ver2026 list \
-  --area "Informačné a komunikačné vedy" \
-  --min-employees 10 \
-  --by celkovy__top2_per_100_emp \
-  --limit 10
+uv run ver2026 efficiency
 ```
 
-For all areas, omit `--area`. For a stricter comparison, raise
-`--min-employees`.
+That command is equivalent to:
 
-## Current readout for FMFI-related areas
+```bash
+uv run ver2026 efficiency \
+  --min-employees 10 \
+  --by celkovy__top2_per_100_emp \
+  --limit 20
+```
 
-Using a minimum of 10 employees, the proxy gives this interpretation:
+Useful variants:
 
-- In **Matematické vedy**, FMFI UK is 2nd of 5 sizeable evaluated units by
-  headcount efficiency. It has the strongest absolute overall profile in the
-  area, but UPJŠ Košice gets more profile percentage points per employee
-  because it is much smaller.
-- In **Fyzikálne vedy**, FMFI UK is 1st by absolute overall profile but 6th of
-  6 sizeable evaluated units by the per-head proxy. This is the clearest case
-  where scale changes the story: FMFI has 109 employees in this area.
-- In **Informačné a komunikačné vedy**, FMFI UK is 4th by absolute overall
-  profile and 8th of 13 sizeable evaluated units by the per-head proxy. Compact
-  institutions such as UCM Trnava and UPJŠ Košice rank higher on this proxy.
+```bash
+# One evaluation area only
+uv run ver2026 efficiency --area "Informačné a komunikačné vedy"
 
-Top entries by `celkovy__top2_per_100_emp`:
+# Stricter minimum size
+uv run ver2026 efficiency --min-employees 25
 
-| Oblasť | # | Inštitúcia | Zam. | Celkový 1+2 | Efektivita / 100 zam. |
-|--------|---|------------|------|-------------|------------------------|
-| Matematické vedy | 1 | Univerzita Pavla Jozefa Šafárika v Košiciach | 21 | 33.6 % | 160.0 |
-| Matematické vedy | 2 | Univerzita Komenského v Bratislave / FMFI | 53 | 75.7 % | 142.9 |
-| Matematické vedy | 3 | Matematický ústav SAV, v. v. i. | 27 | 36.5 % | 135.0 |
-| Fyzikálne vedy | 1 | Univerzita Pavla Jozefa Šafárika v Košiciach | 42 | 51.3 % | 122.3 |
-| Fyzikálne vedy | 2 | Slovenská technická univerzita v Bratislave | 42 | 48.5 % | 115.6 |
-| Fyzikálne vedy | 3 | Astronomický ústav SAV, v. v. i. | 26 | 27.1 % | 104.2 |
-| Informačné a komunikačné vedy | 1 | Univerzita sv. Cyrila a Metoda v Trnave | 11 | 66.4 % | 603.6 |
-| Informačné a komunikačné vedy | 2 | Univerzita Pavla Jozefa Šafárika v Košiciach | 16 | 47.7 % | 298.1 |
-| Informačné a komunikačné vedy | 3 | Univerzita Mateja Bela v Banskej Bystrici | 10 | 28.1 % | 280.5 |
+# Machine-readable output for notebooks or spreadsheets
+uv run ver2026 efficiency --json --limit 270
+```
 
-The ICT numbers show why the metric should be read as a prompt for further
-inspection rather than a final ranking. An 11-person evaluated unit with a good
-profile will naturally score very high per employee.
+## Current dataset-wide readout
+
+Using the default minimum of 10 employees, the top entries by
+`celkovy__top2_per_100_emp` are:
+
+| # | Oblasť | Inštitúcia | Zam. | Celkový 1+2 | Efektivita / 100 zam. |
+|---|--------|------------|------|-------------|------------------------|
+| 1 | Historické vedy | Ústav orientalistiky SAV, v. v. i. | 10 | 92.8 % | 928.0 |
+| 2 | Politické vedy | Univerzita Komenského v Bratislave / Fakulta sociálnych a ekonomických vied | 10 | 76.0 % | 760.0 |
+| 3 | Historické vedy | Univerzita Pavla Jozefa Šafárika v Košiciach / Filozofická fakulta | 12 | 85.6 % | 713.3 |
+| 4 | Filológia | Katolícka univerzita v Ružomberku / Filozofická fakulta | 11 | 78.2 % | 710.9 |
+| 5 | Historické vedy | Centrum spoločenských a psychologických vied SAV, v. v. i. | 12 | 78.2 % | 651.7 |
+| 6 | Historické vedy | Univerzita Mateja Bela v Banskej Bystrici / Filozofická fakulta | 11 | 68.6 % | 623.6 |
+| 7 | Psychológia | Univerzita Komenského v Bratislave / Fakulta sociálnych a ekonomických vied | 10 | 61.6 % | 616.0 |
+| 8 | Historické vedy | Trnavská univerzita v Trnave / Filozofická fakulta | 12 | 73.6 % | 613.3 |
+| 9 | Politické vedy | Univerzita Komenského v Bratislave / Filozofická fakulta | 10 | 61.2 % | 612.0 |
+| 10 | Filológia | Prešovská univerzita v Prešove / Centrum jazykov a kultúr národnostných menšín | 10 | 60.8 % | 608.0 |
+
+This readout shows the main behavior of the proxy: it strongly rewards compact
+evaluated units. For broader institutional comparisons, rerun the same command
+with a larger `--min-employees` threshold.

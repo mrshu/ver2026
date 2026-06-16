@@ -567,7 +567,7 @@
         <p class="eyebrow">Bang for the buck</p>
         <h2 id="efficiency-title">Kto dosahuje najviac profilu na počet ľudí</h2>
       </div>
-      <p class="hint">Proxy metrika, nie finančné ROI: dataset neobsahuje rozpočty.</p>
+      <p class="hint">Celá databáza, min. 10 zamestnancov. Proxy metrika, nie finančné ROI.</p>
     </div>
     <div class="efficiency-layout">
       <div class="method-box">
@@ -578,9 +578,9 @@
         </p>
         <code>celkový profil 1+2 × 100 / počet zamestnancov</code>
         <p class="note">
-          Tabuľka používa minimálne 10 zamestnancov, aby ju nedeformovali
-          úplne malé hodnotené jednotky. V prehliadači nižšie sa dá prah
-          nastaviť ručne.
+          Tabuľka používa celú databázu a minimálne 10 zamestnancov, aby ju
+          nedeformovali úplne malé hodnotené jednotky. Rovnaké poradie
+          reprodukuje príkaz <code>uv run ver2026 efficiency</code>.
         </p>
       </div>
       <div class="table-wrap">
@@ -833,7 +833,7 @@ function renderFmfiSummary() {
 
 function renderEfficiencySummary() {
   const rows = state.raw
-    .filter((row) => FMFI_AREAS.includes(row.eval_area) && (row.employees || 0) >= 10)
+    .filter((row) => (row.employees || 0) >= 10)
     .slice()
     .sort(compareBy("celkovy__top2_per_100_emp", false))
     .slice(0, 10);
