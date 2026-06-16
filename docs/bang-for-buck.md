@@ -1,9 +1,9 @@
-# Bang-for-buck analysis
+# Veľkostne normalizovaná analýza
 
 The VER 2026 XLSX does not include budgets, grant income, operating cost, or
 salary cost. The only resource-like denominator in the dataset is `Počet
-zamestnancov`, so this analysis uses a headcount-efficiency proxy rather than
-financial ROI.
+zamestnancov`, so this analysis uses a size-normalized headcount proxy rather
+than financial ROI.
 
 ## Metric
 
@@ -21,7 +21,7 @@ per 100 employees.
 
 Higher values mean a smaller evaluated unit achieved a higher share of
 excellent or very good overall profile. This is useful for spotting compact
-teams that perform well, but it has two important limitations:
+workplaces that perform well, but it has two important limitations:
 
 - It is sensitive to very small headcounts, so the default leaderboard uses a
   minimum of 10 employees.
@@ -58,6 +58,25 @@ uv run ver2026 efficiency --min-employees 25
 # Machine-readable output for notebooks or spreadsheets
 uv run ver2026 efficiency --json --limit 270
 ```
+
+The web viewer also stores filters in the URL. The supported query parameters
+are:
+
+- `q` - text search across institution name, institutional level, and area
+- `area` - exact evaluation area
+- `type` - `VVŠ` or `VVI`
+- `min_emp` - minimum employee count
+- `sort` - any generated metric key, for example `celkovy__top2_per_100_emp`
+- `dir` - `asc` or `desc`
+
+Example:
+
+```text
+http://localhost:8766/?q=Fakulta%20matematiky%2C%20fyziky%20a%20informatiky&sort=eval_area
+```
+
+That URL recreates a specific filtered table without changing the default page
+focus.
 
 ## Current dataset-wide readout
 

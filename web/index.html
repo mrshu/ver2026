@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VER 2026 - FMFI UK a výsledky inštitúcií</title>
+<title>VER 2026 - prehľad výsledkov inštitúcií</title>
 <style>
   :root {
     --paper: #f4f7f8;
@@ -394,12 +394,6 @@
     font-weight: 800;
   }
 
-  .tag.fmfi {
-    border-color: var(--brand);
-    color: var(--brand-dark);
-    background: #f8e7ea;
-  }
-
   .bar-cell {
     min-width: 120px;
   }
@@ -423,8 +417,42 @@
     font-size: 13px;
   }
 
+  .overview {
+    padding: 26px 0 18px;
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .overview-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .overview-card b {
+    display: block;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .overview-card span {
+    display: block;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
   .efficiency {
-    padding: 18px 0 12px;
+    padding: 18px 0 18px;
   }
 
   .efficiency-layout {
@@ -478,7 +506,7 @@
   }
 
   @media (max-width: 900px) {
-    .hero-grid, .workspace, .cards, .efficiency-layout {
+    .hero-grid, .workspace, .cards, .efficiency-layout, .overview-grid {
       grid-template-columns: 1fr;
     }
 
@@ -507,11 +535,11 @@
   <div class="shell hero-grid">
     <div>
       <p class="eyebrow">VER 2026 / výsledky hodnotenia vedy a výskumu</p>
-      <h1>FMFI UK v kontexte slovenských oblastí hodnotenia</h1>
+      <h1>Prehľad výsledkov VER 2026 naprieč inštitúciami</h1>
       <p class="lede">
-        Prehľad reprodukuje súhrnnú tabuľku pre matematické, fyzikálne a
-        informačno-komunikačné vedy a zároveň ponecháva prístup k celej
-        databáze 270 hodnotených inštitúcií.
+        Pracovný prehliadač pre slovenské akademické prostredie: umožňuje
+        porovnať profily kvality, filtrovať podľa oblastí hodnotenia a
+        reprodukovať jednoduchú veľkostne normalizovanú analýzu.
       </p>
     </div>
     <div class="source-box">
@@ -527,60 +555,49 @@
 </header>
 
 <main class="shell">
-  <section class="summary" aria-labelledby="fmfi-title">
+  <section class="overview" aria-labelledby="overview-title">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Súhrnná tabuľka pre oblasti FMFI UK</p>
-        <h2 id="fmfi-title">Tri oblasti, v ktorých bola hodnotená FMFI</h2>
+        <p class="eyebrow">Dataset</p>
+        <h2 id="overview-title">Čo je v prehliadači</h2>
       </div>
-      <p class="hint">Poradie je zoradené podľa najnižšieho skóre celkového profilu kvality.</p>
+      <p class="hint">Zdrojom je lokálny export oficiálneho XLSX súboru.</p>
     </div>
 
-    <div class="cards" id="fmfi-cards"></div>
-
-    <div class="table-wrap">
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th>Oblasť</th>
-            <th class="num">Počet zamestnancov</th>
-            <th class="num">Výstupy 1+2</th>
-            <th class="num">Dosah 1+2</th>
-            <th class="num">Prostredie 1+2</th>
-            <th class="num">Celkový profil 1+2</th>
-            <th class="num">Poradie v oblasti</th>
-          </tr>
-        </thead>
-        <tbody id="fmfi-summary"></tbody>
-      </table>
+    <div class="overview-grid" id="overview-cards">
+      <div class="overview-card"><b>-</b><span>hodnotených žiadostí</span></div>
+      <div class="overview-card"><b>-</b><span>oblastí hodnotenia</span></div>
+      <div class="overview-card"><b>-</b><span>verejné vysoké školy</span></div>
+      <div class="overview-card"><b>-</b><span>verejné výskumné inštitúcie</span></div>
     </div>
     <p class="note">
-      Profil 1+2 je súčet dvoch najvyšších kvalitatívnych úrovní v danom
-      profile. Tabuľka nižšie umožňuje dohľadať každú hodnotenú inštitúciu a
-      porovnať ju v rámci rovnakej oblasti.
+      Profil 1+2 je súčet dvoch najvyšších kvalitatívnych úrovní. Pri výstupoch
+      ide o svetovú a významnú medzinárodnú kvalitu; pri spoločenskom dosahu,
+      tvorivom prostredí a celkovom profile o excelentnú a veľmi dobrú úroveň.
     </p>
   </section>
 
   <section class="efficiency" aria-labelledby="efficiency-title">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Bang for the buck</p>
-        <h2 id="efficiency-title">Kto dosahuje najviac profilu na počet ľudí</h2>
+        <p class="eyebrow">Veľkostne normalizovaný pohľad</p>
+        <h2 id="efficiency-title">Celkový profil 1+2 na 100 zamestnancov</h2>
       </div>
-      <p class="hint">Celá databáza, min. 10 zamestnancov. Proxy metrika, nie finančné ROI.</p>
+      <p class="hint">Celá databáza, min. 10 zamestnancov. Orientačná metrika, nie finančné ROI.</p>
     </div>
     <div class="efficiency-layout">
       <div class="method-box">
         <p>
-          Keďže XLSX obsahuje iba počet zamestnancov, používame
-          <strong>headcount-efficiency</strong>: koľko percentuálnych bodov
-          celkového profilu 1+2 pripadá na 100 zamestnancov.
+          Keďže XLSX neobsahuje rozpočty ani grantové príjmy, používame iba
+          dostupný menovateľ: počet zamestnancov. Metrika ukazuje, koľko
+          percentuálnych bodov celkového profilu 1+2 pripadá na 100
+          zamestnancov.
         </p>
         <code>celkový profil 1+2 × 100 / počet zamestnancov</code>
         <p class="note">
           Tabuľka používa celú databázu a minimálne 10 zamestnancov, aby ju
-          nedeformovali úplne malé hodnotené jednotky. Rovnaké poradie
-          reprodukuje príkaz <code>uv run ver2026 efficiency</code>.
+          nedeformovali úplne malé hodnotené jednotky. Rovnaké poradie sa dá
+          reprodukovať príkazom <code>uv run ver2026 efficiency</code>.
         </p>
       </div>
       <div class="table-wrap">
@@ -629,7 +646,7 @@
         <select id="sort-key"></select>
       </div>
       <div class="filter-block button-row">
-        <button class="btn" type="button" id="fmfi-only">FMFI oblasti</button>
+        <button class="btn" type="button" id="efficiency-sort">Efektivita</button>
         <button class="btn secondary" type="button" id="reset">Reset</button>
       </div>
       <div class="filter-block">
@@ -660,6 +677,7 @@
               <th data-sort="tvorive_prostredie__top2" class="num">Prostredie 1+2</th>
               <th data-sort="celkovy__top2" class="num">Celkový 1+2</th>
               <th data-sort="celkovy__top2_per_100_emp" class="num">Efekt. / 100 zam.</th>
+              <th class="num">Poradie v oblasti</th>
               <th data-sort="celkovy__score" class="num">Skóre</th>
             </tr>
           </thead>
@@ -671,13 +689,6 @@
 </main>
 
 <script>
-const FMFI_LEVEL = "Fakulta matematiky, fyziky a informatiky";
-const FMFI_AREAS = [
-  "Matematické vedy",
-  "Fyzikálne vedy",
-  "Informačné a komunikačné vedy",
-];
-
 const AREA_ACCENTS = {
   "Matematické vedy": "#9b1c31",
   "Fyzikálne vedy": "#1c5a7d",
@@ -690,7 +701,8 @@ const SORT_OPTIONS = [
   ["vystupy__top2", "Výstupy 1+2"],
   ["spolocensky_dosah__top2", "Spoločenský dosah 1+2"],
   ["tvorive_prostredie__top2", "Tvorivé prostredie 1+2"],
-  ["celkovy__top2_per_100_emp", "Bang for buck: celkový 1+2 na 100 zam."],
+  ["celkovy__top2_per_100_emp", "Celkový 1+2 na 100 zamestnancov"],
+  ["eval_area", "Oblasť hodnotenia"],
   ["employees", "Počet zamestnancov"],
   ["institution", "Názov inštitúcie"],
 ];
@@ -703,10 +715,14 @@ const state = {
   minEmp: 0,
   sortKey: "celkovy__score",
   sortAsc: true,
-  fmfiAreasOnly: false,
 };
 
 let meta = null;
+let rankByRequestId = new Map();
+
+function defaultSortAsc(sortKey) {
+  return sortKey === "celkovy__score" || sortKey === "institution" || sortKey === "eval_area";
+}
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
@@ -744,11 +760,6 @@ function rankLabel(rank, total) {
   return `${rank}. ${prep} ${total}`;
 }
 
-function isFmfi(row) {
-  return row.institution === "Univerzita Komenského v Bratislave" &&
-    row.inst_level.includes(FMFI_LEVEL);
-}
-
 function compareBy(key, asc = true) {
   return (a, b) => {
     const av = a[key];
@@ -767,17 +778,17 @@ function areaRows(area) {
   return state.raw.filter((row) => row.eval_area === area);
 }
 
-function fmfiRows() {
-  return FMFI_AREAS.map((area) => {
-    const row = areaRows(area).find(isFmfi);
-    if (!row) return null;
+function buildRankIndex() {
+  rankByRequestId = new Map();
+  for (const area of meta.eval_areas) {
     const ranked = areaRows(area).slice().sort(compareBy("celkovy__score", true));
-    return {
-      ...row,
-      rank: ranked.findIndex((item) => item.request_id === row.request_id) + 1,
-      total: ranked.length,
-    };
-  }).filter(Boolean);
+    ranked.forEach((row, index) => {
+      rankByRequestId.set(row.request_id, {
+        rank: index + 1,
+        total: ranked.length,
+      });
+    });
+  }
 }
 
 function buildControls() {
@@ -800,34 +811,17 @@ function buildControls() {
   `).join("");
 }
 
-function renderFmfiSummary() {
-  const rows = fmfiRows();
-  const cards = document.getElementById("fmfi-cards");
-  cards.innerHTML = rows.map((row) => `
-    <article class="area-card" style="--accent:${AREA_ACCENTS[row.eval_area] || "#9b1c31"}">
-      <h3>${esc(row.eval_area)}</h3>
-      <div class="rank">
-        <strong>${row.rank}.</strong>
-        <span>${rankLabel(row.rank, row.total).replace(`${row.rank}. `, "")} podľa celkového profilu</span>
-      </div>
-      <div class="mini-metrics">
-        <div><b>${pct(row.vystupy__top2)}</b><span>výstupy 1+2</span></div>
-        <div><b>${pct(row.tvorive_prostredie__top2)}</b><span>prostredie 1+2</span></div>
-        <div><b>${pct(row.celkovy__top2)}</b><span>celkový profil</span></div>
-      </div>
-    </article>
-  `).join("");
-
-  document.getElementById("fmfi-summary").innerHTML = rows.map((row) => `
-    <tr class="strong-row">
-      <td><b>${esc(row.eval_area)}</b></td>
-      <td class="num">${row.employees ?? "-"}</td>
-      <td class="num">${pct(row.vystupy__top2)}</td>
-      <td class="num">${pct(row.spolocensky_dosah__top2)}</td>
-      <td class="num">${pct(row.tvorive_prostredie__top2)}</td>
-      <td class="num"><span class="score-pill">${pct(row.celkovy__top2)}</span></td>
-      <td class="num">${rankLabel(row.rank, row.total)}</td>
-    </tr>
+function renderOverview() {
+  const typeCounts = new Map();
+  for (const row of state.raw) typeCounts.set(row.inst_type, (typeCounts.get(row.inst_type) || 0) + 1);
+  const cards = [
+    [state.raw.length, "hodnotených žiadostí"],
+    [meta.eval_areas.length, "oblastí hodnotenia"],
+    [typeCounts.get("VVŠ") || 0, "verejné vysoké školy"],
+    [typeCounts.get("VVI") || 0, "verejné výskumné inštitúcie"],
+  ];
+  document.getElementById("overview-cards").innerHTML = cards.map(([value, label]) => `
+    <div class="overview-card"><b>${value}</b><span>${esc(label)}</span></div>
   `).join("");
 }
 
@@ -840,7 +834,6 @@ function renderEfficiencySummary() {
   const max = Math.max(...rows.map((row) => row.celkovy__top2_per_100_emp || 0), 1);
 
   document.getElementById("efficiency-summary").innerHTML = rows.map((row, index) => {
-    const fmfi = isFmfi(row);
     const width = Math.max(0, Math.min(100, ((row.celkovy__top2_per_100_emp || 0) / max) * 100));
     return `
       <tr>
@@ -848,7 +841,6 @@ function renderEfficiencySummary() {
         <td class="institution">
           <strong>${esc(row.institution)}</strong>
           <span>${esc(row.inst_level)}</span>
-          ${fmfi ? `<span class="tag fmfi">FMFI UK</span>` : ""}
         </td>
         <td>${esc(row.eval_area)}</td>
         <td class="num">${row.employees ?? "-"}</td>
@@ -866,7 +858,6 @@ function renderEfficiencySummary() {
 function applyFilters() {
   const q = state.search.trim().toLocaleLowerCase("sk-SK");
   return state.raw.filter((row) => {
-    if (state.fmfiAreasOnly && !FMFI_AREAS.includes(row.eval_area)) return false;
     if (state.area && row.eval_area !== state.area) return false;
     if (state.type && row.inst_type !== state.type) return false;
     if (state.minEmp && (row.employees || 0) < state.minEmp) return false;
@@ -913,13 +904,12 @@ function renderResults() {
 
   document.querySelector("#results tbody").innerHTML = rows.map((row) => {
     const accent = AREA_ACCENTS[row.eval_area] || "#9b1c31";
-    const fmfi = isFmfi(row);
+    const areaRank = rankByRequestId.get(row.request_id);
     return `
       <tr>
         <td class="institution">
           <strong>${esc(row.institution)}</strong>
           <span>${esc(row.inst_level)}</span>
-          ${fmfi ? `<span class="tag fmfi">FMFI UK</span>` : ""}
         </td>
         <td>${esc(row.eval_area)}</td>
         <td><span class="tag">${esc(row.inst_type)}</span></td>
@@ -929,6 +919,7 @@ function renderResults() {
         <td class="num">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
         <td class="num">${metricCell(row, "celkovy__top2", accent)}</td>
         <td class="num"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
+        <td class="num">${areaRank ? rankLabel(areaRank.rank, areaRank.total) : "-"}</td>
         <td class="num"><strong>${score(row.celkovy__score)}</strong></td>
       </tr>
     `;
@@ -941,14 +932,46 @@ function resetFilters() {
   state.type = "";
   state.minEmp = 0;
   state.sortKey = "celkovy__score";
-  state.sortAsc = true;
-  state.fmfiAreasOnly = false;
+  state.sortAsc = defaultSortAsc(state.sortKey);
   document.getElementById("search").value = "";
   document.getElementById("area-select").value = "";
   document.getElementById("type-select").value = "";
   document.getElementById("min-emp").value = "0";
   document.getElementById("sort-key").value = state.sortKey;
+  writeUrlState();
   renderResults();
+}
+
+function readUrlState() {
+  const params = new URLSearchParams(window.location.search);
+  const sortKeys = new Set(SORT_OPTIONS.map(([key]) => key));
+  state.search = params.get("q") || "";
+  state.area = meta.eval_areas.includes(params.get("area")) ? params.get("area") : "";
+  state.type = meta.inst_types.includes(params.get("type")) ? params.get("type") : "";
+  state.minEmp = parseInt(params.get("min_emp") || "0", 10) || 0;
+  state.sortKey = sortKeys.has(params.get("sort")) ? params.get("sort") : "celkovy__score";
+  state.sortAsc = params.has("dir") ? params.get("dir") !== "desc" : defaultSortAsc(state.sortKey);
+}
+
+function applyStateToControls() {
+  document.getElementById("search").value = state.search;
+  document.getElementById("area-select").value = state.area;
+  document.getElementById("type-select").value = state.type;
+  document.getElementById("min-emp").value = String(state.minEmp);
+  document.getElementById("sort-key").value = state.sortKey;
+}
+
+function writeUrlState() {
+  const params = new URLSearchParams();
+  if (state.search) params.set("q", state.search);
+  if (state.area) params.set("area", state.area);
+  if (state.type) params.set("type", state.type);
+  if (state.minEmp) params.set("min_emp", String(state.minEmp));
+  if (state.sortKey !== "celkovy__score") params.set("sort", state.sortKey);
+  if (!state.sortAsc) params.set("dir", "desc");
+  const query = params.toString();
+  const next = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+  window.history.replaceState(null, "", next);
 }
 
 async function load() {
@@ -959,8 +982,11 @@ async function load() {
     state.raw = meta.institutions;
     document.getElementById("dataset-meta").textContent =
       `${meta.institutions.length} inštitúcií, ${meta.eval_areas.length} oblastí hodnotenia`;
+    readUrlState();
     buildControls();
-    renderFmfiSummary();
+    buildRankIndex();
+    applyStateToControls();
+    renderOverview();
     renderEfficiencySummary();
     renderResults();
   } catch (err) {
@@ -979,30 +1005,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("search").addEventListener("input", (event) => {
     state.search = event.target.value;
+    writeUrlState();
     renderResults();
   });
   document.getElementById("area-select").addEventListener("change", (event) => {
     state.area = event.target.value;
-    state.fmfiAreasOnly = false;
+    writeUrlState();
     renderResults();
   });
   document.getElementById("type-select").addEventListener("change", (event) => {
     state.type = event.target.value;
+    writeUrlState();
     renderResults();
   });
   document.getElementById("min-emp").addEventListener("input", (event) => {
     state.minEmp = parseInt(event.target.value, 10) || 0;
+    writeUrlState();
     renderResults();
   });
   document.getElementById("sort-key").addEventListener("change", (event) => {
     state.sortKey = event.target.value;
-    state.sortAsc = state.sortKey === "celkovy__score" || state.sortKey === "institution";
+    state.sortAsc = defaultSortAsc(state.sortKey);
+    writeUrlState();
     renderResults();
   });
-  document.getElementById("fmfi-only").addEventListener("click", () => {
-    state.fmfiAreasOnly = true;
-    state.area = "";
-    document.getElementById("area-select").value = "";
+  document.getElementById("efficiency-sort").addEventListener("click", () => {
+    state.sortKey = "celkovy__top2_per_100_emp";
+    state.sortAsc = false;
+    document.getElementById("sort-key").value = state.sortKey;
+    writeUrlState();
     renderResults();
   });
   document.getElementById("reset").addEventListener("click", resetFilters);
@@ -1010,8 +1041,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const button = event.target.closest("button[data-area]");
     if (!button) return;
     state.area = state.area === button.dataset.area ? "" : button.dataset.area;
-    state.fmfiAreasOnly = false;
     document.getElementById("area-select").value = state.area;
+    writeUrlState();
     renderResults();
   });
   document.querySelectorAll("th[data-sort]").forEach((th) => {
@@ -1020,9 +1051,10 @@ document.addEventListener("DOMContentLoaded", () => {
         state.sortAsc = !state.sortAsc;
       } else {
         state.sortKey = th.dataset.sort;
-        state.sortAsc = state.sortKey === "celkovy__score" || state.sortKey === "institution";
+        state.sortAsc = defaultSortAsc(state.sortKey);
         document.getElementById("sort-key").value = state.sortKey;
       }
+      writeUrlState();
       renderResults();
     });
   });

@@ -1,16 +1,18 @@
-# FMFI UK summary view
+# Reproducing the FMFI UK reference rows
 
-The web viewer opens with a focused summary for the three VER 2026 evaluation
-areas where FMFI UK appears:
+The web viewer is intentionally not FMFI-specific. The FMFI UK reference rows
+can still be reproduced with a URL filter or from the Python loader. They are
+the three VER 2026 evaluation areas where the institution level contains
+`Fakulta matematiky, fyziky a informatiky`:
 
 - Matematické vedy
 - Fyzikálne vedy
 - Informačné a komunikačné vedy
 
-The summary is computed in the browser from `web/data.json`; the values are not
-hard-coded from the email screenshot. A row is treated as FMFI UK when the
-institution is `Univerzita Komenského v Bratislave` and the institution level
-contains `Fakulta matematiky, fyziky a informatiky`.
+The values are computed from `web/data.json`; they are not hard-coded from the
+email screenshot. A row is treated as FMFI UK when the institution is
+`Univerzita Komenského v Bratislave` and the institution level contains
+`Fakulta matematiky, fyziky a informatiky`.
 
 ## Reproduced fields
 
@@ -39,3 +41,9 @@ python3 -m http.server 8765
 
 Open <http://localhost:8765/>. The browser needs an HTTP server because the page
 fetches `data.json`.
+
+To recreate the filtered browser table directly:
+
+```text
+http://localhost:8765/?q=Fakulta%20matematiky%2C%20fyziky%20a%20informatiky&sort=eval_area
+```

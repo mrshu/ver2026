@@ -13,8 +13,8 @@ fields) is bundled here as `data/VER2026data.xlsx`. This repo gives you:
   results as JSON.
 - A static web viewer (`web/index.html`) that lets you slice, sort, and search
   the full dataset in the browser — no build step, no server, no framework.
-- A focused FMFI UK summary that reproduces the three-area table shared in the
-  faculty email and links it to the full browseable dataset.
+- A static Slovak-language dashboard with a dataset-wide headcount-normalized
+  view and URL-reproducible filters for sharing specific comparisons.
 
 ## Quick start
 
@@ -32,7 +32,7 @@ uv run ver2026 top --area "Informačné a komunikačné vedy" --by vystupy__Svet
 # All VVI (Slovak Academy) institutes, sorted by overall quality (best first)
 uv run ver2026 list --type VVI --by celkovy__score --limit 20
 
-# Headcount-efficiency proxy: overall top-two profile per 100 employees
+# Size-normalized proxy: overall top-two profile per 100 employees
 uv run ver2026 efficiency --min-employees 10 --limit 20
 
 # Export filtered+sorted rows as JSON for downstream tooling
@@ -110,8 +110,8 @@ spend, project IDs, or evaluator comments), the loader in
 
 ```
 data/VER2026data.xlsx      # The official dataset, 270 institutions × 28 columns
-docs/bang-for-buck.md      # Headcount-efficiency analysis notes
-docs/fmfi-summary.md       # How the FMFI UK summary view is reproduced
+docs/bang-for-buck.md      # Size-normalized analysis notes
+docs/fmfi-summary.md       # How the FMFI UK reference rows are reproduced
 src/ver2026/
   __init__.py              # Loader, Institution dataclass, filter/sort helpers
   cli.py                   # `ver2026` entry point (summary / list / top / metrics)
