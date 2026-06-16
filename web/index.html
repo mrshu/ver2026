@@ -262,6 +262,14 @@
     padding: 22px 0 40px;
   }
 
+  .workspace.filters-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .workspace.filters-collapsed aside {
+    display: none;
+  }
+
   aside {
     align-self: start;
     position: sticky;
@@ -354,9 +362,31 @@
     margin-bottom: 12px;
   }
 
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   .stat {
     color: var(--muted);
     font-size: 13px;
+  }
+
+  .btn.small {
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+
+  .filter-return {
+    display: none;
+    margin-bottom: 10px;
+  }
+
+  .workspace.filters-collapsed .filter-return {
+    display: inline-flex;
   }
 
   .results th[data-sort] {
@@ -686,7 +716,7 @@
   </section>
 
   <section class="workspace" aria-labelledby="browser-title">
-    <aside>
+    <aside id="filters-panel">
       <div class="filter-block">
         <label for="search">Hľadať inštitúciu</label>
         <input type="search" id="search" placeholder="Napr. Komenského, SAV..." />
@@ -726,12 +756,16 @@
     </aside>
 
     <div>
+      <button class="btn secondary small filter-return" type="button" id="show-filters">Zobraziť filtre</button>
       <div class="toolbar">
         <div>
           <p class="eyebrow">Databáza výsledkov</p>
           <h2 id="browser-title">Prehliadač inštitúcií</h2>
         </div>
-        <div class="stat" id="stat"></div>
+        <div class="toolbar-actions">
+          <button class="btn secondary small" type="button" id="toggle-filters" aria-controls="filters-panel" aria-expanded="true">Skryť filtre</button>
+          <div class="stat" id="stat"></div>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -1015,6 +1049,20 @@ function readUrlState() {
   state.sortAsc = params.has("dir") ? params.get("dir") !== "desc" : defaultSortAsc(state.sortKey);
 }
 
+function shouldScrollToResultsOnLoad() {
+  if (window.location.hash) return false;
+
+  const params = new URLSearchParams(window.location.search);
+  const sortKeys = new Set(SORT_OPTIONS.map(([key]) => key));
+  if (params.get("q")) return true;
+  if (meta.eval_areas.includes(params.get("area"))) return true;
+  if (meta.eval_groups.includes(params.get("group"))) return true;
+  if (meta.inst_types.includes(params.get("type"))) return true;
+  if ((parseInt(params.get("min_emp") || "0", 10) || 0) > 0) return true;
+  if (sortKeys.has(params.get("sort"))) return true;
+  return params.get("dir") === "desc";
+}
+
 function applyStateToControls() {
   document.getElementById("search").value = state.search;
   document.getElementById("area-select").value = state.area;
@@ -1038,12 +1086,23 @@ function writeUrlState() {
   window.history.replaceState(null, "", next);
 }
 
+function setFiltersCollapsed(collapsed) {
+  const workspace = document.querySelector(".workspace");
+  workspace.classList.toggle("filters-collapsed", collapsed);
+  document.getElementById("toggle-filters").textContent = collapsed ? "Zobraziť filtre" : "Skryť filtre";
+  document.getElementById("toggle-filters").setAttribute("aria-expanded", String(!collapsed));
+  try {
+    localStorage.setItem("ver2026.filtersCollapsed", collapsed ? "1" : "0");
+  } catch {}
+}
+
 async function load() {
   try {
     const res = await fetch("./data.json");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     meta = await res.json();
     state.raw = meta.institutions;
+    const scrollToResults = shouldScrollToResultsOnLoad();
     readUrlState();
     buildControls();
     buildRankIndex();
@@ -1051,6 +1110,11 @@ async function load() {
     renderOverview();
     renderPresetChips();
     renderResults();
+    if (scrollToResults) {
+      requestAnimationFrame(() => {
+        document.getElementById("browser-title").scrollIntoView({ block: "start" });
+      });
+    }
   } catch (err) {
     document.querySelector("main").insertAdjacentHTML("afterbegin", `
       <div class="error">
@@ -1064,6 +1128,9 @@ async function load() {
 
 document.addEventListener("DOMContentLoaded", () => {
   load();
+  try {
+    setFiltersCollapsed(localStorage.getItem("ver2026.filtersCollapsed") === "1");
+  } catch {}
 
   document.getElementById("search").addEventListener("input", (event) => {
     state.search = event.target.value;
@@ -1118,6 +1185,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   document.getElementById("reset").addEventListener("click", resetFilters);
+  document.getElementById("toggle-filters").addEventListener("click", () => {
+    const collapsed = document.querySelector(".workspace").classList.contains("filters-collapsed");
+    setFiltersCollapsed(!collapsed);
+  });
+  document.getElementById("show-filters").addEventListener("click", () => {
+    setFiltersCollapsed(false);
+  });
   document.getElementById("area-list").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-area]");
     if (!button) return;
