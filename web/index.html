@@ -599,12 +599,11 @@
       </p>
     </div>
     <div class="source-box">
-      <strong id="dataset-meta">Načítavam dáta...</strong>
+      <strong>Ako čítať porovnania</strong>
       <p>
-        Hodnoty sú počítané z lokálneho súboru <code>web/data.json</code>.
-        Kategórie 1 + 2 pri výstupoch znamenajú svetovú a významnú
-        medzinárodnú kvalitu; pri ostatných profiloch excelentnú a veľmi
-        dobrú úroveň.
+        Najpraktickejšie je porovnávať pracoviská v rovnakej oblasti
+        hodnotenia. Stĺpce 1+2 ukazujú podiel výsledkov alebo profilov v dvoch
+        najvyšších kvalitatívnych úrovniach; skóre 1,00 je najlepšie.
       </p>
     </div>
   </div>
@@ -1042,8 +1041,6 @@ async function load() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     meta = await res.json();
     state.raw = meta.institutions;
-    document.getElementById("dataset-meta").textContent =
-      `${meta.institutions.length} inštitúcií, ${meta.eval_areas.length} oblastí hodnotenia`;
     readUrlState();
     buildControls();
     buildRankIndex();
