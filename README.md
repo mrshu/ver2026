@@ -5,8 +5,9 @@ dataset — Slovakia's periodic review of research, development, artistic and
 other creative activity at universities and Slovak Academy institutes.
 
 The official results are published at <https://ver.cvtisr.sk/vysledky/>. The
-underlying XLSX (`VER2026data`, 270 evaluated institutions, 28 evaluation
-fields) is bundled here as `data/VER2026data.xlsx`. This repo gives you:
+Ministry XLSX is published at
+<https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx> and bundled here as
+`data/VER2026data.xlsx`. This repo gives you:
 
 - A Python package with a clean loader and a sortable dataclass model.
 - A command-line tool (`ver2026`) for filtering, sorting, and exporting
@@ -36,6 +37,9 @@ uv run ver2026 list --type VVI --by celkovy__score --limit 20
 
 # Size-normalized proxy: overall top-two profile per 100 employees
 uv run ver2026 efficiency --min-employees 10 --limit 20
+
+# Money-normalized proxy: overall top-two profile per EUR 1M of funding
+uv run ver2026 money --min-employees 10 --limit 20
 
 # Export filtered+sorted rows as JSON for downstream tooling
 uv run ver2026 top --area "Chemické vedy" --by celkovy__score --json --limit 5
@@ -72,8 +76,17 @@ For each profile you can sort by:
 - `<slug>__top2` — the percentage at the top two levels.
 - `<slug>__top2_per_100_emp` — top-two percentage points per 100 employees.
   This is a headcount-efficiency proxy, not a financial ROI metric.
+- `<slug>__top2_per_million_eur` — top-two percentage points per EUR 1M of
+  official 2020-2024 financing. This is a derived analysis column, not an
+  official VER metric.
 - `<slug>__<LevelName>` — the percentage at one specific level (e.g.
   `vystupy__Svetová` for the % of world-class outputs).
+
+The official interactive results also expose:
+
+- `financing_eur` — "Financovanie" from the official website. The VER
+  explanation defines it as the total volume of research funding in 2020-2024.
+- `financing_per_employee_eur` — `financing_eur / employees`.
 
 Filters:
 
@@ -92,10 +105,12 @@ found on the way:
   for 28 evaluation areas via a WordPress admin-ajax endpoint
   (`POST /wp-admin/admin-ajax.php` with `action=results_prepare_results`,
   `type=evaluation_area`, and a `data[]` list of area IDs). All 28 areas
-  together return 270 institution rows.
-- The site itself does **not** publish a download. The only machine-readable
-  bulk file is the XLSX I copied into `data/VER2026data.xlsx` (it was the
-  same file the user already had in `~/Downloads/`).
+  together return 270 institution rows, including "Financovanie" values and
+  public detail links.
+- The Ministry XLSX is published at
+  <https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx>. It contains the
+  profile percentages, employee counts, and institution metadata, but not the
+  financing column.
 - The site also publishes one PDF per evaluation area (28 of them) under
   `https://ver.cvtisr.sk/wp-content/uploads/reports/`. Those PDFs are
   qualitative committee reports, not the structured per-institution numbers.
@@ -104,20 +119,22 @@ found on the way:
   the most structured form available; the website and the XLSX agree row
   for row.
 
-If a richer source turns up (e.g. an open-data portal release with grant
-spend, project IDs, or evaluator comments), the loader in
-`src/ver2026/__init__.py` is the only place that would need to change.
+The generated static JSON merges both sources. The XLSX remains authoritative
+for quality profiles; the official interactive site is authoritative for
+financing and detail links.
 
 ## Project layout
 
 ```
 data/VER2026data.xlsx      # The official dataset, 270 institutions × 28 columns
+data/VER2026official.json  # Scraped official web rows with financing/detail links
 docs/bang-for-buck.md      # Size-normalized analysis notes
 docs/fmfi-summary.md       # How the FMFI UK reference rows are reproduced
 src/ver2026/
   __init__.py              # Loader, Institution dataclass, filter/sort helpers
   cli.py                   # `ver2026` entry point (summary / list / top / metrics)
   dump_json.py             # `ver2026-dump` entry point, regenerates web/data.json
+  official_web.py          # Scraper/parser for public VER website fields
 web/
   index.html               # Static viewer: filter, sort, search the full dataset
   data.json                # The dump consumed by index.html
@@ -134,7 +151,11 @@ pyproject.toml             # uv-managed project
 - Two institution types appear: `VVI` (Slovak Academy institute, 48 rows)
   and `VVŠ` (university / faculty, 222 rows). The viewer shows a coloured
   pill for each.
-- Numbers are percentages (0–100) within a profile. The "score" is a simple
-  weighted average 1..5 across the five levels; it's intentionally crude so
-  you can replace it with whatever you prefer (the dataclass exposes the raw
-  five-level vector as `institution.profiles[<slug>]`).
+- Numbers are percentages (0–100) within a profile. The "score" is a weighted
+  average across the five levels: `(1*p1 + 2*p2 + 3*p3 + 4*p4 + 5*p5) / 100`.
+  It uses all five buckets, so two rows with the same 1+2 percentage can have
+  different scores.
+- `Financovanie` is scraped from the public interactive results and matched
+  back to all 270 XLSX rows. It is official funding data for 2020-2024, but
+  the money-normalized ratios in this repo are exploratory analysis, not
+  official VER methodology.

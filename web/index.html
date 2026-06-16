@@ -400,6 +400,15 @@
     color: var(--brand-dark);
   }
 
+  .results .optional {
+    display: table-cell;
+  }
+
+  .help {
+    border-bottom: 1px dotted currentColor;
+    cursor: help;
+  }
+
   .institution {
     min-width: 260px;
   }
@@ -447,6 +456,35 @@
     margin: 12px 0 0;
     color: var(--muted);
     font-size: 13px;
+  }
+
+  .method {
+    margin: 18px 0 0;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.72);
+    padding: 14px 16px;
+  }
+
+  .method summary {
+    cursor: pointer;
+    color: var(--brand-dark);
+    font-weight: 800;
+  }
+
+  .method dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 12px 0 0;
+  }
+
+  .method dt {
+    font-weight: 800;
+  }
+
+  .method dd {
+    margin: 0;
+    color: #3c4652;
   }
 
   .overview {
@@ -603,6 +641,12 @@
     }
   }
 
+  @media (max-width: 1750px) {
+    .results .optional-wide {
+      display: none;
+    }
+  }
+
   @media (max-width: 620px) {
     .shell { width: min(100% - 20px, 1180px); }
     .section-head, .toolbar {
@@ -650,7 +694,8 @@
       </div>
       <p class="hint">
         Zdroj: <a href="https://ver.cvtisr.sk/vysledky/">oficiálne výsledky VER 2026</a>
-        · <a href="./VER2026data.xlsx">XLSX dáta</a>
+        · <a href="https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx">XLSX MŠVVaM SR</a>
+        · <a href="./VER2026data.xlsx">lokálna kópia</a>
       </p>
     </div>
 
@@ -665,6 +710,21 @@
       ide o svetovú a významnú medzinárodnú kvalitu; pri spoločenskom dosahu,
       tvorivom prostredí a celkovom profile o excelentnú a veľmi dobrú úroveň.
     </p>
+    <details class="method">
+      <summary>Metodika stĺpcov a odvodených ukazovateľov</summary>
+      <dl>
+        <dt>Profily 1+2</dt>
+        <dd>Oficiálne percentá z XLSX; spočítané sú prvé dve kvalitatívne úrovne daného profilu.</dd>
+        <dt>Skóre</dt>
+        <dd>Vážený priemer úrovní 1 až 5, kde 1,00 je najlepšie a 5,00 najhoršie.</dd>
+        <dt>Financovanie</dt>
+        <dd>Oficiálna suma z interaktívnych výsledkov VER; podľa vysvetlivky ide o financovanie výskumu za roky 2020-2024.</dd>
+        <dt>€/zam.</dt>
+        <dd><code>Financovanie / počet zamestnancov</code>. Je to veľkostný kontext, nie hodnotenie kvality.</dd>
+        <dt>Efekt / 1M€</dt>
+        <dd><code>Celkový profil 1+2 × 1 000 000 / financovanie</code>. Ide o pracovný analytický ukazovateľ, nie oficiálnu metodiku VER.</dd>
+      </dl>
+    </details>
   </section>
 
   <section class="presets" aria-labelledby="presets-title">
@@ -685,6 +745,11 @@
         <strong>Celkový profil vzhľadom na veľkosť</strong>
         <span>Orientačný pohľad: celkový profil 1+2 na 100 zamestnancov, min. 10 zamestnancov.</span>
         <code>?sort=celkovy__top2_per_100_emp&amp;dir=desc&amp;min_emp=10</code>
+      </a>
+      <a class="preset-card" href="?sort=celkovy__top2_per_million_eur&dir=desc&min_emp=10">
+        <strong>Celkový profil vzhľadom na financovanie</strong>
+        <span>Pracovný pomer celkového profilu 1+2 k oficiálnemu financovaniu 2020-2024.</span>
+        <code>?sort=celkovy__top2_per_million_eur&amp;dir=desc&amp;min_emp=10</code>
       </a>
       <a class="preset-card" href="?type=VVI&sort=celkovy__score">
         <strong>Verejné výskumné inštitúcie</strong>
@@ -776,13 +841,16 @@
             <tr>
               <th data-sort="institution">Inštitúcia</th>
               <th data-sort="eval_area">Oblasť</th>
-              <th data-sort="inst_type">Typ</th>
-              <th data-sort="employees" class="num">Zam.</th>
-              <th data-sort="vystupy__top2" class="num">Výstupy 1+2</th>
-              <th data-sort="spolocensky_dosah__top2" class="num">Dosah 1+2</th>
-              <th data-sort="tvorive_prostredie__top2" class="num">Prostredie 1+2</th>
-              <th data-sort="celkovy__top2" class="num">Celkový 1+2</th>
-              <th data-sort="celkovy__top2_per_100_emp" class="num">Efekt. / 100 zam.</th>
+              <th data-sort="inst_type" class="optional optional-wide">Typ</th>
+              <th data-sort="employees" class="num"><span class="help" title="Počet zamestnancov uvedený v oficiálnom XLSX.">Zam.</span></th>
+              <th data-sort="financing_eur" class="num"><span class="help" title="Oficiálne financovanie výskumu za roky 2020-2024, získané z interaktívnych výsledkov VER.">Financovanie</span></th>
+              <th data-sort="financing_per_employee_eur" class="num optional optional-wide"><span class="help" title="Financovanie vydelené počtom zamestnancov.">€/zam.</span></th>
+              <th data-sort="vystupy__top2" class="num"><span class="help" title="Súčet úrovní 1 a 2: svetová + významná medzinárodná kvalita.">Výstupy 1+2</span></th>
+              <th data-sort="spolocensky_dosah__top2" class="num optional optional-wide"><span class="help" title="Súčet úrovní 1 a 2: excelentná + veľmi dobrá úroveň spoločenského dosahu.">Dosah 1+2</span></th>
+              <th data-sort="tvorive_prostredie__top2" class="num optional optional-wide"><span class="help" title="Súčet úrovní 1 a 2: excelentné + veľmi dobré tvorivé prostredie.">Prostredie 1+2</span></th>
+              <th data-sort="celkovy__top2" class="num"><span class="help" title="Oficiálny celkový profil kvality: súčet úrovní 1 a 2.">Celkový 1+2</span></th>
+              <th data-sort="celkovy__top2_per_million_eur" class="num"><span class="help" title="Celkový profil 1+2 × 1 000 000 / financovanie. Pracovný analytický ukazovateľ, nie oficiálna metodika VER.">Efekt / 1M€</span></th>
+              <th data-sort="celkovy__top2_per_100_emp" class="num optional optional-wide"><span class="help" title="Celkový profil 1+2 × 100 / počet zamestnancov. Pracovný veľkostný ukazovateľ, nie oficiálna metodika VER.">Efekt / 100 zam.</span></th>
               <th class="num">Poradie v oblasti</th>
               <th data-sort="celkovy__score" class="num">Skóre</th>
             </tr>
@@ -808,6 +876,9 @@ const SORT_OPTIONS = [
   ["spolocensky_dosah__top2", "Spoločenský dosah 1+2"],
   ["tvorive_prostredie__top2", "Tvorivé prostredie 1+2"],
   ["celkovy__top2_per_100_emp", "Celkový 1+2 na 100 zamestnancov"],
+  ["celkovy__top2_per_million_eur", "Celkový 1+2 na 1 mil. € financovania"],
+  ["financing_eur", "Financovanie 2020-2024"],
+  ["financing_per_employee_eur", "Financovanie na zamestnanca"],
   ["eval_area", "Oblasť hodnotenia"],
   ["employees", "Počet zamestnancov"],
   ["institution", "Názov inštitúcie"],
@@ -862,6 +933,10 @@ function number(value) {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   });
+}
+
+function money(value) {
+  return value == null ? "-" : Math.round(value).toLocaleString("sk-SK") + " €";
 }
 
 function rankLabel(rank, total) {
@@ -1009,13 +1084,16 @@ function renderResults() {
           <span>${esc(row.inst_level)}</span>
         </td>
         <td>${esc(row.eval_area)}</td>
-        <td><span class="tag">${esc(row.inst_type)}</span></td>
+        <td class="optional optional-wide"><span class="tag">${esc(row.inst_type)}</span></td>
         <td class="num">${row.employees ?? "-"}</td>
+        <td class="num"><strong>${money(row.financing_eur)}</strong></td>
+        <td class="num optional optional-wide">${money(row.financing_per_employee_eur)}</td>
         <td class="num">${metricCell(row, "vystupy__top2", accent)}</td>
-        <td class="num">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
-        <td class="num">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
+        <td class="num optional optional-wide">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
+        <td class="num optional optional-wide">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
         <td class="num">${metricCell(row, "celkovy__top2", accent)}</td>
-        <td class="num"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
+        <td class="num"><strong>${number(row.celkovy__top2_per_million_eur)}</strong></td>
+        <td class="num optional optional-wide"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
         <td class="num">${areaRank ? rankLabel(areaRank.rank, areaRank.total) : "-"}</td>
         <td class="num"><strong>${score(row.celkovy__score)}</strong></td>
       </tr>

@@ -58,6 +58,10 @@ class Institution:
     employees: int | None
     women: int | None
     profiles: dict[str, list[float]]   # slug -> [p1, p2, p3, p4, p5], each in 0..100
+    financing_eur: int | None = None
+    financing_display: str | None = None
+    official_application_id: str | None = None
+    official_links: dict[str, str] | None = None
 
     def score(self, slug: str) -> float:
         """Weighted score in 1..5 (lower = better). NaN-safe: returns 5 if no data."""
@@ -83,6 +87,18 @@ class Institution:
             return None
         return self.top_two_pct(slug) * 100 / self.employees
 
+    def top_two_per_million_eur(self, slug: str) -> float | None:
+        """Top-two percentage points per EUR 1M of official 2020-2024 funding."""
+        if not self.financing_eur:
+            return None
+        return self.top_two_pct(slug) * 1_000_000 / self.financing_eur
+
+    def financing_per_employee(self) -> float | None:
+        """Official 2020-2024 funding per reported employee."""
+        if not self.financing_eur or not self.employees:
+            return None
+        return self.financing_eur / self.employees
+
     def as_dict(self) -> dict:
         out = {
             "request_id": self.request_id,
@@ -93,6 +109,11 @@ class Institution:
             "inst_type": self.inst_type,
             "employees": self.employees,
             "women": self.women,
+            "financing_eur": self.financing_eur,
+            "financing_display": self.financing_display,
+            "financing_per_employee_eur": self.financing_per_employee(),
+            "official_application_id": self.official_application_id,
+            "official_links": self.official_links or {},
         }
         for slug, (label, _, levels) in PROFILE_GROUPS.items():
             pcts = self.profiles.get(slug) or [None] * 5
@@ -102,6 +123,7 @@ class Institution:
             out[f"{slug}__top1"] = self.top_pct(slug)
             out[f"{slug}__top2"] = self.top_two_pct(slug)
             out[f"{slug}__top2_per_100_emp"] = self.top_two_per_100_employees(slug)
+            out[f"{slug}__top2_per_million_eur"] = self.top_two_per_million_eur(slug)
         return out
 
 
@@ -202,6 +224,10 @@ def sort_rows(
     lower_is_better = by.endswith("__score")
 
     def keyfn(r: Institution) -> float:
+        if by == "financing_eur":
+            return r.financing_eur or 0.0
+        if by == "financing_per_employee_eur":
+            return r.financing_per_employee() or 0.0
         if "__" not in by:
             return 0.0
         slug, _, metric = by.partition("__")
@@ -213,6 +239,8 @@ def sort_rows(
             return r.top_two_pct(slug)
         if metric == "top2_per_100_emp":
             return r.top_two_per_100_employees(slug) or 0.0
+        if metric == "top2_per_million_eur":
+            return r.top_two_per_million_eur(slug) or 0.0
         # Specific level like "vystupy__Svetová" — find the index.
         levels = PROFILE_GROUPS[slug][2]
         if metric in levels:

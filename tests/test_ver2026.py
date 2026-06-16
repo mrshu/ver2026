@@ -7,6 +7,7 @@ import pytest
 
 from ver2026 import filter_rows, load, sort_rows
 from ver2026.cli import main
+from ver2026.official_web import parse_results_html
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "VER2026data.xlsx"
 
@@ -79,6 +80,47 @@ def test_top_two_per_100_employees(data):
     )
 
 
+def test_money_normalized_metrics_can_be_computed(data):
+    row = next(r for r in data if r.employees)
+    row.financing_eur = 2_000_000
+    assert row.financing_per_employee() == pytest.approx(2_000_000 / row.employees)
+    assert row.top_two_per_million_eur("celkovy") == pytest.approx(
+        row.top_two_pct("celkovy") / 2
+    )
+    as_dict = row.as_dict()
+    assert as_dict["financing_eur"] == 2_000_000
+    assert as_dict["celkovy__top2_per_million_eur"] == pytest.approx(
+        row.top_two_per_million_eur("celkovy")
+    )
+
+
+def test_parse_official_results_html_extracts_financing_and_links():
+    html = """
+    <table><tbody>
+      <tr class="print-info">
+        <td><b>Univerzita Komenského v Bratislave</b>
+        <b>(Fakulta matematiky, fyziky a informatiky)</b><br>
+        Počet zamestnancov: 53 • Financovanie: 10 373 579€
+        • Oblasť hodnotenia: Matematické vedy</td>
+      </tr>
+      <tr>
+        <td><a href="https://ver.cvtisr.sk/vysledky/zobrazit-ziadost/?id=7560&show=final-outputs-list">Výstupy</a></td>
+        <td><a href="https://ver.cvtisr.sk/vysledky/zobrazit-ziadost/?id=7560&show=creative-environment">Tvorivé prostredie</a></td>
+      </tr>
+    </tbody></table>
+    """
+    rows = parse_results_html(html)
+    assert len(rows) == 1
+    row = rows[0]
+    assert row.eval_area == "Matematické vedy"
+    assert row.institution == "Univerzita Komenského v Bratislave"
+    assert row.inst_level == "Fakulta matematiky, fyziky a informatiky"
+    assert row.employees == 53
+    assert row.financing_eur == 10_373_579
+    assert row.official_application_id == "7560"
+    assert "Výstupy" in row.official_links
+
+
 def test_sort_by_top_two_per_100_employees(data):
     rows = [r for r in data if r.employees]
     ranked = sort_rows(rows, by="celkovy__top2_per_100_emp", descending=True)
@@ -93,6 +135,14 @@ def test_efficiency_cli_outputs_reproducible_table(capsys):
     assert rc == 0
     assert "CTop2/100zam" in out
     assert "Ústav orientalistiky Slovenskej akadémie vied" in out
+
+
+def test_money_cli_outputs_financing_table(capsys):
+    rc = main(["money", "--limit", "2"])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "CTop2/1M€" in out
+    assert "Financovanie" in out
 
 
 def test_fmfi_summary_values_match_reference_table(data):

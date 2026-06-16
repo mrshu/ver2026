@@ -1,9 +1,14 @@
-# Veľkostne normalizovaná analýza
+# Veľkostne a finančne normalizovaná analýza
 
-The VER 2026 XLSX does not include budgets, grant income, operating cost, or
-salary cost. The only resource-like denominator in the dataset is `Počet
-zamestnancov`, so this analysis uses a size-normalized headcount proxy rather
-than financial ROI.
+The Ministry XLSX does not include budgets or funding, but the official
+interactive VER results expose `Financovanie` for every evaluated row. The
+static dataset therefore merges two official sources:
+
+- Ministry XLSX: profile percentages, employee counts, institution metadata.
+- VER interactive results: `Financovanie` and public detail links.
+
+The VER explanation defines `Financovanie` as total research funding for
+2020-2024 from state subsidy, competitive grants/EU sources, and other sources.
 
 ## Metric
 
@@ -13,9 +18,19 @@ For each profile, the generated JSON includes:
 <profile>__top2_per_100_emp = <profile>__top2 * 100 / employees
 ```
 
+For money-normalized comparisons, it also includes:
+
+```text
+<profile>__top2_per_million_eur = <profile>__top2 * 1_000_000 / financing_eur
+financing_per_employee_eur = financing_eur / employees
+```
+
 For the website and CLI leaderboard, the default metric is
 `celkovy__top2_per_100_emp`: overall top-two quality profile percentage points
 per 100 employees.
+
+The money view defaults to `celkovy__top2_per_million_eur`: overall top-two
+quality profile percentage points per EUR 1M of official 2020-2024 funding.
 
 ## Interpretation
 
@@ -25,9 +40,11 @@ workplaces that perform well, but it has two important limitations:
 
 - It is sensitive to very small headcounts, so the default leaderboard uses a
   minimum of 10 employees.
-- It does not measure money. If budget or grant-spend data becomes available,
-  this metric should be replaced or complemented by a real cost-normalized
-  measure.
+- `Financovanie` is funding, not full institutional cost. It should not be
+  interpreted as complete operating expenditure, payroll cost, or ROI.
+- Money-normalized metrics can over-reward small or low-funded units. Use them
+  as prompts for closer comparison inside an evaluation area, not as a final
+  ranking of institutional value.
 
 ## Reproducing the ranking
 
@@ -37,10 +54,22 @@ The size-normalized analysis is available as a pre-built website link:
 http://localhost:8766/?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10
 ```
 
+The money-normalized analysis is available as:
+
+```text
+http://localhost:8766/?sort=celkovy__top2_per_million_eur&dir=desc&min_emp=10
+```
+
 The same ranking is reproducible from the CLI:
 
 ```bash
 uv run ver2026 efficiency
+```
+
+Money-normalized ranking:
+
+```bash
+uv run ver2026 money
 ```
 
 That command is equivalent to:

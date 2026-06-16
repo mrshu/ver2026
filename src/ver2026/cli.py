@@ -18,8 +18,29 @@ import json
 from pathlib import Path
 
 from . import PROFILE_GROUPS, filter_rows, load, sort_rows
+from .official_web import load_or_fetch, official_key
 
 DEFAULT_DATA = Path(__file__).resolve().parent.parent.parent / "data" / "VER2026data.xlsx"
+DEFAULT_OFFICIAL = Path(__file__).resolve().parent.parent.parent / "data" / "VER2026official.json"
+
+
+def load_data(args):
+    rows = load(args.data)
+    if getattr(args, "no_official_results", False):
+        return rows
+    official_path = Path(getattr(args, "official_results", DEFAULT_OFFICIAL))
+    if not official_path.exists():
+        return rows
+    official_by_key = {row.key: row for row in load_or_fetch(official_path)}
+    for row in rows:
+        official = official_by_key.get(official_key(row))
+        if not official:
+            continue
+        row.financing_eur = official.financing_eur
+        row.financing_display = official.financing_display
+        row.official_application_id = official.official_application_id
+        row.official_links = official.official_links
+    return rows
 
 
 def _fmt_pct(v):
@@ -32,6 +53,10 @@ def _fmt_int(v):
 
 def _fmt_float(v):
     return f"{v:6.1f}" if v is not None else "   -  "
+
+
+def _fmt_eur(v):
+    return f"{int(v):,} €".replace(",", " ") if v is not None else "-"
 
 
 def render_table(rows, *, columns=None) -> str:
@@ -58,7 +83,8 @@ def render_table(rows, *, columns=None) -> str:
 
 
 def cmd_top(args) -> int:
-    data = load(args.data)
+    data = load_data(args)
+    by = args.by or "vystupy__Svetová"
     rows = filter_rows(
         data,
         eval_area=args.area,
@@ -67,7 +93,7 @@ def cmd_top(args) -> int:
         min_employees=args.min_employees,
         institution_contains=args.contains,
     )
-    rows = sort_rows(rows, by=args.by, descending=not args.ascending)
+    rows = sort_rows(rows, by=by, descending=not args.ascending)
     rows = rows[: args.limit]
     if args.json:
         print(json.dumps([r.as_dict() for r in rows], ensure_ascii=False, indent=2))
@@ -77,7 +103,8 @@ def cmd_top(args) -> int:
 
 
 def cmd_list(args) -> int:
-    data = load(args.data)
+    data = load_data(args)
+    by = args.by or "vystupy__Svetová"
     rows = filter_rows(
         data,
         eval_area=args.area,
@@ -86,7 +113,7 @@ def cmd_list(args) -> int:
         min_employees=args.min_employees,
         institution_contains=args.contains,
     )
-    rows = sort_rows(rows, by=args.by, descending=not args.ascending)
+    rows = sort_rows(rows, by=by, descending=not args.ascending)
     if args.json:
         print(json.dumps([r.as_dict() for r in rows], ensure_ascii=False, indent=2))
     else:
@@ -95,7 +122,7 @@ def cmd_list(args) -> int:
 
 
 def cmd_summary(args) -> int:
-    data = load(args.data)
+    data = load_data(args)
     areas = sorted({r.eval_area for r in data})
     types = sorted({r.inst_type for r in data})
     groups = sorted({r.eval_group for r in data})
@@ -117,13 +144,18 @@ def cmd_metrics(args) -> int:
         print(f"    {slug}__top1   (% at level 1)")
         print(f"    {slug}__top2   (% at levels 1+2)")
         print(f"    {slug}__top2_per_100_emp   (top2 percentage points per 100 employees)")
+        print(f"    {slug}__top2_per_million_eur   (top2 percentage points per EUR 1M)")
         for lvl in levels:
             print(f"    {slug}__{lvl}   (% at level '{lvl}')")
+    print("  Financing:")
+    print("    financing_eur   (official 2020-2024 research funding, higher = more)")
+    print("    financing_per_employee_eur   (funding per reported employee)")
     return 0
 
 
 def cmd_efficiency(args) -> int:
-    data = load(args.data)
+    data = load_data(args)
+    by = args.by or "celkovy__top2_per_100_emp"
     rows = filter_rows(
         data,
         eval_area=args.area,
@@ -132,7 +164,7 @@ def cmd_efficiency(args) -> int:
         min_employees=args.min_employees,
         institution_contains=args.contains,
     )
-    rows = sort_rows(rows, by=args.by, descending=not args.ascending)
+    rows = sort_rows(rows, by=by, descending=not args.ascending)
     rows = rows[: args.limit]
     if args.json:
         print(json.dumps([r.as_dict() for r in rows], ensure_ascii=False, indent=2))
@@ -154,9 +186,52 @@ def cmd_efficiency(args) -> int:
     return 0
 
 
+def cmd_money(args) -> int:
+    data = load_data(args)
+    by = args.by or "celkovy__top2_per_million_eur"
+    rows = filter_rows(
+        data,
+        eval_area=args.area,
+        eval_group=args.group,
+        inst_type=args.type,
+        min_employees=args.min_employees,
+        institution_contains=args.contains,
+    )
+    rows = sort_rows(rows, by=by, descending=not args.ascending)
+    rows = rows[: args.limit]
+    if args.json:
+        print(json.dumps([r.as_dict() for r in rows], ensure_ascii=False, indent=2))
+    else:
+        print(render_table(rows, columns=[
+            ("area", "Oblasť", lambda r: r.eval_area),
+            ("institution", "Inštitúcia", lambda r: r.institution),
+            ("level", "Úroveň", lambda r: r.inst_level),
+            ("emp", "Zam", lambda r: _fmt_int(r.employees)),
+            ("fin", "Financovanie", lambda r: _fmt_eur(r.financing_eur)),
+            ("finemp", "€/zam.", lambda r: _fmt_eur(r.financing_per_employee())),
+            ("c2", "CTop2%", lambda r: _fmt_pct(r.top_two_pct("celkovy"))),
+            (
+                "eff",
+                "CTop2/1M€",
+                lambda r: _fmt_float(r.top_two_per_million_eur("celkovy")),
+            ),
+        ]))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--data", default=str(DEFAULT_DATA), help="Path to VER2026data.xlsx")
+    p.add_argument(
+        "--official-results",
+        default=str(DEFAULT_OFFICIAL),
+        help="Path to cached official web data with financing fields",
+    )
+    p.add_argument(
+        "--no-official-results",
+        action="store_true",
+        help="Use only the XLSX data, without merging cached official web fields",
+    )
     sub = p.add_subparsers(dest="cmd", required=True)
 
     common = argparse.ArgumentParser(add_help=False)
@@ -165,7 +240,7 @@ def build_parser() -> argparse.ArgumentParser:
     common.add_argument("--type", choices=["VVI", "VVŠ"], help="Filter by institution type")
     common.add_argument("--min-employees", type=int, help="Minimum number of employees")
     common.add_argument("--contains", help="Substring match against institution name")
-    common.add_argument("--by", default="vystupy__Svetová", help="Sort key (run `metrics` to list)")
+    common.add_argument("--by", help="Sort key (run `metrics` to list)")
     common.add_argument("--ascending", action="store_true", help="Sort ascending (default: descending)")
     common.add_argument("--json", action="store_true", help="Emit JSON instead of a table")
     common.add_argument("--limit", type=int, default=20, help="Number of rows to show")
@@ -180,7 +255,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Rank institutions by top-two profile per 100 employees",
     )
     sp.set_defaults(func=cmd_efficiency)
-    sp.set_defaults(by="celkovy__top2_per_100_emp", min_employees=10, limit=20)
+    sp.set_defaults(min_employees=10, limit=20)
+
+    sp = sub.add_parser(
+        "money",
+        parents=[common],
+        help="Rank institutions by official financing or money-normalized metrics",
+    )
+    sp.set_defaults(func=cmd_money)
+    sp.set_defaults(min_employees=10, limit=20)
 
     sp = sub.add_parser("summary", help="Print counts and unique values")
     sp.set_defaults(func=cmd_summary)
