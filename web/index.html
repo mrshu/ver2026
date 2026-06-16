@@ -200,6 +200,7 @@
   }
 
   .table-wrap {
+    overflow: auto;
     border: 1px solid var(--line);
     background: var(--panel);
     box-shadow: var(--shadow);
@@ -353,38 +354,6 @@
     margin-bottom: 12px;
   }
 
-  .results-panel {
-    min-width: 0;
-  }
-
-  .results-tools {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-    border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.78);
-    padding: 10px;
-    box-shadow: var(--shadow);
-  }
-
-  .results-tools .inline-field {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-  }
-
-  .results-tools label {
-    margin: 0;
-    white-space: nowrap;
-  }
-
-  .results-tools select {
-    width: min(360px, 44vw);
-    padding: 7px 9px;
-  }
-
   .stat {
     color: var(--muted);
     font-size: 13px;
@@ -399,23 +368,8 @@
     color: var(--brand-dark);
   }
 
-  .results {
-    table-layout: fixed;
-  }
-
-  .results th,
-  .results td {
-    overflow-wrap: anywhere;
-  }
-
-  .results th:nth-child(1) { width: 36%; }
-  .results th:nth-child(2) { width: 25%; }
-  .results th:nth-child(3) { width: 13%; }
-  .results th:nth-child(4) { width: 10%; }
-  .results th:nth-child(5) { width: 16%; }
-
   .institution {
-    min-width: 0;
+    min-width: 260px;
   }
 
   .institution strong,
@@ -424,13 +378,6 @@
   }
 
   .institution span {
-    margin-top: 2px;
-    color: var(--muted);
-    font-size: 12px;
-  }
-
-  .group {
-    display: block;
     margin-top: 2px;
     color: var(--muted);
     font-size: 12px;
@@ -448,7 +395,7 @@
   }
 
   .bar-cell {
-    min-width: 104px;
+    min-width: 120px;
   }
 
   .bar {
@@ -462,53 +409,6 @@
 
   .bar span {
     background: var(--accent, var(--brand));
-  }
-
-  .metric-stack {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(82px, 1fr));
-    gap: 8px;
-  }
-
-  .metric-mini {
-    border-top: 1px solid var(--line);
-    padding-top: 6px;
-  }
-
-  .metric-mini span {
-    display: block;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-  }
-
-  .metric-mini b {
-    display: block;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .detail-row td {
-    padding-top: 0;
-    background: #fbfcfd;
-  }
-
-  .primary-row td {
-    border-bottom: 0;
-  }
-
-  .detail-content {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 12px;
-    align-items: start;
-  }
-
-  .detail-note {
-    color: var(--muted);
-    font-size: 12px;
-    max-width: 260px;
   }
 
   .note {
@@ -683,60 +583,6 @@
       padding: 9px 8px;
       font-size: 13px;
     }
-
-    .results thead {
-      display: none;
-    }
-
-    .results,
-    .results tbody,
-    .results tr,
-    .results td {
-      display: block;
-      width: 100%;
-    }
-
-    .results tbody tr {
-      border-bottom: 1px solid var(--line);
-    }
-
-    .results tbody tr.detail-row {
-      border-bottom: 0;
-    }
-
-    .results td {
-      border-bottom: 0;
-    }
-
-    .results td.num {
-      text-align: left;
-    }
-
-    .results td[data-label]::before {
-      content: attr(data-label);
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
-    }
-
-    .metric-stack,
-    .detail-content,
-    .results-tools {
-      grid-template-columns: 1fr;
-      display: grid;
-    }
-
-    .results-tools .inline-field {
-      display: block;
-    }
-
-    .results-tools select {
-      width: 100%;
-      margin-top: 6px;
-    }
   }
 </style>
 </head>
@@ -865,6 +711,10 @@
         <label for="min-emp">Minimálny počet zamestnancov</label>
         <input type="number" id="min-emp" min="0" value="0" />
       </div>
+      <div class="filter-block">
+        <label for="sort-key">Triediť podľa</label>
+        <select id="sort-key"></select>
+      </div>
       <div class="filter-block button-row">
         <button class="btn" type="button" id="copy-link">Kopírovať URL</button>
         <button class="btn secondary" type="button" id="reset">Reset</button>
@@ -875,20 +725,13 @@
       </div>
     </aside>
 
-    <div class="results-panel" id="results-panel">
+    <div>
       <div class="toolbar">
         <div>
           <p class="eyebrow">Databáza výsledkov</p>
           <h2 id="browser-title">Prehliadač inštitúcií</h2>
         </div>
         <div class="stat" id="stat"></div>
-      </div>
-      <div class="results-tools">
-        <div class="inline-field">
-          <label for="sort-key">Triediť podľa</label>
-          <select id="sort-key"></select>
-        </div>
-        <p class="hint">Ďalšie profily sú v druhom riadku každej položky.</p>
       </div>
 
       <div class="table-wrap">
@@ -897,9 +740,15 @@
             <tr>
               <th data-sort="institution">Inštitúcia</th>
               <th data-sort="eval_area">Oblasť</th>
+              <th data-sort="inst_type">Typ</th>
+              <th data-sort="employees" class="num">Zam.</th>
+              <th data-sort="vystupy__top2" class="num">Výstupy 1+2</th>
+              <th data-sort="spolocensky_dosah__top2" class="num">Dosah 1+2</th>
+              <th data-sort="tvorive_prostredie__top2" class="num">Prostredie 1+2</th>
+              <th data-sort="celkovy__top2" class="num">Celkový 1+2</th>
+              <th data-sort="celkovy__top2_per_100_emp" class="num">Efekt. / 100 zam.</th>
               <th class="num">Poradie v oblasti</th>
               <th data-sort="celkovy__score" class="num">Skóre</th>
-              <th data-sort="celkovy__top2" class="num">Celkový 1+2</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -1096,22 +945,6 @@ function metricCell(row, key, accent) {
   `;
 }
 
-function metricMini(label, value, formatter = pct) {
-  return `<div class="metric-mini"><span>${esc(label)}</span><b>${formatter(value)}</b></div>`;
-}
-
-function sortedMetricNote(row) {
-  const labels = new Map([
-    ["vystupy__top2", ["Výstupy 1+2", pct(row.vystupy__top2)]],
-    ["spolocensky_dosah__top2", ["Dosah 1+2", pct(row.spolocensky_dosah__top2)]],
-    ["tvorive_prostredie__top2", ["Prostredie 1+2", pct(row.tvorive_prostredie__top2)]],
-    ["celkovy__top2_per_100_emp", ["Celkový 1+2 / 100 zam.", number(row.celkovy__top2_per_100_emp)]],
-    ["employees", ["Zamestnanci", row.employees ?? "-"]],
-  ]);
-  const current = labels.get(state.sortKey);
-  return current ? `<div class="detail-note">Triedi sa podľa: <strong>${esc(current[0])}</strong> ${esc(current[1])}</div>` : "";
-}
-
 function renderResults() {
   const rows = sortRows(applyFilters());
 
@@ -1132,32 +965,21 @@ function renderResults() {
     const accent = AREA_ACCENTS[row.eval_area] || "#9b1c31";
     const areaRank = rankByRequestId.get(row.request_id);
     return `
-      <tr class="primary-row">
-        <td class="institution" data-label="Inštitúcia">
+      <tr>
+        <td class="institution">
           <strong>${esc(row.institution)}</strong>
           <span>${esc(row.inst_level)}</span>
-          <span><span class="tag">${esc(row.inst_type)}</span> ${row.employees ?? "-"} zamestnancov</span>
         </td>
-        <td data-label="Oblasť">
-          <strong>${esc(row.eval_area)}</strong>
-          <span class="group">${esc(row.eval_group)}</span>
-        </td>
-        <td class="num" data-label="Poradie">${areaRank ? rankLabel(areaRank.rank, areaRank.total) : "-"}</td>
-        <td class="num" data-label="Skóre"><strong>${score(row.celkovy__score)}</strong></td>
-        <td class="num" data-label="Celkový 1+2">${metricCell(row, "celkovy__top2", accent)}</td>
-      </tr>
-      <tr class="detail-row">
-        <td colspan="5">
-          <div class="detail-content">
-            <div class="metric-stack">
-              ${metricMini("Výstupy 1+2", row.vystupy__top2)}
-              ${metricMini("Dosah 1+2", row.spolocensky_dosah__top2)}
-              ${metricMini("Prostredie 1+2", row.tvorive_prostredie__top2)}
-              ${metricMini("Celkový 1+2 / 100 zam.", row.celkovy__top2_per_100_emp, number)}
-            </div>
-            ${sortedMetricNote(row)}
-          </div>
-        </td>
+        <td>${esc(row.eval_area)}</td>
+        <td><span class="tag">${esc(row.inst_type)}</span></td>
+        <td class="num">${row.employees ?? "-"}</td>
+        <td class="num">${metricCell(row, "vystupy__top2", accent)}</td>
+        <td class="num">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
+        <td class="num">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
+        <td class="num">${metricCell(row, "celkovy__top2", accent)}</td>
+        <td class="num"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
+        <td class="num">${areaRank ? rankLabel(areaRank.rank, areaRank.total) : "-"}</td>
+        <td class="num"><strong>${score(row.celkovy__score)}</strong></td>
       </tr>
     `;
   }).join("");
@@ -1193,20 +1015,6 @@ function readUrlState() {
   state.sortAsc = params.has("dir") ? params.get("dir") !== "desc" : defaultSortAsc(state.sortKey);
 }
 
-function shouldScrollToResultsOnLoad() {
-  if (window.location.hash) return false;
-
-  const params = new URLSearchParams(window.location.search);
-  const sortKeys = new Set(SORT_OPTIONS.map(([key]) => key));
-  if (params.get("q")) return true;
-  if (meta.eval_areas.includes(params.get("area"))) return true;
-  if (meta.eval_groups.includes(params.get("group"))) return true;
-  if (meta.inst_types.includes(params.get("type"))) return true;
-  if ((parseInt(params.get("min_emp") || "0", 10) || 0) > 0) return true;
-  if (sortKeys.has(params.get("sort"))) return true;
-  return params.get("dir") === "desc";
-}
-
 function applyStateToControls() {
   document.getElementById("search").value = state.search;
   document.getElementById("area-select").value = state.area;
@@ -1236,7 +1044,6 @@ async function load() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     meta = await res.json();
     state.raw = meta.institutions;
-    const scrollToResults = shouldScrollToResultsOnLoad();
     readUrlState();
     buildControls();
     buildRankIndex();
@@ -1244,11 +1051,6 @@ async function load() {
     renderOverview();
     renderPresetChips();
     renderResults();
-    if (scrollToResults) {
-      requestAnimationFrame(() => {
-        document.getElementById("browser-title").scrollIntoView({ block: "start" });
-      });
-    }
   } catch (err) {
     document.querySelector("main").insertAdjacentHTML("afterbegin", `
       <div class="error">
