@@ -51,13 +51,13 @@ workplaces that perform well, but it has two important limitations:
 The size-normalized analysis is available as a pre-built website link:
 
 ```text
-http://localhost:8766/?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10
+http://localhost:8766/?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10&view=size
 ```
 
 The money-normalized analysis is available as:
 
 ```text
-http://localhost:8766/?sort=celkovy__top2_per_million_eur&dir=desc&min_emp=10
+http://localhost:8766/?sort=celkovy__top2_per_million_eur&dir=desc&min_emp=10&view=funding
 ```
 
 The same ranking is reproducible from the CLI:

@@ -458,6 +458,79 @@
     font-size: 13px;
   }
 
+  .view-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.72);
+    padding: 12px;
+  }
+
+  .view-summary {
+    margin: 0;
+    color: #34404c;
+    font-size: 13px;
+  }
+
+  .chips {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #b8c3cc;
+    background: #fff;
+    color: #394553;
+    padding: 4px 7px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .chip button {
+    width: 16px;
+    height: 16px;
+    border: 0;
+    background: transparent;
+    color: var(--brand-dark);
+    padding: 0;
+    line-height: 1;
+  }
+
+  .mode-tabs {
+    display: inline-grid;
+    grid-template-columns: repeat(4, max-content);
+    border: 1px solid #b8c3cc;
+    background: #fff;
+  }
+
+  .mode-tabs button {
+    border: 0;
+    border-right: 1px solid #b8c3cc;
+    background: transparent;
+    color: #394553;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .mode-tabs button:last-child {
+    border-right: 0;
+  }
+
+  .mode-tabs button.active {
+    background: var(--brand);
+    color: #fff;
+  }
+
   .btn.small {
     padding: 7px 9px;
     font-size: 12px;
@@ -483,6 +556,18 @@
 
   .results .optional {
     display: table-cell;
+  }
+
+  .results .is-hidden {
+    display: none;
+  }
+
+  .results .mode-visible {
+    display: table-cell;
+  }
+
+  .sort-mark {
+    margin-left: 3px;
   }
 
   .help {
@@ -517,7 +602,7 @@
   }
 
   .bar-cell {
-    min-width: 120px;
+    min-width: 104px;
   }
 
   .bar {
@@ -751,6 +836,10 @@
     .results .optional-wide {
       display: none;
     }
+
+    .results .optional-wide.mode-visible {
+      display: table-cell;
+    }
   }
 
   @media (max-width: 620px) {
@@ -771,6 +860,19 @@
     .site-footer nav {
       justify-content: flex-start;
       margin-top: 8px;
+    }
+    .view-panel {
+      grid-template-columns: 1fr;
+    }
+    .mode-tabs {
+      grid-template-columns: repeat(2, 1fr);
+      width: 100%;
+    }
+    .mode-tabs button:nth-child(2) {
+      border-right: 0;
+    }
+    .mode-tabs button:nth-child(-n+2) {
+      border-bottom: 1px solid #b8c3cc;
     }
   }
 </style>
@@ -854,15 +956,15 @@
         <span>Celá databáza zoradená podľa najnižšieho skóre celkového profilu kvality.</span>
         <code>?sort=celkovy__score</code>
       </a>
-      <a class="preset-card" href="?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10">
+      <a class="preset-card" href="?sort=celkovy__top2_per_100_emp&dir=desc&min_emp=10&view=size">
         <strong>Celkový profil vzhľadom na veľkosť</strong>
         <span>Orientačný pohľad: celkový profil 1+2 na 100 zamestnancov, min. 10 zamestnancov.</span>
-        <code>?sort=celkovy__top2_per_100_emp&amp;dir=desc&amp;min_emp=10</code>
+        <code>?sort=celkovy__top2_per_100_emp&amp;dir=desc&amp;min_emp=10&amp;view=size</code>
       </a>
-      <a class="preset-card" href="?sort=celkovy__top2_per_million_eur&dir=desc&min_emp=10">
+      <a class="preset-card" href="?sort=celkovy__top2_per_million_eur&dir=desc&min_emp=10&view=funding">
         <strong>Celkový profil vzhľadom na financovanie</strong>
         <span>Pracovný pomer celkového profilu 1+2 k oficiálnemu financovaniu 2020-2024.</span>
-        <code>?sort=celkovy__top2_per_million_eur&amp;dir=desc&amp;min_emp=10</code>
+        <code>?sort=celkovy__top2_per_million_eur&amp;dir=desc&amp;min_emp=10&amp;view=funding</code>
       </a>
       <a class="preset-card" href="?type=VVI&sort=celkovy__score">
         <strong>Verejné výskumné inštitúcie</strong>
@@ -950,24 +1052,37 @@
         </div>
       </div>
 
+      <div class="view-panel" aria-label="Aktuálne nastavenie tabuľky">
+        <div>
+          <p class="view-summary" id="view-summary"></p>
+          <div class="chips" id="applied-chips"></div>
+        </div>
+        <div class="mode-tabs" role="tablist" aria-label="Režim tabuľky">
+          <button type="button" data-mode="profile" class="active">Profil kvality</button>
+          <button type="button" data-mode="funding">Financovanie</button>
+          <button type="button" data-mode="size">Veľkosť</button>
+          <button type="button" data-mode="all">Všetko</button>
+        </div>
+      </div>
+
       <div class="table-wrap">
         <table class="results" id="results">
           <thead>
             <tr>
-              <th data-sort="institution">Inštitúcia</th>
-              <th data-sort="eval_area">Oblasť</th>
-              <th data-sort="inst_type" class="optional optional-wide">Typ</th>
-              <th data-sort="employees" class="num"><span class="help" title="Počet zamestnancov uvedený v oficiálnom XLSX.">Zam.</span></th>
-              <th data-sort="financing_eur" class="num"><span class="help" title="Oficiálne financovanie výskumu za roky 2020-2024, získané z interaktívnych výsledkov VER.">Financovanie</span></th>
-              <th data-sort="financing_per_employee_eur" class="num optional optional-wide"><span class="help" title="Financovanie vydelené počtom zamestnancov.">€/zam.</span></th>
-              <th data-sort="vystupy__top2" class="num"><span class="help" title="Súčet úrovní 1 a 2: svetová + významná medzinárodná kvalita.">Výstupy 1+2</span></th>
-              <th data-sort="spolocensky_dosah__top2" class="num optional optional-wide"><span class="help" title="Súčet úrovní 1 a 2: excelentná + veľmi dobrá úroveň spoločenského dosahu.">Dosah 1+2</span></th>
-              <th data-sort="tvorive_prostredie__top2" class="num optional optional-wide"><span class="help" title="Súčet úrovní 1 a 2: excelentné + veľmi dobré tvorivé prostredie.">Prostredie 1+2</span></th>
-              <th data-sort="celkovy__top2" class="num"><span class="help" title="Oficiálny celkový profil kvality: súčet úrovní 1 a 2.">Celkový 1+2</span></th>
-              <th data-sort="celkovy__top2_per_million_eur" class="num"><span class="help" title="Celkový profil 1+2 × 1 000 000 / financovanie. Pracovný analytický ukazovateľ, nie oficiálna metodika VER.">Efekt / 1M€</span></th>
-              <th data-sort="celkovy__top2_per_100_emp" class="num optional optional-wide"><span class="help" title="Celkový profil 1+2 × 100 / počet zamestnancov. Pracovný veľkostný ukazovateľ, nie oficiálna metodika VER.">Efekt / 100 zam.</span></th>
-              <th class="num">Poradie v oblasti</th>
-              <th data-sort="celkovy__score" class="num">Skóre</th>
+              <th data-column="institution" data-sort="institution">Inštitúcia</th>
+              <th data-column="eval_area" data-sort="eval_area">Oblasť</th>
+              <th data-column="inst_type" data-sort="inst_type" class="optional optional-wide">Typ</th>
+              <th data-column="employees" data-sort="employees" class="num"><span class="help" title="Počet zamestnancov uvedený v oficiálnom XLSX.">Zam.</span></th>
+              <th data-column="financing" data-sort="financing_eur" class="num"><span class="help" title="Oficiálne financovanie výskumu za roky 2020-2024, získané z interaktívnych výsledkov VER.">Financovanie</span></th>
+              <th data-column="financing_per_employee" data-sort="financing_per_employee_eur" class="num optional optional-wide"><span class="help" title="Financovanie vydelené počtom zamestnancov.">€/zam.</span></th>
+              <th data-column="vystupy" data-sort="vystupy__top2" class="num"><span class="help" title="Súčet úrovní 1 a 2: svetová + významná medzinárodná kvalita.">Výstupy 1+2</span></th>
+              <th data-column="dosah" data-sort="spolocensky_dosah__top2" class="num optional optional-wide"><span class="help" title="Súčet úrovní 1 a 2: excelentná + veľmi dobrá úroveň spoločenského dosahu.">Dosah 1+2</span></th>
+              <th data-column="prostredie" data-sort="tvorive_prostredie__top2" class="num optional optional-wide"><span class="help" title="Súčet úrovní 1 a 2: excelentné + veľmi dobré tvorivé prostredie.">Prostredie 1+2</span></th>
+              <th data-column="celkovy" data-sort="celkovy__top2" class="num"><span class="help" title="Oficiálny celkový profil kvality: súčet úrovní 1 a 2.">Celkový 1+2</span></th>
+              <th data-column="per_money" data-sort="celkovy__top2_per_million_eur" class="num"><span class="help" title="Celkový profil 1+2 × 1 000 000 / financovanie. Pracovný analytický ukazovateľ, nie oficiálna metodika VER.">Profil / 1M€</span></th>
+              <th data-column="per_employee" data-sort="celkovy__top2_per_100_emp" class="num optional optional-wide"><span class="help" title="Celkový profil 1+2 × 100 / počet zamestnancov. Pracovný veľkostný ukazovateľ, nie oficiálna metodika VER.">Profil / 100 zam.</span></th>
+              <th data-column="rank" class="num">Poradie v oblasti</th>
+              <th data-column="score" data-sort="celkovy__score" class="num"><span class="help" title="Vážený priemer všetkých piatich úrovní; nižšia hodnota je lepšia.">Skóre</span></th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -1013,6 +1128,25 @@ const SORT_OPTIONS = [
   ["institution", "Názov inštitúcie"],
 ];
 
+const TABLE_MODES = {
+  profile: {
+    label: "Profil kvality",
+    columns: ["institution", "eval_area", "employees", "vystupy", "dosah", "prostredie", "celkovy", "rank", "score"],
+  },
+  funding: {
+    label: "Financovanie",
+    columns: ["institution", "eval_area", "employees", "financing", "financing_per_employee", "celkovy", "per_money", "rank", "score"],
+  },
+  size: {
+    label: "Veľkosť",
+    columns: ["institution", "eval_area", "inst_type", "employees", "financing", "celkovy", "per_employee", "rank", "score"],
+  },
+  all: {
+    label: "Všetko",
+    columns: ["institution", "eval_area", "inst_type", "employees", "financing", "financing_per_employee", "vystupy", "dosah", "prostredie", "celkovy", "per_money", "per_employee", "rank", "score"],
+  },
+};
+
 const state = {
   raw: [],
   search: "",
@@ -1022,6 +1156,7 @@ const state = {
   minEmp: 0,
   sortKey: "celkovy__score",
   sortAsc: true,
+  mode: "profile",
 };
 
 let meta = null;
@@ -1031,6 +1166,11 @@ const FILTER_AUTO_COLLAPSE_WIDTH = 1320;
 
 function defaultSortAsc(sortKey) {
   return sortKey === "celkovy__score" || sortKey === "institution" || sortKey === "eval_area";
+}
+
+function sortLabel(sortKey) {
+  const option = SORT_OPTIONS.find(([key]) => key === sortKey);
+  return option ? option[1] : sortKey;
 }
 
 function esc(value) {
@@ -1155,6 +1295,44 @@ function renderOverview() {
   `).join("");
 }
 
+function renderAppliedChips() {
+  const chips = [];
+  if (state.search) chips.push(["q", `Hľadanie: ${state.search}`]);
+  if (state.area) chips.push(["area", `Oblasť: ${state.area}`]);
+  if (state.group) chips.push(["group", `Skupina: ${state.group}`]);
+  if (state.type) chips.push(["type", `Typ: ${state.type}`]);
+  if (state.minEmp) chips.push(["minEmp", `Min. zam.: ${state.minEmp}`]);
+
+  document.getElementById("applied-chips").innerHTML = chips.length
+    ? chips.map(([key, label]) => `
+      <span class="chip">${esc(label)} <button type="button" data-clear="${key}" aria-label="Zrušiť ${esc(label)}">×</button></span>
+    `).join("")
+    : `<span class="chip">Bez filtrov</span>`;
+}
+
+function renderViewSummary(rows) {
+  const mode = TABLE_MODES[state.mode] || TABLE_MODES.profile;
+  const scope = state.area || state.group || "všetky oblasti";
+  const direction = state.sortAsc ? "vzostupne" : "zostupne";
+  document.getElementById("view-summary").textContent =
+    `${scope} · ${rows.length} pracovísk · režim ${mode.label} · triedenie: ${sortLabel(state.sortKey)} (${direction})`;
+}
+
+function applyTableMode() {
+  const mode = TABLE_MODES[state.mode] || TABLE_MODES.profile;
+  const visible = new Set(mode.columns);
+  document.querySelectorAll("[data-column]").forEach((cell) => {
+    const isVisible = visible.has(cell.dataset.column);
+    cell.classList.toggle("is-hidden", !isVisible);
+    cell.classList.toggle("mode-visible", isVisible);
+  });
+  document.querySelectorAll(".mode-tabs button").forEach((button) => {
+    const active = button.dataset.mode === state.mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+}
+
 function applyFilters() {
   const q = state.search.trim().toLocaleLowerCase("sk-SK");
   return state.raw.filter((row) => {
@@ -1196,38 +1374,46 @@ function renderResults() {
 
   document.querySelectorAll("th[data-sort]").forEach((th) => {
     th.classList.toggle("active", th.dataset.sort === state.sortKey);
-    const label = th.textContent.replace(/[↑↓]\s*$/, "").trim();
-    th.textContent = label + (th.dataset.sort === state.sortKey ? (state.sortAsc ? " ↑" : " ↓") : "");
+    let mark = th.querySelector(".sort-mark");
+    if (!mark) {
+      mark = document.createElement("span");
+      mark.className = "sort-mark";
+      th.appendChild(mark);
+    }
+    mark.textContent = th.dataset.sort === state.sortKey ? (state.sortAsc ? "↑" : "↓") : "";
   });
 
   document.getElementById("stat").textContent =
     `Zobrazených ${rows.length} z ${state.raw.length} riadkov`;
+  renderViewSummary(rows);
+  renderAppliedChips();
 
   document.querySelector("#results tbody").innerHTML = rows.map((row) => {
     const accent = AREA_ACCENTS[row.eval_area] || "#9b1c31";
     const areaRank = rankByRequestId.get(row.request_id);
     return `
       <tr>
-        <td class="institution">
+        <td data-column="institution" class="institution">
           <strong>${esc(row.institution)}</strong>
           <span>${esc(row.inst_level)}</span>
         </td>
-        <td>${esc(row.eval_area)}</td>
-        <td class="optional optional-wide"><span class="tag">${esc(row.inst_type)}</span></td>
-        <td class="num">${row.employees ?? "-"}</td>
-        <td class="num"><strong>${money(row.financing_eur)}</strong></td>
-        <td class="num optional optional-wide">${money(row.financing_per_employee_eur)}</td>
-        <td class="num">${metricCell(row, "vystupy__top2", accent)}</td>
-        <td class="num optional optional-wide">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
-        <td class="num optional optional-wide">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
-        <td class="num">${metricCell(row, "celkovy__top2", accent)}</td>
-        <td class="num"><strong>${number(row.celkovy__top2_per_million_eur)}</strong></td>
-        <td class="num optional optional-wide"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
-        <td class="num">${areaRank ? rankLabel(areaRank.rank, areaRank.total) : "-"}</td>
-        <td class="num"><strong>${score(row.celkovy__score)}</strong></td>
+        <td data-column="eval_area">${esc(row.eval_area)}</td>
+        <td data-column="inst_type" class="optional optional-wide"><span class="tag">${esc(row.inst_type)}</span></td>
+        <td data-column="employees" class="num">${row.employees ?? "-"}</td>
+        <td data-column="financing" class="num"><strong>${money(row.financing_eur)}</strong></td>
+        <td data-column="financing_per_employee" class="num optional optional-wide">${money(row.financing_per_employee_eur)}</td>
+        <td data-column="vystupy" class="num">${metricCell(row, "vystupy__top2", accent)}</td>
+        <td data-column="dosah" class="num optional optional-wide">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
+        <td data-column="prostredie" class="num optional optional-wide">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
+        <td data-column="celkovy" class="num">${metricCell(row, "celkovy__top2", accent)}</td>
+        <td data-column="per_money" class="num"><strong>${number(row.celkovy__top2_per_million_eur)}</strong></td>
+        <td data-column="per_employee" class="num optional optional-wide"><strong>${number(row.celkovy__top2_per_100_emp)}</strong></td>
+        <td data-column="rank" class="num">${areaRank ? rankLabel(areaRank.rank, areaRank.total) : "-"}</td>
+        <td data-column="score" class="num"><strong>${score(row.celkovy__score)}</strong></td>
       </tr>
     `;
   }).join("");
+  applyTableMode();
 }
 
 function resetFilters() {
@@ -1238,6 +1424,7 @@ function resetFilters() {
   state.minEmp = 0;
   state.sortKey = "celkovy__score";
   state.sortAsc = defaultSortAsc(state.sortKey);
+  state.mode = "profile";
   document.getElementById("search").value = "";
   document.getElementById("area-select").value = "";
   document.getElementById("group-select").value = "";
@@ -1258,6 +1445,15 @@ function readUrlState() {
   state.minEmp = parseInt(params.get("min_emp") || "0", 10) || 0;
   state.sortKey = sortKeys.has(params.get("sort")) ? params.get("sort") : "celkovy__score";
   state.sortAsc = params.has("dir") ? params.get("dir") !== "desc" : defaultSortAsc(state.sortKey);
+  if (TABLE_MODES[params.get("view")]) {
+    state.mode = params.get("view");
+  } else if (state.sortKey.includes("million_eur") || state.sortKey.startsWith("financing")) {
+    state.mode = "funding";
+  } else if (state.sortKey.includes("100_emp")) {
+    state.mode = "size";
+  } else {
+    state.mode = "profile";
+  }
 }
 
 function shouldScrollToResultsOnLoad() {
@@ -1271,6 +1467,7 @@ function shouldScrollToResultsOnLoad() {
   if (meta.inst_types.includes(params.get("type"))) return true;
   if ((parseInt(params.get("min_emp") || "0", 10) || 0) > 0) return true;
   if (sortKeys.has(params.get("sort"))) return true;
+  if (TABLE_MODES[params.get("view")]) return true;
   return params.get("dir") === "desc";
 }
 
@@ -1281,6 +1478,7 @@ function applyStateToControls() {
   document.getElementById("type-select").value = state.type;
   document.getElementById("min-emp").value = String(state.minEmp);
   document.getElementById("sort-key").value = state.sortKey;
+  applyTableMode();
 }
 
 function writeUrlState() {
@@ -1291,6 +1489,7 @@ function writeUrlState() {
   if (state.type) params.set("type", state.type);
   if (state.minEmp) params.set("min_emp", String(state.minEmp));
   if (state.sortKey !== "celkovy__score") params.set("sort", state.sortKey);
+  if (state.mode !== "profile") params.set("view", state.mode);
   if (!state.sortAsc) params.set("dir", "desc");
   const query = params.toString();
   const next = query ? `${window.location.pathname}?${query}` : window.location.pathname;
@@ -1402,6 +1601,36 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sort-key").addEventListener("change", (event) => {
     state.sortKey = event.target.value;
     state.sortAsc = defaultSortAsc(state.sortKey);
+    writeUrlState();
+    renderResults();
+  });
+  document.querySelector(".mode-tabs").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-mode]");
+    if (!button) return;
+    state.mode = button.dataset.mode;
+    writeUrlState();
+    renderResults();
+  });
+  document.getElementById("applied-chips").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-clear]");
+    if (!button) return;
+    const key = button.dataset.clear;
+    if (key === "q") {
+      state.search = "";
+      document.getElementById("search").value = "";
+    } else if (key === "area") {
+      state.area = "";
+      document.getElementById("area-select").value = "";
+    } else if (key === "group") {
+      state.group = "";
+      document.getElementById("group-select").value = "";
+    } else if (key === "type") {
+      state.type = "";
+      document.getElementById("type-select").value = "";
+    } else if (key === "minEmp") {
+      state.minEmp = 0;
+      document.getElementById("min-emp").value = "0";
+    }
     writeUrlState();
     renderResults();
   });

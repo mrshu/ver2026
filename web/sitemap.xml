@@ -13,13 +13,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mrshu.github.io/ver2026/?sort=celkovy__top2_per_million_eur&amp;dir=desc&amp;min_emp=10</loc>
+    <loc>https://mrshu.github.io/ver2026/?sort=celkovy__top2_per_million_eur&amp;dir=desc&amp;min_emp=10&amp;view=funding</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mrshu.github.io/ver2026/?sort=celkovy__top2_per_100_emp&amp;dir=desc&amp;min_emp=10</loc>
+    <loc>https://mrshu.github.io/ver2026/?sort=celkovy__top2_per_100_emp&amp;dir=desc&amp;min_emp=10&amp;view=size</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
