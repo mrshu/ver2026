@@ -3,340 +3,897 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VER 2026 – Prehľadávanie výsledkov inštitúcií</title>
+<title>VER 2026 - FMFI UK a výsledky inštitúcií</title>
 <style>
   :root {
-    --bg: #0f1419;
-    --panel: #1a2027;
-    --panel-2: #232b34;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --accent: #4ea1ff;
-    --accent-2: #ff7b72;
-    --good: #3fb950;
-    --bad: #f85149;
-    --border: #30363d;
+    --paper: #f4f7f8;
+    --ink: #18202a;
+    --muted: #65707e;
+    --line: #d5dde3;
+    --panel: #ffffff;
+    --panel-soft: #e8eef2;
+    --brand: #9b1c31;
+    --brand-dark: #6f1426;
+    --blue: #1c5a7d;
+    --green: #2f7d57;
+    --amber: #a8671d;
+    --shadow: 0 18px 60px rgba(21, 33, 43, 0.11);
   }
+
   * { box-sizing: border-box; }
+
   body {
     margin: 0;
-    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
-    color: var(--text);
-    background: var(--bg);
+    color: var(--ink);
+    background:
+      linear-gradient(90deg, rgba(155, 28, 49, 0.07) 1px, transparent 1px) 0 0 / 52px 52px,
+      linear-gradient(0deg, rgba(155, 28, 49, 0.05) 1px, transparent 1px) 0 0 / 52px 52px,
+      var(--paper);
+    font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  header {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--panel);
-    position: sticky; top: 0; z-index: 10;
+
+  button, input, select { font: inherit; }
+  button { cursor: pointer; }
+
+  a {
+    color: var(--brand-dark);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
   }
-  header h1 { margin: 0 0 6px; font-size: 18px; }
-  header .meta { color: var(--muted); font-size: 12px; }
-  .layout { display: flex; min-height: calc(100vh - 60px); }
-  aside {
-    width: 280px;
-    flex: 0 0 280px;
+
+  .shell {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto;
+  }
+
+  .hero {
+    padding: 30px 0 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(290px, 0.85fr);
+    gap: 26px;
+    align-items: end;
+  }
+
+  .eyebrow {
+    margin: 0 0 10px;
+    color: var(--brand-dark);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 780px;
+    margin: 0;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: clamp(34px, 5vw, 70px);
+    line-height: 0.95;
+    letter-spacing: 0;
+  }
+
+  .lede {
+    max-width: 760px;
+    margin: 18px 0 0;
+    color: #3c4652;
+    font-size: 17px;
+  }
+
+  .source-box {
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--brand);
+    background: rgba(255, 255, 255, 0.68);
     padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .source-box strong {
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .source-box p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .summary {
+    padding: 26px 0 18px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0 0 12px;
+  }
+
+  h2 {
+    margin: 0;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 28px;
+    line-height: 1.05;
+  }
+
+  .hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .area-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 172px;
+    padding: 18px;
+    border: 1px solid var(--line);
     background: var(--panel);
-    border-right: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .area-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 7px;
+    background: var(--accent, var(--brand));
+  }
+
+  .area-card h3 {
+    margin: 0 0 14px;
+    padding-left: 4px;
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  .rank {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .rank strong {
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 44px;
+    line-height: 1;
+  }
+
+  .rank span {
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .mini-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .mini-metrics div {
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+  }
+
+  .mini-metrics b {
+    display: block;
+    font-size: 18px;
+  }
+
+  .mini-metrics span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .table-wrap {
     overflow: auto;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    box-shadow: var(--shadow);
   }
-  main { flex: 1 1 auto; overflow: auto; }
-  .controls { display: flex; gap: 8px; align-items: center; padding: 12px 16px; flex-wrap: wrap; background: var(--panel-2); border-bottom: 1px solid var(--border); position: sticky; top: 60px; z-index: 5; }
-  .controls input, .controls select {
-    background: var(--bg);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font: inherit;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
   }
-  .controls input[type=search] { min-width: 260px; }
-  .controls label { color: var(--muted); font-size: 12px; }
-  .stat { color: var(--muted); margin-left: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  th { position: sticky; top: 110px; background: var(--panel); z-index: 4; cursor: pointer; user-select: none; }
-  th .arrow { color: var(--muted); margin-left: 4px; }
-  th.active { color: var(--accent); }
-  tbody tr:hover { background: var(--panel-2); }
-  td.num { text-align: right; font-variant-numeric: tabular-nums; }
-  td.pct { text-align: right; font-variant-numeric: tabular-nums; }
-  td .bar { display: inline-block; height: 6px; background: var(--accent); border-radius: 3px; vertical-align: middle; margin-left: 6px; }
-  td .group { display: block; font-size: 11px; color: var(--muted); }
-  .heatmap {
-    display: flex; gap: 2px; align-items: center; min-width: 160px;
+
+  th, td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: middle;
   }
-  .heatmap .seg {
-    height: 16px; min-width: 0; border-radius: 2px; display: inline-block;
+
+  th {
+    color: #28313b;
+    background: #e8eef2;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
   }
-  .heatmap .label { font-size: 11px; color: var(--muted); margin-left: 6px; white-space: nowrap; }
-  .facet h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 14px 0 6px; }
-  .facet ul { list-style: none; margin: 0; padding: 0; }
-  .facet li { padding: 4px 0; cursor: pointer; display: flex; justify-content: space-between; }
-  .facet li:hover { color: var(--accent); }
-  .facet li .count { color: var(--muted); }
-  .facet li.active { color: var(--accent-2); font-weight: 600; }
-  .legend { font-size: 11px; color: var(--muted); margin-top: 4px; }
-  .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
-  details { margin-top: 16px; }
-  details summary { cursor: pointer; color: var(--muted); }
-  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; background: var(--panel-2); color: var(--muted); }
-  .pill.vvi { background: #1f3a55; color: #79c0ff; }
-  .pill.vvs { background: #553a1f; color: #ffa657; }
+
+  td.num, th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .summary-table tbody tr:last-child td,
+  .results tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .strong-row td:first-child,
+  .summary-table b {
+    font-weight: 800;
+  }
+
+  .score-pill {
+    display: inline-flex;
+    align-items: center;
+    min-width: 58px;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 4px 8px;
+    color: #fff;
+    background: var(--brand);
+    font-weight: 800;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 270px minmax(0, 1fr);
+    gap: 18px;
+    padding: 22px 0 40px;
+  }
+
+  aside {
+    align-self: start;
+    position: sticky;
+    top: 14px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.75);
+    padding: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  .filter-block + .filter-block {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  input, select {
+    width: 100%;
+    border: 1px solid #bec9d2;
+    border-radius: 0;
+    background: #fff;
+    color: var(--ink);
+    padding: 9px 10px;
+  }
+
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    border: 1px solid var(--brand);
+    border-radius: 0;
+    background: var(--brand);
+    color: #fff;
+    padding: 9px 10px;
+    font-weight: 800;
+  }
+
+  .btn.secondary {
+    color: var(--brand-dark);
+    background: transparent;
+  }
+
+  .area-list {
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+
+  .area-list button {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    padding: 8px 9px;
+    text-align: left;
+  }
+
+  .area-list button:last-child { border-bottom: 0; }
+  .area-list button.active {
+    background: #f4e6e8;
+    color: var(--brand-dark);
+    font-weight: 800;
+  }
+
+  .count { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .stat {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .results th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .results th.active {
+    color: var(--brand-dark);
+  }
+
+  .institution {
+    min-width: 260px;
+  }
+
+  .institution strong,
+  .institution span {
+    display: block;
+  }
+
+  .institution span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #b8c3cc;
+    padding: 2px 7px;
+    color: #394553;
+    background: #f5f8fa;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .tag.fmfi {
+    border-color: var(--brand);
+    color: var(--brand-dark);
+    background: #f8e7ea;
+  }
+
+  .bar-cell {
+    min-width: 120px;
+  }
+
+  .bar {
+    display: grid;
+    grid-template-columns: var(--pct, 0%) 1fr;
+    height: 9px;
+    margin-top: 5px;
+    border: 1px solid #c7d0d8;
+    background: #edf2f5;
+  }
+
+  .bar span {
+    background: var(--accent, var(--brand));
+  }
+
+  .note {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .error {
+    margin: 22px 0;
+    border: 1px solid #d3a5a5;
+    background: #fff4f4;
+    color: #742323;
+    padding: 14px;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid, .workspace, .cards {
+      grid-template-columns: 1fr;
+    }
+
+    aside {
+      position: static;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .shell { width: min(100% - 20px, 1180px); }
+    .section-head, .toolbar {
+      display: block;
+    }
+    .hint, .stat {
+      margin-top: 6px;
+    }
+    th, td {
+      padding: 9px 8px;
+      font-size: 13px;
+    }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>VER 2026 – Výsledky hodnotenia inštitúcií</h1>
-  <div class="meta" id="meta"></div>
-</header>
-<div class="layout">
-  <aside>
-    <div class="facet">
-      <h3>Oblasť hodnotenia</h3>
-      <ul id="area-facet"></ul>
-    </div>
-    <div class="facet">
-      <h3>Skupina oblastí</h3>
-      <ul id="group-facet"></ul>
-    </div>
-    <div class="facet">
-      <h3>Typ inštitúcie</h3>
-      <ul id="type-facet">
-        <li data-type="VVI">VVI <span class="pill vvi">SAV</span></li>
-        <li data-type="VVŠ">VVŠ <span class="pill vvs">univerzita</span></li>
-      </ul>
-    </div>
-    <details>
-      <summary>Metriky a čo znamenajú</summary>
-      <p class="legend">
-        Každý profil kvality (výstupy, spoločenský dosah, tvorivé prostredie, celkový) je rozdelený do 5 úrovní.
-        Tabuľka zobrazuje percentuálne zastúpenie jednotlivých úrovní.
-        <br><br>
-        <strong>Skóre 1–5</strong>: vážený priemer (1 = najlepšie, 5 = najhoršie).
-        <br>
-        <strong>Top 1 / Top 2</strong>: súčet % na úrovniach 1 a 2.
+<header class="hero">
+  <div class="shell hero-grid">
+    <div>
+      <p class="eyebrow">VER 2026 / výsledky hodnotenia vedy a výskumu</p>
+      <h1>FMFI UK v kontexte slovenských oblastí hodnotenia</h1>
+      <p class="lede">
+        Prehľad reprodukuje súhrnnú tabuľku pre matematické, fyzikálne a
+        informačno-komunikačné vedy a zároveň ponecháva prístup k celej
+        databáze 270 hodnotených inštitúcií.
       </p>
-    </details>
-  </aside>
-  <main>
-    <div class="controls">
-      <input type="search" id="search" placeholder="Hľadať inštitúciu…" />
-      <label>Min. zamestnancov
-        <input type="number" id="min-emp" min="0" value="0" style="width: 80px" />
-      </label>
-      <label>Triediť podľa
-        <select id="sort-key"></select>
-      </label>
-      <label><input type="checkbox" id="sort-asc" /> vzostupne</label>
-      <span class="stat" id="stat"></span>
     </div>
-    <table id="results">
-      <thead>
-        <tr>
-          <th data-sort="institution">Inštitúcia</th>
-          <th data-sort="eval_area">Oblasť</th>
-          <th data-sort="eval_group">Skupina</th>
-          <th data-sort="inst_type">Typ</th>
-          <th data-sort="employees" class="num">Zam</th>
-          <th data-sort="vystupy__top1" class="num">Výst. Top1</th>
-          <th data-sort="vystupy__top2" class="num">Výst. Top2</th>
-          <th data-sort="vystupy__score" class="num">Výst. Skóre</th>
-          <th data-sort="spolocensky_dosah__top1" class="num">SD Top1</th>
-          <th data-sort="spolocensky_dosah__top2" class="num">SD Top2</th>
-          <th data-sort="tvorive_prostredie__top1" class="num">TP Top1</th>
-          <th data-sort="tvorive_prostredie__top2" class="num">TP Top2</th>
-          <th data-sort="celkovy__top1" class="num">Celk Top1</th>
-          <th data-sort="celkovy__top2" class="num">Celk Top2</th>
-          <th data-sort="celkovy__score" class="num">Celk Skóre</th>
-          <th>Profily</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </main>
-</div>
+    <div class="source-box">
+      <strong id="dataset-meta">Načítavam dáta...</strong>
+      <p>
+        Hodnoty sú počítané z lokálneho súboru <code>web/data.json</code>.
+        Kategórie 1 + 2 pri výstupoch znamenajú svetovú a významnú
+        medzinárodnú kvalitu; pri ostatných profiloch excelentnú a veľmi
+        dobrú úroveň.
+      </p>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+  <section class="summary" aria-labelledby="fmfi-title">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Súhrnná tabuľka pre oblasti FMFI UK</p>
+        <h2 id="fmfi-title">Tri oblasti, v ktorých bola hodnotená FMFI</h2>
+      </div>
+      <p class="hint">Poradie je zoradené podľa najnižšieho skóre celkového profilu kvality.</p>
+    </div>
+
+    <div class="cards" id="fmfi-cards"></div>
+
+    <div class="table-wrap">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Oblasť</th>
+            <th class="num">Počet zamestnancov</th>
+            <th class="num">Výstupy 1+2</th>
+            <th class="num">Dosah 1+2</th>
+            <th class="num">Prostredie 1+2</th>
+            <th class="num">Celkový profil 1+2</th>
+            <th class="num">Poradie v oblasti</th>
+          </tr>
+        </thead>
+        <tbody id="fmfi-summary"></tbody>
+      </table>
+    </div>
+    <p class="note">
+      Profil 1+2 je súčet dvoch najvyšších kvalitatívnych úrovní v danom
+      profile. Tabuľka nižšie umožňuje dohľadať každú hodnotenú inštitúciu a
+      porovnať ju v rámci rovnakej oblasti.
+    </p>
+  </section>
+
+  <section class="workspace" aria-labelledby="browser-title">
+    <aside>
+      <div class="filter-block">
+        <label for="search">Hľadať inštitúciu</label>
+        <input type="search" id="search" placeholder="Napr. Komenského, SAV..." />
+      </div>
+      <div class="filter-block">
+        <label for="area-select">Oblasť hodnotenia</label>
+        <select id="area-select"></select>
+      </div>
+      <div class="filter-block">
+        <label for="type-select">Typ inštitúcie</label>
+        <select id="type-select">
+          <option value="">Všetky typy</option>
+          <option value="VVŠ">VVŠ - univerzity a fakulty</option>
+          <option value="VVI">VVI - verejné výskumné inštitúcie</option>
+        </select>
+      </div>
+      <div class="filter-block">
+        <label for="min-emp">Minimálny počet zamestnancov</label>
+        <input type="number" id="min-emp" min="0" value="0" />
+      </div>
+      <div class="filter-block">
+        <label for="sort-key">Triediť podľa</label>
+        <select id="sort-key"></select>
+      </div>
+      <div class="filter-block button-row">
+        <button class="btn" type="button" id="fmfi-only">FMFI oblasti</button>
+        <button class="btn secondary" type="button" id="reset">Reset</button>
+      </div>
+      <div class="filter-block">
+        <label>Rýchly výber oblasti</label>
+        <div class="area-list" id="area-list"></div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="toolbar">
+        <div>
+          <p class="eyebrow">Databáza výsledkov</p>
+          <h2 id="browser-title">Prehliadač inštitúcií</h2>
+        </div>
+        <div class="stat" id="stat"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="results" id="results">
+          <thead>
+            <tr>
+              <th data-sort="institution">Inštitúcia</th>
+              <th data-sort="eval_area">Oblasť</th>
+              <th data-sort="inst_type">Typ</th>
+              <th data-sort="employees" class="num">Zam.</th>
+              <th data-sort="vystupy__top2" class="num">Výstupy 1+2</th>
+              <th data-sort="spolocensky_dosah__top2" class="num">Dosah 1+2</th>
+              <th data-sort="tvorive_prostredie__top2" class="num">Prostredie 1+2</th>
+              <th data-sort="celkovy__top2" class="num">Celkový 1+2</th>
+              <th data-sort="celkovy__score" class="num">Skóre</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
 <script>
-const COLORS = {
-  vystupy: ["#2ea043", "#3fb950", "#d29922", "#db6d28", "#8b949e"],
-  spolocensky_dosah: ["#1f6feb", "#58a6ff", "#d29922", "#db6d28", "#8b949e"],
-  tvorive_prostredie: ["#a371f7", "#bc8cff", "#d29922", "#db6d28", "#8b949e"],
-  celkovy: ["#f85149", "#ff7b72", "#d29922", "#db6d28", "#8b949e"],
+const FMFI_LEVEL = "Fakulta matematiky, fyziky a informatiky";
+const FMFI_AREAS = [
+  "Matematické vedy",
+  "Fyzikálne vedy",
+  "Informačné a komunikačné vedy",
+];
+
+const AREA_ACCENTS = {
+  "Matematické vedy": "#9b1c31",
+  "Fyzikálne vedy": "#1c5a7d",
+  "Informačné a komunikačné vedy": "#2f7d57",
 };
+
+const SORT_OPTIONS = [
+  ["celkovy__score", "Celkový profil: skóre (najlepšie prvé)"],
+  ["celkovy__top2", "Celkový profil 1+2"],
+  ["vystupy__top2", "Výstupy 1+2"],
+  ["spolocensky_dosah__top2", "Spoločenský dosah 1+2"],
+  ["tvorive_prostredie__top2", "Tvorivé prostredie 1+2"],
+  ["employees", "Počet zamestnancov"],
+  ["institution", "Názov inštitúcie"],
+];
 
 const state = {
   raw: [],
-  areaFilter: null,
-  groupFilter: null,
-  typeFilter: null,
   search: "",
+  area: "",
+  type: "",
   minEmp: 0,
   sortKey: "celkovy__score",
-  sortAsc: false,
+  sortAsc: true,
+  fmfiAreasOnly: false,
 };
 
 let meta = null;
 
-async function load() {
-  const res = await fetch("./data.json");
-  const data = await res.json();
-  meta = data;
-  state.raw = data.institutions;
-  document.getElementById("meta").textContent =
-    `${data.institutions.length} inštitúcií · ${data.eval_areas.length} oblastí hodnotenia · ${data.inst_types.length} typy inštitúcií`;
-  buildFacets();
-  buildSortOptions();
-  render();
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[ch]));
 }
 
-function buildFacets() {
-  const counts = (key) => {
-    const m = new Map();
-    for (const r of state.raw) m.set(r[key], (m.get(r[key]) || 0) + 1);
-    return m;
-  };
-  const areaCounts = counts("eval_area");
-  const groupCounts = counts("eval_group");
+function pct(value) {
+  return value == null ? "-" : value.toLocaleString("sk-SK", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }) + " %";
+}
 
-  const areaList = document.getElementById("area-facet");
-  areaList.innerHTML = "";
-  for (const a of meta.eval_areas) {
-    const li = document.createElement("li");
-    li.dataset.area = a;
-    li.innerHTML = `<span>${a}</span><span class="count">${areaCounts.get(a) || 0}</span>`;
-    li.onclick = () => { state.areaFilter = state.areaFilter === a ? null : a; render(); };
-    areaList.appendChild(li);
-  }
-  const groupList = document.getElementById("group-facet");
-  groupList.innerHTML = "";
-  for (const g of meta.eval_groups) {
-    const li = document.createElement("li");
-    li.dataset.group = g;
-    li.innerHTML = `<span>${g}</span><span class="count">${groupCounts.get(g) || 0}</span>`;
-    li.onclick = () => { state.groupFilter = state.groupFilter === g ? null : g; render(); };
-    groupList.appendChild(li);
-  }
-  document.querySelectorAll("#type-facet li").forEach(li => {
-    li.onclick = () => {
-      const t = li.dataset.type;
-      state.typeFilter = state.typeFilter === t ? null : t;
-      render();
-    };
+function score(value) {
+  return value == null ? "-" : value.toLocaleString("sk-SK", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 }
 
-function buildSortOptions() {
-  const sel = document.getElementById("sort-key");
-  sel.innerHTML = "";
-  const groups = [
-    ["vystupy", "Výstupy"],
-    ["spolocensky_dosah", "Spoločenský dosah"],
-    ["tvorive_prostredie", "Tvorivé prostredie"],
-    ["celkovy", "Celkový profil"],
-  ];
-  for (const [slug, label] of groups) {
-    const og = document.createElement("optgroup");
-    og.label = label;
-    for (const k of ["top1", "top2", "score"]) {
-      const opt = document.createElement("option");
-      opt.value = `${slug}__${k}`;
-      opt.textContent = k === "score" ? `${label}: skóre` : `${label}: ${k}`;
-      if (opt.value === state.sortKey) opt.selected = true;
-      og.appendChild(opt);
-    }
-    sel.appendChild(og);
-  }
+function rankLabel(rank, total) {
+  const prep = String(total).startsWith("6") ? "zo" : "z";
+  return `${rank}. ${prep} ${total}`;
+}
+
+function isFmfi(row) {
+  return row.institution === "Univerzita Komenského v Bratislave" &&
+    row.inst_level.includes(FMFI_LEVEL);
+}
+
+function compareBy(key, asc = true) {
+  return (a, b) => {
+    const av = a[key];
+    const bv = b[key];
+    const aMissing = av == null || av === "";
+    const bMissing = bv == null || bv === "";
+    if (aMissing && bMissing) return 0;
+    if (aMissing) return 1;
+    if (bMissing) return -1;
+    if (typeof av === "string") return av.localeCompare(bv, "sk") * (asc ? 1 : -1);
+    return (av - bv) * (asc ? 1 : -1);
+  };
+}
+
+function areaRows(area) {
+  return state.raw.filter((row) => row.eval_area === area);
+}
+
+function fmfiRows() {
+  return FMFI_AREAS.map((area) => {
+    const row = areaRows(area).find(isFmfi);
+    if (!row) return null;
+    const ranked = areaRows(area).slice().sort(compareBy("celkovy__score", true));
+    return {
+      ...row,
+      rank: ranked.findIndex((item) => item.request_id === row.request_id) + 1,
+      total: ranked.length,
+    };
+  }).filter(Boolean);
+}
+
+function buildControls() {
+  const areaSelect = document.getElementById("area-select");
+  areaSelect.innerHTML = `<option value="">Všetky oblasti</option>` +
+    meta.eval_areas.map((area) => `<option value="${esc(area)}">${esc(area)}</option>`).join("");
+
+  const sortSelect = document.getElementById("sort-key");
+  sortSelect.innerHTML = SORT_OPTIONS.map(([value, label]) =>
+    `<option value="${esc(value)}">${esc(label)}</option>`
+  ).join("");
+  sortSelect.value = state.sortKey;
+
+  const counts = new Map();
+  for (const row of state.raw) counts.set(row.eval_area, (counts.get(row.eval_area) || 0) + 1);
+  document.getElementById("area-list").innerHTML = meta.eval_areas.map((area) => `
+    <button type="button" data-area="${esc(area)}">
+      <span>${esc(area)}</span><span class="count">${counts.get(area) || 0}</span>
+    </button>
+  `).join("");
+}
+
+function renderFmfiSummary() {
+  const rows = fmfiRows();
+  const cards = document.getElementById("fmfi-cards");
+  cards.innerHTML = rows.map((row) => `
+    <article class="area-card" style="--accent:${AREA_ACCENTS[row.eval_area] || "#9b1c31"}">
+      <h3>${esc(row.eval_area)}</h3>
+      <div class="rank">
+        <strong>${row.rank}.</strong>
+        <span>${rankLabel(row.rank, row.total).replace(`${row.rank}. `, "")} podľa celkového profilu</span>
+      </div>
+      <div class="mini-metrics">
+        <div><b>${pct(row.vystupy__top2)}</b><span>výstupy 1+2</span></div>
+        <div><b>${pct(row.tvorive_prostredie__top2)}</b><span>prostredie 1+2</span></div>
+        <div><b>${pct(row.celkovy__top2)}</b><span>celkový profil</span></div>
+      </div>
+    </article>
+  `).join("");
+
+  document.getElementById("fmfi-summary").innerHTML = rows.map((row) => `
+    <tr class="strong-row">
+      <td><b>${esc(row.eval_area)}</b></td>
+      <td class="num">${row.employees ?? "-"}</td>
+      <td class="num">${pct(row.vystupy__top2)}</td>
+      <td class="num">${pct(row.spolocensky_dosah__top2)}</td>
+      <td class="num">${pct(row.tvorive_prostredie__top2)}</td>
+      <td class="num"><span class="score-pill">${pct(row.celkovy__top2)}</span></td>
+      <td class="num">${rankLabel(row.rank, row.total)}</td>
+    </tr>
+  `).join("");
 }
 
 function applyFilters() {
-  return state.raw.filter(r => {
-    if (state.areaFilter && r.eval_area !== state.areaFilter) return false;
-    if (state.groupFilter && r.eval_group !== state.groupFilter) return false;
-    if (state.typeFilter && r.inst_type !== state.typeFilter) return false;
-    if (state.minEmp && (r.employees || 0) < state.minEmp) return false;
-    if (state.search && !r.institution.toLowerCase().includes(state.search.toLowerCase())) return false;
+  const q = state.search.trim().toLocaleLowerCase("sk-SK");
+  return state.raw.filter((row) => {
+    if (state.fmfiAreasOnly && !FMFI_AREAS.includes(row.eval_area)) return false;
+    if (state.area && row.eval_area !== state.area) return false;
+    if (state.type && row.inst_type !== state.type) return false;
+    if (state.minEmp && (row.employees || 0) < state.minEmp) return false;
+    if (q) {
+      const haystack = `${row.institution} ${row.inst_level} ${row.eval_area}`.toLocaleLowerCase("sk-SK");
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
 }
 
 function sortRows(rows) {
-  const k = state.sortKey;
-  const lower = k.endsWith("__score");
-  const dir = (state.sortAsc && !lower) || (!state.sortAsc && lower) ? 1 : -1;
-  return rows.slice().sort((a, b) => {
-    const av = a[k] ?? (lower ? 99 : -1);
-    const bv = b[k] ?? (lower ? 99 : -1);
-    return (av - bv) * dir;
-  });
+  const key = state.sortKey;
+  return rows.slice().sort(compareBy(key, state.sortAsc));
 }
 
-function heatmap(slug, pcts) {
-  const cols = COLORS[slug];
-  const html = pcts.map((p, i) =>
-    `<span class="seg" style="width:${(p / 100) * 24}px;background:${cols[i]}" title="${meta.profile_meta[slug].levels[i]}: ${p ?? 0}%"></span>`
-  ).join("");
-  return `<div class="heatmap">${html}</div>`;
+function metricCell(row, key, accent) {
+  const value = row[key] ?? 0;
+  return `
+    <div class="bar-cell">
+      <strong>${pct(value)}</strong>
+      <div class="bar" style="--pct:${Math.max(0, Math.min(100, value))}%;--accent:${accent}">
+        <span></span>
+      </div>
+    </div>
+  `;
 }
 
-function fmtPct(v) { return v == null ? "–" : v.toFixed(1) + "%"; }
-function fmtScore(v) { return v == null ? "–" : v.toFixed(2); }
-
-function render() {
-  document.querySelectorAll("#area-facet li").forEach(li => li.classList.toggle("active", li.dataset.area === state.areaFilter));
-  document.querySelectorAll("#group-facet li").forEach(li => li.classList.toggle("active", li.dataset.group === state.groupFilter));
-  document.querySelectorAll("#type-facet li").forEach(li => li.classList.toggle("active", li.dataset.type === state.typeFilter));
-
-  document.querySelectorAll("th[data-sort]").forEach(th => {
-    th.classList.toggle("active", th.dataset.sort === state.sortKey);
-    th.querySelector(".arrow")?.remove();
-    if (th.dataset.sort === state.sortKey) {
-      const a = document.createElement("span");
-      a.className = "arrow";
-      a.textContent = state.sortAsc ? "▲" : "▼";
-      th.appendChild(a);
-    }
-  });
-
+function renderResults() {
   const rows = sortRows(applyFilters());
-  const tbody = document.querySelector("#results tbody");
-  tbody.innerHTML = "";
-  for (const r of rows) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><strong>${r.institution}</strong><span class="group">${r.inst_level}</span></td>
-      <td>${r.eval_area}</td>
-      <td>${r.eval_group}</td>
-      <td><span class="pill ${r.inst_type === "VVI" ? "vvi" : "vvs"}">${r.inst_type}</span></td>
-      <td class="num">${r.employees ?? "–"}</td>
-      <td class="pct">${fmtPct(r.vystupy__top1)}</td>
-      <td class="pct">${fmtPct(r.vystupy__top2)}</td>
-      <td class="pct">${fmtScore(r.vystupy__score)}</td>
-      <td class="pct">${fmtPct(r.spolocensky_dosah__top1)}</td>
-      <td class="pct">${fmtPct(r.spolocensky_dosah__top2)}</td>
-      <td class="pct">${fmtPct(r.tvorive_prostredie__top1)}</td>
-      <td class="pct">${fmtPct(r.tvorive_prostredie__top2)}</td>
-      <td class="pct">${fmtPct(r.celkovy__top1)}</td>
-      <td class="pct">${fmtPct(r.celkovy__top2)}</td>
-      <td class="pct">${fmtScore(r.celkovy__score)}</td>
-      <td>${heatmap("vystupy", [r["vystupy__Svetová"], r["vystupy__Významná medzinárodná"], r["vystupy__Medzinárodná"], r["vystupy__Národná"], r["vystupy__Nezaradené"]])}</td>
+
+  document.querySelectorAll(".area-list button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.area === state.area);
+  });
+
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
+    th.classList.toggle("active", th.dataset.sort === state.sortKey);
+    const label = th.textContent.replace(/[↑↓]\s*$/, "").trim();
+    th.textContent = label + (th.dataset.sort === state.sortKey ? (state.sortAsc ? " ↑" : " ↓") : "");
+  });
+
+  document.getElementById("stat").textContent =
+    `Zobrazených ${rows.length} z ${state.raw.length} riadkov`;
+
+  document.querySelector("#results tbody").innerHTML = rows.map((row) => {
+    const accent = AREA_ACCENTS[row.eval_area] || "#9b1c31";
+    const fmfi = isFmfi(row);
+    return `
+      <tr>
+        <td class="institution">
+          <strong>${esc(row.institution)}</strong>
+          <span>${esc(row.inst_level)}</span>
+          ${fmfi ? `<span class="tag fmfi">FMFI UK</span>` : ""}
+        </td>
+        <td>${esc(row.eval_area)}</td>
+        <td><span class="tag">${esc(row.inst_type)}</span></td>
+        <td class="num">${row.employees ?? "-"}</td>
+        <td class="num">${metricCell(row, "vystupy__top2", accent)}</td>
+        <td class="num">${metricCell(row, "spolocensky_dosah__top2", accent)}</td>
+        <td class="num">${metricCell(row, "tvorive_prostredie__top2", accent)}</td>
+        <td class="num">${metricCell(row, "celkovy__top2", accent)}</td>
+        <td class="num"><strong>${score(row.celkovy__score)}</strong></td>
+      </tr>
     `;
-    tbody.appendChild(tr);
+  }).join("");
+}
+
+function resetFilters() {
+  state.search = "";
+  state.area = "";
+  state.type = "";
+  state.minEmp = 0;
+  state.sortKey = "celkovy__score";
+  state.sortAsc = true;
+  state.fmfiAreasOnly = false;
+  document.getElementById("search").value = "";
+  document.getElementById("area-select").value = "";
+  document.getElementById("type-select").value = "";
+  document.getElementById("min-emp").value = "0";
+  document.getElementById("sort-key").value = state.sortKey;
+  renderResults();
+}
+
+async function load() {
+  try {
+    const res = await fetch("./data.json");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    meta = await res.json();
+    state.raw = meta.institutions;
+    document.getElementById("dataset-meta").textContent =
+      `${meta.institutions.length} inštitúcií, ${meta.eval_areas.length} oblastí hodnotenia`;
+    buildControls();
+    renderFmfiSummary();
+    renderResults();
+  } catch (err) {
+    document.querySelector("main").insertAdjacentHTML("afterbegin", `
+      <div class="error">
+        Dáta sa nepodarilo načítať. Spustite statický server v priečinku
+        <code>web</code>, napríklad <code>python3 -m http.server 8765</code>.
+      </div>
+    `);
+    console.error(err);
   }
-  document.getElementById("stat").textContent = `Zobrazených: ${rows.length} / ${state.raw.length}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   load();
-  document.getElementById("search").addEventListener("input", e => { state.search = e.target.value; render(); });
-  document.getElementById("min-emp").addEventListener("input", e => { state.minEmp = parseInt(e.target.value) || 0; render(); });
-  document.getElementById("sort-key").addEventListener("change", e => { state.sortKey = e.target.value; render(); });
-  document.getElementById("sort-asc").addEventListener("change", e => { state.sortAsc = e.target.checked; render(); });
-  document.querySelectorAll("th[data-sort]").forEach(th => {
+
+  document.getElementById("search").addEventListener("input", (event) => {
+    state.search = event.target.value;
+    renderResults();
+  });
+  document.getElementById("area-select").addEventListener("change", (event) => {
+    state.area = event.target.value;
+    state.fmfiAreasOnly = false;
+    renderResults();
+  });
+  document.getElementById("type-select").addEventListener("change", (event) => {
+    state.type = event.target.value;
+    renderResults();
+  });
+  document.getElementById("min-emp").addEventListener("input", (event) => {
+    state.minEmp = parseInt(event.target.value, 10) || 0;
+    renderResults();
+  });
+  document.getElementById("sort-key").addEventListener("change", (event) => {
+    state.sortKey = event.target.value;
+    state.sortAsc = state.sortKey === "celkovy__score" || state.sortKey === "institution";
+    renderResults();
+  });
+  document.getElementById("fmfi-only").addEventListener("click", () => {
+    state.fmfiAreasOnly = true;
+    state.area = "";
+    document.getElementById("area-select").value = "";
+    renderResults();
+  });
+  document.getElementById("reset").addEventListener("click", resetFilters);
+  document.getElementById("area-list").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-area]");
+    if (!button) return;
+    state.area = state.area === button.dataset.area ? "" : button.dataset.area;
+    state.fmfiAreasOnly = false;
+    document.getElementById("area-select").value = state.area;
+    renderResults();
+  });
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
     th.addEventListener("click", () => {
-      if (state.sortKey === th.dataset.sort) state.sortAsc = !state.sortAsc;
-      else { state.sortKey = th.dataset.sort; state.sortAsc = false; }
-      render();
+      if (state.sortKey === th.dataset.sort) {
+        state.sortAsc = !state.sortAsc;
+      } else {
+        state.sortKey = th.dataset.sort;
+        state.sortAsc = state.sortKey === "celkovy__score" || state.sortKey === "institution";
+        document.getElementById("sort-key").value = state.sortKey;
+      }
+      renderResults();
     });
   });
 });

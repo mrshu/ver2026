@@ -66,3 +66,32 @@ def test_top1_sums_correctly(data):
     r = data[0]
     assert r.top_pct("vystupy") == r.profiles["vystupy"][0]
     assert r.top_two_pct("vystupy") == r.profiles["vystupy"][0] + r.profiles["vystupy"][1]
+
+
+def test_fmfi_summary_values_match_reference_table(data):
+    """Guard the FMFI UK three-area summary shown by the static viewer."""
+    expected = {
+        "Matematické vedy": (53, 68.0, 87.5, 100.0, 75.7, 1, 8),
+        "Fyzikálne vedy": (109, 68.0, 33.3, 75.0, 63.9, 1, 6),
+        "Informačné a komunikačné vedy": (45, 52.0, 100.0, 100.0, 66.4, 4, 15),
+    }
+
+    for area, values in expected.items():
+        area_rows = [r for r in data if r.eval_area == area]
+        fmfi = next(
+            r for r in area_rows
+            if r.institution == "Univerzita Komenského v Bratislave"
+            and "Fakulta matematiky, fyziky a informatiky" in r.inst_level
+        )
+        ranked = sorted(area_rows, key=lambda r: r.score("celkovy"))
+        actual = (
+            fmfi.employees,
+            round(fmfi.top_two_pct("vystupy"), 1),
+            round(fmfi.top_two_pct("spolocensky_dosah"), 1),
+            round(fmfi.top_two_pct("tvorive_prostredie"), 1),
+            round(fmfi.top_two_pct("celkovy"), 1),
+            ranked.index(fmfi) + 1,
+            len(area_rows),
+        )
+
+        assert actual == values

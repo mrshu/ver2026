@@ -13,6 +13,8 @@ fields) is bundled here as `data/VER2026data.xlsx`. This repo gives you:
   results as JSON.
 - A static web viewer (`web/index.html`) that lets you slice, sort, and search
   the full dataset in the browser — no build step, no server, no framework.
+- A focused FMFI UK summary that reproduces the three-area table shared in the
+  faculty email and links it to the full browseable dataset.
 
 ## Quick start
 
@@ -103,6 +105,7 @@ spend, project IDs, or evaluator comments), the loader in
 
 ```
 data/VER2026data.xlsx      # The official dataset, 270 institutions × 28 columns
+docs/fmfi-summary.md       # How the FMFI UK summary view is reproduced
 src/ver2026/
   __init__.py              # Loader, Institution dataclass, filter/sort helpers
   cli.py                   # `ver2026` entry point (summary / list / top / metrics)
