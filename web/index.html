@@ -824,6 +824,8 @@ const state = {
 
 let meta = null;
 let rankByRequestId = new Map();
+let filtersManualOverride = false;
+const FILTER_AUTO_COLLAPSE_WIDTH = 1320;
 
 function defaultSortAsc(sortKey) {
   return sortKey === "celkovy__score" || sortKey === "institution" || sortKey === "eval_area";
@@ -1086,13 +1088,28 @@ function writeUrlState() {
   window.history.replaceState(null, "", next);
 }
 
+function shouldAutoCollapseFilters() {
+  return window.innerWidth < FILTER_AUTO_COLLAPSE_WIDTH;
+}
+
 function setFiltersCollapsed(collapsed) {
   const workspace = document.querySelector(".workspace");
   workspace.classList.toggle("filters-collapsed", collapsed);
   document.getElementById("toggle-filters").textContent = collapsed ? "Zobraziť filtre" : "Skryť filtre";
   document.getElementById("toggle-filters").setAttribute("aria-expanded", String(!collapsed));
+}
+
+function applyFilterLayout() {
+  if (filtersManualOverride) return;
+  setFiltersCollapsed(shouldAutoCollapseFilters());
+}
+
+function setManualFilterLayout(collapsed) {
+  filtersManualOverride = true;
+  setFiltersCollapsed(collapsed);
   try {
-    localStorage.setItem("ver2026.filtersCollapsed", collapsed ? "1" : "0");
+    sessionStorage.setItem("ver2026.filtersManualOverride", "1");
+    sessionStorage.setItem("ver2026.filtersCollapsed", collapsed ? "1" : "0");
   } catch {}
 }
 
@@ -1129,8 +1146,16 @@ async function load() {
 document.addEventListener("DOMContentLoaded", () => {
   load();
   try {
-    setFiltersCollapsed(localStorage.getItem("ver2026.filtersCollapsed") === "1");
-  } catch {}
+    filtersManualOverride = sessionStorage.getItem("ver2026.filtersManualOverride") === "1";
+    if (filtersManualOverride) {
+      setFiltersCollapsed(sessionStorage.getItem("ver2026.filtersCollapsed") === "1");
+    } else {
+      applyFilterLayout();
+    }
+  } catch {
+    applyFilterLayout();
+  }
+  window.addEventListener("resize", applyFilterLayout);
 
   document.getElementById("search").addEventListener("input", (event) => {
     state.search = event.target.value;
@@ -1187,10 +1212,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("reset").addEventListener("click", resetFilters);
   document.getElementById("toggle-filters").addEventListener("click", () => {
     const collapsed = document.querySelector(".workspace").classList.contains("filters-collapsed");
-    setFiltersCollapsed(!collapsed);
+    setManualFilterLayout(!collapsed);
   });
   document.getElementById("show-filters").addEventListener("click", () => {
-    setFiltersCollapsed(false);
+    setManualFilterLayout(false);
   });
   document.getElementById("area-list").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-area]");
