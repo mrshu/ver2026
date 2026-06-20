@@ -160,11 +160,26 @@
     padding: 13px 14px 12px;
     text-decoration: none;
     box-shadow: var(--shadow);
+    transition: transform 140ms ease, border-color 140ms ease, background-color 140ms ease;
   }
 
   .quick-view strong {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
     font-size: 14px;
     line-height: 1.15;
+  }
+
+  .quick-view strong::after {
+    content: "Otvoriť →";
+    color: var(--loss);
+    font-size: 11px;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 900;
+    white-space: nowrap;
+    text-transform: uppercase;
   }
 
   .quick-view span {
@@ -179,6 +194,18 @@
     border-color: var(--loss);
     border-bottom-color: var(--loss);
     background: #fff8f7;
+  }
+
+  .quick-view:hover {
+    border-color: var(--blue);
+    border-bottom-color: var(--blue);
+    background: #fff;
+    transform: translateY(-2px);
+  }
+
+  .quick-view:hover strong::after,
+  .quick-view[aria-current="page"] strong::after {
+    color: var(--blue);
   }
 
   .quick-view:focus-visible {
