@@ -14,7 +14,7 @@ from ver2026.reward import build_reward_comparison, quality_points
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "VER2026data.xlsx"
 WEB_DATA = Path(__file__).resolve().parent.parent / "web" / "data.json"
-REWARD_DATA = Path(__file__).resolve().parent.parent / "web" / "reward" / "data.json"
+REWARD_DATA = Path(__file__).resolve().parent.parent / "web" / "financing" / "data.json"
 
 
 @pytest.fixture(scope="module")

@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>VER 2022 -> VER 2026: simulácia odmeny podľa T14a</title>
+<title>VER 2022 -> VER 2026: prepočet financovania podľa T14a</title>
 <meta name="description" content="Samostatný prepočet podielov z T14a podľa celkového profilu kvality VER 2026, počtu zamestnancov a koeficientov náročnosti oblastí." />
 <meta name="robots" content="index, follow" />
-<link rel="canonical" href="https://mrshu.github.io/ver2026/reward/" />
+<link rel="canonical" href="https://mrshu.github.io/ver2026/financing/" />
 <style>
   :root {
     --paper: #edf2f0;
@@ -368,6 +368,53 @@
   .chart-fact.gain { border-left-color: var(--gain); }
   .chart-fact.loss { border-left-color: var(--loss); }
   .chart-fact.group { border-left-color: var(--gold); }
+
+  .chart-pair {
+    display: grid;
+    gap: 7px;
+    margin-top: 6px;
+  }
+
+  .chart-pair-row {
+    display: grid;
+    grid-template-columns: minmax(76px, auto) 1fr;
+    gap: 1px 8px;
+    align-items: baseline;
+  }
+
+  .chart-pair-row span {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .chart-pair-row b {
+    display: inline;
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 14px;
+    line-height: 1.1;
+  }
+
+  .chart-pair-row b.gain { color: var(--gain); }
+  .chart-pair-row b.loss { color: var(--loss); }
+
+  .chart-pair-row em {
+    grid-column: 2;
+    color: #263039;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .chart-note {
+    margin-top: 8px !important;
+    color: var(--muted) !important;
+    font-size: 12px !important;
+  }
 
   .chart-wrap {
     overflow-x: auto;
@@ -948,7 +995,7 @@
       <p class="eyebrow">VER 2022 -> VER 2026 / T14a</p>
       <h1>Prepočet koláča podľa nových profilov</h1>
       <p class="lede">
-        Samostatná stránka pre simuláciu odmeny: rovnaký objem peňazí ako v
+        Samostatná stránka pre prepočet financovania: rovnaký objem peňazí ako v
         T14a, nové podiely podľa VER 2026.
       </p>
     </div>
@@ -1334,12 +1381,15 @@ function renderChartReadout(allRows, visibleRows) {
     !best || (row.share_delta_pct || 0) > (best.share_delta_pct || 0) ? row : best, null);
   const loss = allRows.reduce((best, row) =>
     !best || (row.share_delta_pct || 0) < (best.share_delta_pct || 0) ? row : best, null);
-  const groups = payload.views.groups.rows || [];
-  const groupGain = groups.reduce((best, row) =>
-    !best || (row.share_delta_pct || 0) > (best.share_delta_pct || 0) ? row : best, null);
-  const groupLoss = groups.reduce((best, row) =>
-    !best || (row.share_delta_pct || 0) < (best.share_delta_pct || 0) ? row : best, null);
   const amountMode = state.chartMode === "amount-map";
+  const groups = payload.views.groups.rows || [];
+  const groupMetric = (row) => amountMode ? (row.amount_delta_eur || 0) : (row.share_delta_pct || 0);
+  const groupGain = groups.reduce((best, row) =>
+    !best || groupMetric(row) > groupMetric(best) ? row : best, null);
+  const groupLoss = groups.reduce((best, row) =>
+    !best || groupMetric(row) < groupMetric(best) ? row : best, null);
+  const groupValue = (row) => amountMode ? signedCompactMoney(row.amount_delta_eur) : signedPct(row.share_delta_pct, " p. b.");
+  const groupMetricLabel = amountMode ? "zmenu sumy" : "zmenu podielu";
   const scope = state.chartMode === "scatter"
     ? `Podiel financovania vs. počet zamestnancov je zúžený na ${visibleRows.length.toLocaleString("sk-SK")} najväčších posunov, aby sa body neprekrývali; prejdenie myšou zobrazí kartu oblasti.`
     : state.chartMode === "amount-map"
@@ -1364,9 +1414,20 @@ function renderChartReadout(allRows, visibleRows) {
       <p>${loss ? amountMode ? `${signedPct(loss.amount_delta_pct)} oproti VER 2022.` : `${signedMoney(loss.amount_delta_eur)} pri rovnakom objeme.` : "-"}</p>
     </div>
     <div class="chart-fact group">
-      <b>${groupGain ? signedPct(groupGain.share_delta_pct, " p. b.") : "-"}</b>
-      <strong>${groupGain ? esc(groupGain.label) : "Skupiny oblastí"}</strong>
-      <p>${groupLoss ? `${esc(groupLoss.label)} ${signedPct(groupLoss.share_delta_pct, " p. b.")}` : "Súhrn po skupinách oblastí."}</p>
+      <strong>Agregované po skupinách oblastí</strong>
+      <div class="chart-pair" aria-label="Najväčšia skupinová zmena">
+        <div class="chart-pair-row">
+          <span>získava</span>
+          <b class="gain">${groupGain ? groupValue(groupGain) : "-"}</b>
+          <em>${groupGain ? esc(groupGain.label) : "-"}</em>
+        </div>
+        <div class="chart-pair-row">
+          <span>stráca</span>
+          <b class="loss">${groupLoss ? groupValue(groupLoss) : "-"}</b>
+          <em>${groupLoss ? esc(groupLoss.label) : "-"}</em>
+        </div>
+      </div>
+      <p class="chart-note">Táto karta zhŕňa ${groupMetricLabel}; graf ostáva po jednotlivých oblastiach.</p>
     </div>
   `;
 }

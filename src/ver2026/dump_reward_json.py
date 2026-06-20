@@ -1,4 +1,4 @@
-"""Dump VER 2022 -> VER 2026 reward allocation comparison to JSON."""
+"""Dump VER 2022 -> VER 2026 T14a funding-allocation comparison to JSON."""
 from __future__ import annotations
 
 import argparse
@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .reward import SUBSIDY_2026_XLSX_URL, VER2026_XLSX_URL, write_reward_comparison
 
-DEFAULT_OUT = Path(__file__).resolve().parent.parent.parent / "web" / "reward" / "data.json"
+DEFAULT_OUT = Path(__file__).resolve().parent.parent.parent / "web" / "financing" / "data.json"
 
 
 def main() -> int:
@@ -30,7 +30,7 @@ def main() -> int:
         for name, view in comparison["views"].items()
     )
     print(
-        f"Wrote reward comparison to {args.out} ({view_counts}); "
+        f"Wrote funding-allocation comparison to {args.out} ({view_counts}); "
         f"pool {comparison['method']['pool_eur']:,.0f} EUR"
     )
     return 0

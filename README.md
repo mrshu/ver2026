@@ -16,12 +16,12 @@ Ministry XLSX is published at
   the full dataset in the browser — no build step, no server, no framework.
 - A static Slovak-language dashboard with pre-built analysis links and
   URL-reproducible filters for sharing specific comparisons.
-- A separate static VER 2022 → VER 2026 reward-allocation simulator using the
+- A separate static VER 2022 → VER 2026 funding-allocation simulator using the
   T14a method: quality profile weights, employee counts, and area cost
   coefficients.
 
 Live viewer: <https://mrshu.github.io/ver2026/>
-Reward simulator: <https://mrshu.github.io/ver2026/reward/>
+Funding-allocation simulator: <https://mrshu.github.io/ver2026/financing/>
 
 ## Quick start
 
@@ -55,16 +55,16 @@ The same JSON output drives the web viewer:
 # Regenerate web/data.json from the XLSX (the repo already ships a copy)
 uv run ver2026-dump
 
-# Regenerate the separate VER 2022 → VER 2026 reward simulator data
+# Regenerate the separate VER 2022 → VER 2026 funding-allocation simulator data
 # Defaults read the official XLSX URLs below; pass --ver2022/--ver2026 for local copies.
-uv run ver2026-reward-dump
+uv run ver2026-financing-dump
 
 # Serve the web viewer
 cd web && python3 -m http.server 8765
 # then open http://localhost:8765/
 ```
 
-The reward simulator is based on these official sources:
+The funding-allocation simulator is based on these official sources:
 
 - VER 2026 profiles XLSX:
   <https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx>
@@ -105,7 +105,7 @@ The official interactive results also expose:
   explanation defines it as the total volume of research funding in 2020-2024.
 - `financing_per_employee_eur` — `financing_eur / employees`.
 
-The separate reward simulator at `web/reward/` exposes:
+The separate funding-allocation simulator at `web/financing/` exposes:
 
 - VVŠ-level, evaluation-area-level, and evaluation-group-level views.
 - A row-level "Žiadosti / súčasti" view keyed by university, evaluation area,
@@ -165,14 +165,14 @@ src/ver2026/
   __init__.py              # Loader, Institution dataclass, filter/sort helpers
   cli.py                   # `ver2026` entry point (summary / list / top / metrics)
   dump_json.py             # `ver2026-dump` entry point, regenerates web/data.json
-  dump_reward_json.py      # `ver2026-reward-dump`, derives web/reward/data.json
+  dump_reward_json.py      # `ver2026-financing-dump`, derives web/financing/data.json
   official_web.py          # Scraper/parser for public VER website fields
-  reward.py                # VER 2022 → VER 2026 reward-allocation methodology
+  reward.py                # VER 2022 → VER 2026 T14a funding-allocation methodology
 web/
   index.html               # Static viewer: filter, sort, search the full dataset
   data.json                # The dump consumed by index.html
-  reward/index.html        # Separate T14a reward simulator
-  reward/data.json         # The dump consumed by reward/index.html
+  financing/index.html     # Separate T14a funding-allocation simulator
+  financing/data.json      # The dump consumed by financing/index.html
 pyproject.toml             # uv-managed project
 ```
 

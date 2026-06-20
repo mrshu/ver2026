@@ -12,6 +12,7 @@ dependencies = [
 [project.scripts]
 ver2026 = "ver2026.cli:main"
 ver2026-dump = "ver2026.dump_json:main"
+ver2026-financing-dump = "ver2026.dump_reward_json:main"
 ver2026-reward-dump = "ver2026.dump_reward_json:main"
 
 [build-system]
