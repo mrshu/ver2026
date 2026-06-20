@@ -16,8 +16,12 @@ Ministry XLSX is published at
   the full dataset in the browser — no build step, no server, no framework.
 - A static Slovak-language dashboard with pre-built analysis links and
   URL-reproducible filters for sharing specific comparisons.
+- A separate static VER 2022 → VER 2026 reward-allocation simulator using the
+  T14a method: quality profile weights, employee counts, and area cost
+  coefficients.
 
 Live viewer: <https://mrshu.github.io/ver2026/>
+Reward simulator: <https://mrshu.github.io/ver2026/reward/>
 
 ## Quick start
 
@@ -51,10 +55,23 @@ The same JSON output drives the web viewer:
 # Regenerate web/data.json from the XLSX (the repo already ships a copy)
 uv run ver2026-dump
 
+# Regenerate the separate VER 2022 → VER 2026 reward simulator data
+# Defaults read the official XLSX URLs below; pass --ver2022/--ver2026 for local copies.
+uv run ver2026-reward-dump
+
 # Serve the web viewer
 cd web && python3 -m http.server 8765
 # then open http://localhost:8765/
 ```
+
+The reward simulator is based on these official sources:
+
+- VER 2026 profiles XLSX:
+  <https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx>
+- 2026 public-university subsidy allocation XLSX, sheet `T14a-ver2022`:
+  <https://www.minedu.sk/data/att/7c5/35059.48a629.xlsx>
+- VER 2022 methodology note:
+  <https://www.minedu.sk/metodicke-usmernenie-k-pouzitiu-vysledkov-periodickeho-hodnotenia-ver-2022-pre-ucely-posudenia-kvality-urovne-tvorivej-cinnosti-pri-standardoch-pre-studijny-program/>
 
 ## What you can sort and filter by
 
@@ -87,6 +104,20 @@ The official interactive results also expose:
 - `financing_eur` — "Financovanie" from the official website. The VER
   explanation defines it as the total volume of research funding in 2020-2024.
 - `financing_per_employee_eur` — `financing_eur / employees`.
+
+The separate reward simulator at `web/reward/` exposes:
+
+- VVŠ-level, evaluation-area-level, and evaluation-group-level views.
+- A row-level "Žiadosti / súčasti" view keyed by university, evaluation area,
+  and component/faculty/department label, so specific source rows such as a
+  faculty or department can be searched directly.
+- A fixed T14a 2026 pool redistributed by VER 2026 celkový profil quality
+  weights `(8, 5, 3, 1, 0)`, employees, and the T14a area cost coefficient.
+- Area and group views aggregate the published application rows from each
+  source as separate evaluated rows, then conserve the same fixed T14a pool
+  inside that view.
+- Row-level entries that cannot be matched between VER 2022 and VER 2026 are
+  kept and marked as old-only or new-only rather than silently merged.
 
 Filters:
 
@@ -134,10 +165,14 @@ src/ver2026/
   __init__.py              # Loader, Institution dataclass, filter/sort helpers
   cli.py                   # `ver2026` entry point (summary / list / top / metrics)
   dump_json.py             # `ver2026-dump` entry point, regenerates web/data.json
+  dump_reward_json.py      # `ver2026-reward-dump`, derives web/reward/data.json
   official_web.py          # Scraper/parser for public VER website fields
+  reward.py                # VER 2022 → VER 2026 reward-allocation methodology
 web/
   index.html               # Static viewer: filter, sort, search the full dataset
   data.json                # The dump consumed by index.html
+  reward/index.html        # Separate T14a reward simulator
+  reward/data.json         # The dump consumed by reward/index.html
 pyproject.toml             # uv-managed project
 ```
 

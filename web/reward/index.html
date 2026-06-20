@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VER 2022 -> VER 2026: simulácia odmeny podľa T14a</title>
+<meta name="description" content="Samostatný prepočet podielov z T14a podľa celkového profilu kvality VER 2026, počtu zamestnancov a koeficientov náročnosti oblastí." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://mrshu.github.io/ver2026/reward/" />
+<style>
+  :root {
+    --paper: #edf2f0;
+    --surface: #fffffb;
+    --ink: #171d22;
+    --muted: #68727d;
+    --line: #c9d2ce;
+    --line-strong: #9facaa;
+    --gain: #1f6f4a;
+    --loss: #9b1c31;
+    --blue: #245e74;
+    --gold: #b9822c;
+    --shadow: 0 20px 70px rgba(23, 29, 34, 0.11);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      linear-gradient(90deg, rgba(36, 94, 116, 0.08) 1px, transparent 1px) 0 0 / 46px 46px,
+      linear-gradient(0deg, rgba(155, 28, 49, 0.06) 1px, transparent 1px) 0 0 / 46px 46px,
+      var(--paper);
+    font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  button, input, select { font: inherit; }
+  button, select { cursor: pointer; }
+  a { color: var(--loss); text-underline-offset: 0.18em; }
+
+  .shell {
+    width: min(1240px, calc(100% - 28px));
+    margin: 0 auto;
+  }
+
+  .mast {
+    padding: 22px 0 16px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .mast-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+    gap: 20px;
+    align-items: end;
+  }
+
+  .eyebrow {
+    margin: 0 0 8px;
+    color: var(--loss);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 780px;
+    margin: 0;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: clamp(34px, 5.8vw, 76px);
+    line-height: 0.94;
+    letter-spacing: 0;
+  }
+
+  .lede {
+    max-width: 820px;
+    margin: 14px 0 0;
+    color: #39434c;
+    font-size: 16px;
+  }
+
+  .control-panel {
+    border: 1px solid var(--line);
+    border-left: 6px solid var(--blue);
+    background: rgba(255, 255, 251, 0.82);
+    padding: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  .control-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .control-grid .wide {
+    grid-column: 1 / -1;
+  }
+
+  .view-control {
+    grid-column: 1 / -1;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  input, select {
+    width: 100%;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    background: #fff;
+    color: var(--ink);
+    padding: 9px 10px;
+  }
+
+  .view-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .view-button {
+    min-height: 56px;
+    border: 1px solid var(--line-strong);
+    border-bottom: 4px solid var(--line-strong);
+    background: #f8fbf8;
+    color: #2c363f;
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.12;
+    text-align: center;
+  }
+
+  .view-button[aria-pressed="true"] {
+    border-color: var(--loss);
+    border-bottom-color: var(--loss);
+    background: var(--loss);
+    color: #fff;
+  }
+
+  .view-button:focus-visible {
+    outline: 3px solid rgba(36, 94, 116, 0.45);
+    outline-offset: 2px;
+  }
+
+  .source-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin: 12px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .source-links a {
+    color: var(--blue);
+  }
+
+  .stats {
+    padding: 18px 0 10px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stat-card {
+    min-height: 112px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-card b {
+    display: block;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 0.96;
+  }
+
+  .stat-card span {
+    display: block;
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .board {
+    padding: 10px 0 26px;
+  }
+
+  .board-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 18px;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    margin: 0;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 28px;
+    line-height: 1.05;
+  }
+
+  .hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .table-wrap {
+    overflow: auto;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  table {
+    width: 100%;
+    min-width: 940px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #dfe8e4;
+    color: #263039;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  th[data-sort] {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  th.active { color: var(--loss); }
+  tr:last-child td { border-bottom: 0; }
+
+  .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .item {
+    min-width: 270px;
+  }
+
+  .item strong,
+  .item span {
+    display: block;
+  }
+
+  .item span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .delta {
+    min-width: 250px;
+  }
+
+  .delta-value {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+
+  .delta-value strong {
+    font-size: 15px;
+  }
+
+  .delta-value span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .gain { color: var(--gain); }
+  .loss { color: var(--loss); }
+
+  .delta-rail {
+    position: relative;
+    height: 10px;
+    background: #e8eeeb;
+    border: 1px solid #c2cec9;
+  }
+
+  .delta-rail::before {
+    content: "";
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    left: 50%;
+    border-left: 1px solid #7d8985;
+  }
+
+  .delta-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--bar, 0%);
+  }
+
+  .delta-fill.gain {
+    left: 50%;
+    background: var(--gain);
+  }
+
+  .delta-fill.loss {
+    right: 50%;
+    background: var(--loss);
+  }
+
+  .share-flow {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .sub {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .method {
+    margin: 0 0 30px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 251, 0.8);
+    padding: 14px 16px;
+  }
+
+  .method summary {
+    cursor: pointer;
+    color: var(--loss);
+    font-weight: 900;
+  }
+
+  .method dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 12px 0 0;
+  }
+
+  .method dt { font-weight: 900; }
+  .method dd { margin: 0; color: #39434c; }
+
+  .footer {
+    border-top: 1px solid var(--line);
+    padding: 20px 0 28px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .footer .shell {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .footer p { margin: 0; }
+  .footer nav { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .error {
+    margin: 20px 0;
+    border: 1px solid #d3a5a5;
+    background: #fff4f4;
+    color: #742323;
+    padding: 14px;
+  }
+
+  @media (max-width: 850px) {
+    .mast-grid,
+    .stat-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .control-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .control-grid .wide {
+      grid-column: auto;
+    }
+
+    .board-head {
+      display: block;
+    }
+
+    .hint {
+      margin-top: 7px;
+    }
+
+    table {
+      min-width: 850px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .shell { width: min(100% - 20px, 1240px); }
+    .stat-card { min-height: 96px; }
+    th, td { padding: 10px 9px; }
+    .method dl { grid-template-columns: 1fr; }
+    .view-buttons { grid-template-columns: 1fr; }
+    .view-button { min-height: 48px; }
+  }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="shell mast-grid">
+    <div>
+      <p class="eyebrow">VER 2022 -> VER 2026 / T14a</p>
+      <h1>Prepočet koláča podľa nových profilov</h1>
+      <p class="lede">
+        Samostatná stránka pre simuláciu odmeny: rovnaký objem peňazí ako v
+        T14a, nové podiely podľa VER 2026.
+      </p>
+    </div>
+    <form class="control-panel" id="controls">
+      <div class="control-grid">
+        <div class="view-control">
+          <label id="view-label">Pohľad</label>
+          <div class="view-buttons" id="view-buttons" role="group" aria-labelledby="view-label">
+            <button type="button" class="view-button" data-view="universities" aria-pressed="true">VVŠ</button>
+            <button type="button" class="view-button" data-view="areas" aria-pressed="false">Oblasti hodnotenia</button>
+            <button type="button" class="view-button" data-view="groups" aria-pressed="false">Skupiny oblastí</button>
+            <button type="button" class="view-button" data-view="applications" aria-pressed="false">Žiadosti / súčasti</button>
+          </div>
+        </div>
+        <div>
+          <label for="sort-select">Triedenie</label>
+          <select id="sort-select">
+            <option value="amount_delta_eur">Rozdiel v eurách</option>
+            <option value="share_delta_pct">Zmena podielu</option>
+            <option value="new_share_pct">Nový podiel koláča</option>
+            <option value="new_amount_eur">Simulácia VER 2026</option>
+            <option value="old_amount_eur">VER 2022</option>
+            <option value="ver2026_rows">Počet riadkov 2026</option>
+            <option value="label">Názov</option>
+          </select>
+        </div>
+        <div class="wide">
+          <label for="search">Filter</label>
+          <input id="search" type="search" placeholder="Katedra politológie, FMFI, UK, matematické..." />
+        </div>
+      </div>
+      <div class="source-links" id="source-links">
+        <a href="https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx">VER 2026 profily kvality XLSX</a>
+        <a href="https://www.minedu.sk/data/att/7c5/35059.48a629.xlsx">Rozpis dotácií 2026 XLSX, hárok T14a-ver2022</a>
+        <a href="https://www.minedu.sk/metodicke-usmernenie-k-pouzitiu-vysledkov-periodickeho-hodnotenia-ver-2022-pre-ucely-posudenia-kvality-urovne-tvorivej-cinnosti-pri-standardoch-pre-studijny-program/">Metodické usmernenie k použitiu VER 2022</a>
+      </div>
+    </form>
+  </div>
+</header>
+
+<main class="shell">
+  <section class="stats" aria-label="Súhrn">
+    <div class="stat-grid" id="stat-grid"></div>
+  </section>
+
+  <section class="board" aria-labelledby="table-title">
+    <div class="board-head">
+      <div>
+        <p class="eyebrow" id="view-eyebrow">VVŠ</p>
+        <h2 id="table-title">Porovnanie podielov</h2>
+      </div>
+      <p class="hint" id="view-note"></p>
+    </div>
+
+    <div class="table-wrap">
+      <table id="comparison-table">
+        <thead>
+          <tr>
+            <th data-sort="label" id="unit-heading">Položka</th>
+            <th data-sort="old_amount_eur" class="num">VER 2022</th>
+            <th data-sort="new_amount_eur" class="num">VER 2026 simulácia</th>
+            <th data-sort="amount_delta_eur" class="num">Rozdiel</th>
+            <th data-sort="new_share_pct" class="num">Podiel koláča</th>
+            <th data-sort="ver2026_rows" class="num" id="rows-heading">Riadky 2026</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details class="method">
+    <summary>Metodika výpočtu</summary>
+    <dl>
+      <dt>Kvalita</dt>
+      <dd>
+        Písmená sú percentá v piatich úrovniach celkového profilu kvality:
+        <code>A</code> = excelentná, <code>B</code> = veľmi dobrá,
+        <code>C</code> = dobrá, <code>D</code> = uspokojivá,
+        <code>E</code> = neuspokojivá. Kvalita je
+        <code>8×A + 5×B + 3×C + 1×D + 0×E</code>.
+      </dd>
+      <dt>Objem</dt>
+      <dd><code>kvalita × počet zamestnancov × koeficient nákladov oblasti</code>.</dd>
+      <dt>Podiel</dt>
+      <dd>Podiel položky na súčte objemov v aktuálnom pohľade.</dd>
+      <dt>Suma</dt>
+      <dd>Rovnaký celkový objem ako v T14a, len prerozdelený podľa nového podielu.</dd>
+      <dt>Riadky</dt>
+      <dd>
+        Pohľady za oblasti a skupiny sčítavajú zverejnené aplikačné riadky ako
+        samostatné hodnotené položky v príslušnom zdroji.
+      </dd>
+      <dt>Žiadosti / súčasti</dt>
+      <dd>
+        Tento pohľad ukazuje riadky podľa školy, oblasti a súčasti/katedry.
+        Keď sa riadok nedá spárovať medzi VER 2022 a VER 2026, je označený ako
+        iba 2022 alebo iba 2026.
+      </dd>
+      <dt>Zdroje</dt>
+      <dd>
+        VER 2026 profily kvality XLSX a rozpis dotácií VVŠ 2026 XLSX, hárok
+        <code>T14a-ver2022</code>.
+      </dd>
+    </dl>
+  </details>
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <p>Neoficiálny prepočet nad verejnými dátami VER.</p>
+    <nav aria-label="Odkazy">
+      <a href="../">VER 2026 prehliadač</a>
+      <a href="./data.json">Dáta tejto stránky</a>
+      <a id="footer-ver2026-xlsx" href="https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx">VER 2026 XLSX</a>
+      <a id="footer-subsidy-xlsx" href="https://www.minedu.sk/data/att/7c5/35059.48a629.xlsx">T14a XLSX</a>
+      <a href="https://github.com/mrshu/ver2026">Zdrojový kód</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+const VIEW_LABELS = {
+  universities: "VVŠ",
+  areas: "Oblasti hodnotenia",
+  groups: "Skupiny oblastí",
+  applications: "Žiadosti / súčasti",
+};
+const VIEW_KEYS = new Set(Object.keys(VIEW_LABELS));
+const SORT_KEYS = new Set([
+  "label",
+  "old_amount_eur",
+  "new_amount_eur",
+  "amount_delta_eur",
+  "share_delta_pct",
+  "new_share_pct",
+  "ver2026_rows",
+]);
+
+const state = {
+  view: "universities",
+  sortKey: "amount_delta_eur",
+  sortAsc: false,
+  search: "",
+};
+
+let payload = null;
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[ch]));
+}
+
+function money(value) {
+  return value == null ? "-" : Math.round(value).toLocaleString("sk-SK") + " €";
+}
+
+function signedMoney(value) {
+  if (value == null) return "-";
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  return sign + Math.round(Math.abs(value)).toLocaleString("sk-SK") + " €";
+}
+
+function compactMoney(value) {
+  if (value == null) return "-";
+  return (value / 1_000_000).toLocaleString("sk-SK", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }) + " mil. €";
+}
+
+function pct(value, digits = 2) {
+  return value == null ? "-" : value.toLocaleString("sk-SK", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }) + " %";
+}
+
+function signedPct(value, suffix = " %") {
+  if (value == null) return "-";
+  const sign = value > 0 ? "+" : "";
+  return sign + value.toLocaleString("sk-SK", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }) + suffix;
+}
+
+function compareRows(a, b) {
+  const av = a[state.sortKey];
+  const bv = b[state.sortKey];
+  if (typeof av === "string" || typeof bv === "string") {
+    return String(av ?? "").localeCompare(String(bv ?? ""), "sk") * (state.sortAsc ? 1 : -1);
+  }
+  return ((av ?? -Infinity) - (bv ?? -Infinity)) * (state.sortAsc ? 1 : -1);
+}
+
+function currentView() {
+  return VIEW_KEYS.has(state.view) && payload.views[state.view]
+    ? payload.views[state.view]
+    : payload.views.universities;
+}
+
+function filteredRows() {
+  const q = state.search.trim().toLocaleLowerCase("sk-SK");
+  const rows = currentView().rows || [];
+  const filtered = q
+    ? rows.filter((row) => `${row.label} ${row.subtitle}`.toLocaleLowerCase("sk-SK").includes(q))
+    : rows;
+  return filtered.slice().sort(compareRows);
+}
+
+function biggest(rows, direction) {
+  if (!rows.length) return null;
+  return rows.reduce((best, row) => {
+    return direction === "gain"
+      ? row.amount_delta_eur > best.amount_delta_eur ? row : best
+      : row.amount_delta_eur < best.amount_delta_eur ? row : best;
+  }, rows[0]);
+}
+
+function rowCount(row) {
+  if (state.view === "universities") return String(row.ver2026_rows || 0);
+  return `${row.ver2022_rows || 0} / ${row.ver2026_rows || 0}`;
+}
+
+function statusLabel(row) {
+  if (state.view !== "applications") return "";
+  if (row.comparison_status === "new_only") return "iba VER 2026";
+  if (row.comparison_status === "old_only") return "iba VER 2022";
+  return "";
+}
+
+function writeUrlState() {
+  const params = new URLSearchParams();
+  if (state.view !== "universities") params.set("view", state.view);
+  if (state.sortKey !== "amount_delta_eur") params.set("sort", state.sortKey);
+  if (state.sortAsc) params.set("dir", "asc");
+  if (state.search) params.set("q", state.search);
+  const query = params.toString();
+  history.replaceState(null, "", query ? `${location.pathname}?${query}` : location.pathname);
+}
+
+function readUrlState() {
+  const params = new URLSearchParams(location.search);
+  if (VIEW_KEYS.has(params.get("view")) && payload.views[params.get("view")]) {
+    state.view = params.get("view");
+  }
+  if (SORT_KEYS.has(params.get("sort"))) state.sortKey = params.get("sort");
+  state.sortAsc = params.get("dir") === "asc";
+  state.search = params.get("q") || "";
+}
+
+function applyControls() {
+  document.querySelectorAll(".view-button[data-view]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
+  });
+  document.getElementById("sort-select").value = state.sortKey;
+  document.getElementById("search").value = state.search;
+}
+
+function renderStats(rows) {
+  const gain = biggest(rows, "gain");
+  const drop = biggest(rows, "drop");
+  document.getElementById("stat-grid").innerHTML = [
+    [compactMoney(payload.method.pool_eur), "simulovaný objem"],
+    [gain ? signedMoney(gain.amount_delta_eur) : "-", gain ? `${gain.label} najväčší nárast` : "najväčší nárast"],
+    [drop ? signedMoney(drop.amount_delta_eur) : "-", drop ? `${drop.label} najväčší pokles` : "najväčší pokles"],
+    [rows.length, currentView().unit_label],
+  ].map(([value, label]) => `
+    <div class="stat-card"><b>${esc(value)}</b><span>${esc(label)}</span></div>
+  `).join("");
+}
+
+function renderSources() {
+  const sources = payload.sources || {};
+  document.getElementById("source-links").innerHTML = `
+    <a href="${esc(sources.ver2026_profiles_xlsx)}">VER 2026 profily kvality XLSX</a>
+    <a href="${esc(sources.subsidy_2026_xlsx)}">Rozpis dotácií 2026 XLSX, hárok ${esc(sources.ver2022_sheet || "T14a-ver2022")}</a>
+    <a href="${esc(sources.ver2022_methodology_pdf)}">Metodické usmernenie k použitiu VER 2022</a>
+  `;
+  document.getElementById("footer-ver2026-xlsx").href = sources.ver2026_profiles_xlsx || "#";
+  document.getElementById("footer-subsidy-xlsx").href = sources.subsidy_2026_xlsx || "#";
+}
+
+function renderTable(rows) {
+  const maxAbs = Math.max(...rows.map((row) => Math.abs(row.amount_delta_eur || 0)), 1);
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
+    th.classList.toggle("active", th.dataset.sort === state.sortKey);
+    let mark = th.querySelector(".sort-mark");
+    if (!mark) {
+      mark = document.createElement("span");
+      mark.className = "sort-mark";
+      th.appendChild(mark);
+    }
+    mark.textContent = th.dataset.sort === state.sortKey ? (state.sortAsc ? " ↑" : " ↓") : "";
+  });
+
+  document.getElementById("comparison-table").querySelector("tbody").innerHTML = rows.map((row) => {
+    const deltaClass = row.amount_delta_eur > 0 ? "gain" : row.amount_delta_eur < 0 ? "loss" : "";
+    const bar = Math.min(49, Math.abs(row.amount_delta_eur || 0) / maxAbs * 49);
+    return `
+      <tr>
+        <td class="item">
+          <strong>${esc(row.label)}</strong>
+          <span>${esc(row.subtitle)}</span>
+          ${statusLabel(row) ? `<span>${esc(statusLabel(row))}</span>` : ""}
+        </td>
+        <td class="num">${money(row.old_amount_eur)}</td>
+        <td class="num"><strong>${money(row.new_amount_eur)}</strong></td>
+        <td class="num delta">
+          <div class="delta-value ${deltaClass}">
+            <strong>${signedMoney(row.amount_delta_eur)}</strong>
+            <span>${signedPct(row.amount_delta_pct)}</span>
+          </div>
+          <div class="delta-rail">
+            <span class="delta-fill ${deltaClass}" style="--bar:${bar}%"></span>
+          </div>
+        </td>
+        <td class="num">
+          <span class="share-flow">${pct(row.old_share_pct)} -> ${pct(row.new_share_pct)}</span>
+          <span class="sub">${signedPct(row.share_delta_pct, " p. b.")}</span>
+        </td>
+        <td class="num">${rowCount(row)}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function render() {
+  if (!payload) return;
+  const rows = filteredRows();
+  const view = currentView();
+  document.getElementById("view-eyebrow").textContent = view.label;
+  document.getElementById("unit-heading").textContent =
+    state.view === "universities" ? "VVŠ" : state.view === "applications" ? "Žiadosť / súčasť" : "Kategória";
+  document.getElementById("rows-heading").textContent = state.view === "universities" ? "Riadky 2026" : "Riadky 22/26";
+  document.getElementById("view-note").textContent =
+    `${rows.length} z ${(view.rows || []).length} položiek · váhy ${payload.method.quality_weights.join("/")}`;
+  renderStats(rows);
+  renderTable(rows);
+}
+
+async function load() {
+  try {
+    const response = await fetch("./data.json");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    payload = await response.json();
+    readUrlState();
+    applyControls();
+    renderSources();
+    render();
+  } catch (error) {
+    document.querySelector("main").insertAdjacentHTML("afterbegin", `
+      <div class="error">Dáta sa nepodarilo načítať. Spustite statický server v priečinku <code>web</code>.</div>
+    `);
+    console.error(error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  load();
+
+  document.getElementById("controls").addEventListener("submit", (event) => {
+    event.preventDefault();
+  });
+
+  document.getElementById("view-buttons").addEventListener("click", (event) => {
+    const button = event.target.closest(".view-button[data-view]");
+    if (!button) return;
+    state.view = button.dataset.view;
+    applyControls();
+    writeUrlState();
+    render();
+  });
+
+  document.getElementById("sort-select").addEventListener("change", (event) => {
+    state.sortKey = event.target.value;
+    state.sortAsc = state.sortKey === "label";
+    writeUrlState();
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (event) => {
+    state.search = event.target.value;
+    writeUrlState();
+    render();
+  });
+
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      if (state.sortKey === th.dataset.sort) {
+        state.sortAsc = !state.sortAsc;
+      } else {
+        state.sortKey = th.dataset.sort;
+        state.sortAsc = state.sortKey === "label";
+        document.getElementById("sort-select").value = state.sortKey;
+      }
+      writeUrlState();
+      render();
+    });
+  });
+});
+</script>
+</body>
+</html>

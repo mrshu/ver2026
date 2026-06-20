@@ -1,15 +1,20 @@
 """Tests for the VER 2026 loader and sort/filter helpers."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
+import openpyxl
 import pytest
 
 from ver2026 import filter_rows, load, sort_rows
 from ver2026.cli import main
 from ver2026.official_web import parse_results_html
+from ver2026.reward import build_reward_comparison, quality_points
 
 DATA = Path(__file__).resolve().parent.parent / "data" / "VER2026data.xlsx"
+WEB_DATA = Path(__file__).resolve().parent.parent / "web" / "data.json"
+REWARD_DATA = Path(__file__).resolve().parent.parent / "web" / "reward" / "data.json"
 
 
 @pytest.fixture(scope="module")
@@ -172,3 +177,121 @@ def test_fmfi_summary_values_match_reference_table(data):
         )
 
         assert actual == values
+
+
+def test_reward_quality_points_matches_t14a_methodology():
+    assert quality_points([24.35, 55.1, 17.75, 2.8, 0]) == pytest.approx(526.35)
+
+
+def test_reward_comparison_uses_trnava_ttu_alias(tmp_path):
+    old_path = tmp_path / "old.xlsx"
+    new_path = tmp_path / "new.xlsx"
+
+    old_wb = openpyxl.Workbook()
+    old_ws = old_wb.active
+    old_ws.title = "T14a-ver2022"
+    old_ws["Y9"] = 1000
+    old_ws["AA8"] = "VŠ"
+    old_ws["AB8"] = "VER"
+    old_ws["AC8"] = "Podiel VER"
+    old_ws["AD8"] = "Suma 2026"
+    for col, value in enumerate(["5*", "4*", "3*", "2*", "1*"], start=5):
+        old_ws.cell(9, col, value)
+    old_ws["AA9"] = "TTU"
+    old_ws["AB9"] = 100
+    old_ws["AC9"] = 100
+    old_ws["AD9"] = 1000
+    for col, value in enumerate(
+        ["TTU", "Za celú inštitúciu", "Matematické vedy", 1.3, 100, 0, 0, 0, 0, 10],
+        start=1,
+    ):
+        old_ws.cell(10, col, value)
+
+    names_ws = old_wb.create_sheet("VŠ-Názov")
+    names_ws.append([])
+    names_ws.append(["KOD VVŠ", "Názov plný  v CRŠ", "VVŠ naša skratka"])
+    names_ws.append([713000000, "Trnavská univerzita v Trnave", "TVU"])
+    old_wb.save(old_path)
+
+    new_wb = openpyxl.Workbook()
+    new_ws = new_wb.active
+    new_ws.title = "VER2026data"
+    new_ws.append(["title"])
+    headers = [None] * 28
+    headers[0] = "Číslo žiadosti"
+    headers[1] = "Oblasť hodnotenia"
+    headers[2] = "Skupina oblastí hodnotenia"
+    headers[3] = "Inštitúcia"
+    headers[4] = "Inštitucionálna úroveň žiadosti"
+    headers[5] = "VVI alebo VVŠ"
+    headers[6] = "Počet zamestnancov"
+    headers[23] = "% Celkový Profil kvality - Excelentná"
+    new_ws.append(headers)
+    row = [None] * 28
+    row[0] = "#1"
+    row[1] = "Matematické vedy"
+    row[2] = "Prírodné vedy"
+    row[3] = "Trnavská univerzita v Trnave"
+    row[4] = "Za celú inštitúciu"
+    row[5] = "VVŠ"
+    row[6] = 20
+    row[23:28] = [100, 0, 0, 0, 0]
+    new_ws.append(row)
+    new_wb.save(new_path)
+
+    comparison = build_reward_comparison(old_path, new_path)
+    assert len(comparison["rows"]) == 1
+    row = comparison["rows"][0]
+    assert row["abbr"] == "TTU"
+    assert row["ver2026_rows"] == 1
+    assert row["new_amount_eur"] == pytest.approx(1000)
+    assert comparison["views"]["areas"]["rows"][0]["label"] == "Matematické vedy"
+    assert comparison["views"]["areas"]["rows"][0]["new_amount_eur"] == pytest.approx(1000)
+    assert comparison["views"]["groups"]["rows"][0]["label"] == "Prírodné vedy"
+    assert comparison["views"]["applications"]["rows"][0]["label"] == "TTU / Za celú inštitúciu"
+    assert comparison["views"]["applications"]["rows"][0]["comparison_status"] == "matched"
+
+
+def test_generated_reward_json_has_all_views_and_fixed_pool():
+    payload = json.loads(REWARD_DATA.read_text(encoding="utf-8"))
+    assert set(payload["views"]) == {"universities", "areas", "groups", "applications"}
+    assert payload["sources"]["ver2026_profiles_xlsx"].endswith("36762.f7eba0.xlsx")
+    assert payload["sources"]["subsidy_2026_xlsx"].endswith("35059.48a629.xlsx")
+    pool = payload["method"]["pool_eur"]
+    assert pool == pytest.approx(124_907_188)
+    for view in payload["views"].values():
+        rows = view["rows"]
+        assert rows
+        assert sum(row["old_amount_eur"] for row in rows) == pytest.approx(pool)
+        assert sum(row["new_amount_eur"] for row in rows) == pytest.approx(pool)
+
+    eu = next(row for row in payload["views"]["universities"]["rows"] if row["label"] == "EU")
+    assert eu["amount_delta_eur"] == pytest.approx(3_039_995.353887337)
+    assert eu["ver2022_rows"] == 8
+    assert eu["ver2026_rows"] == 1
+
+    economics = next(row for row in payload["views"]["areas"]["rows"] if row["label"] == "Ekonomické vedy")
+    assert economics["amount_delta_eur"] == pytest.approx(4_990_777.530739086)
+    assert economics["ver2022_rows"] == 23
+    assert economics["ver2026_rows"] == 14
+
+    social = next(row for row in payload["views"]["groups"]["rows"] if row["label"] == "Spoločenské vedy")
+    assert social["amount_delta_eur"] == pytest.approx(5_451_489.845603522)
+    assert social["ver2022_rows"] == 109
+    assert social["ver2026_rows"] == 77
+
+    applications = payload["views"]["applications"]["rows"]
+    assert len(applications) == 343
+    statuses = {row["comparison_status"] for row in applications}
+    assert statuses == {"matched", "old_only", "new_only"}
+    department = next(row for row in applications if row["label"] == "TUAD / Katedra politológie")
+    assert department["subtitle"] == "Politické vedy · Trenčianska univerzita Alexandra Dubčeka v Trenčíne"
+    assert department["comparison_status"] == "new_only"
+    assert department["new_amount_eur"] == pytest.approx(52_629.05279500311)
+
+
+def test_main_web_data_does_not_embed_reward_payload():
+    payload = json.loads(WEB_DATA.read_text(encoding="utf-8"))
+    assert "reward_comparison" not in payload
+    assert "views" not in payload
+    assert "subsidy_2026_xlsx" not in json.dumps(payload)
