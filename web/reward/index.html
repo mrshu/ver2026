@@ -98,10 +98,6 @@
     grid-column: 1 / -1;
   }
 
-  .view-control {
-    grid-column: 1 / -1;
-  }
-
   label {
     display: block;
     margin-bottom: 5px;
@@ -121,37 +117,6 @@
     padding: 9px 10px;
   }
 
-  .view-buttons {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .view-button {
-    min-height: 56px;
-    border: 1px solid var(--line-strong);
-    border-bottom: 4px solid var(--line-strong);
-    background: #f8fbf8;
-    color: #2c363f;
-    padding: 10px 8px;
-    font-size: 13px;
-    font-weight: 900;
-    line-height: 1.12;
-    text-align: center;
-  }
-
-  .view-button[aria-pressed="true"] {
-    border-color: var(--loss);
-    border-bottom-color: var(--loss);
-    background: var(--loss);
-    color: #fff;
-  }
-
-  .view-button:focus-visible {
-    outline: 3px solid rgba(36, 94, 116, 0.45);
-    outline-offset: 2px;
-  }
-
   .source-links {
     display: grid;
     grid-template-columns: 1fr;
@@ -169,7 +134,56 @@
   }
 
   .stats {
-    padding: 18px 0 10px;
+    padding: 10px 0;
+  }
+
+  .quick-views {
+    padding: 18px 0 0;
+  }
+
+  .quick-view-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .quick-view {
+    min-height: 74px;
+    border: 1px solid var(--line);
+    border-bottom: 5px solid var(--line-strong);
+    background: rgba(255, 255, 251, 0.92);
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 14px 12px;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+  }
+
+  .quick-view strong {
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .quick-view span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .quick-view[aria-current="page"] {
+    border-color: var(--loss);
+    border-bottom-color: var(--loss);
+    background: #fff8f7;
+  }
+
+  .quick-view:focus-visible {
+    outline: 3px solid rgba(36, 94, 116, 0.45);
+    outline-offset: 2px;
   }
 
   .stat-grid {
@@ -410,7 +424,8 @@
 
   @media (max-width: 850px) {
     .mast-grid,
-    .stat-grid {
+    .stat-grid,
+    .quick-view-grid {
       grid-template-columns: 1fr;
     }
 
@@ -440,8 +455,6 @@
     .stat-card { min-height: 96px; }
     th, td { padding: 10px 9px; }
     .method dl { grid-template-columns: 1fr; }
-    .view-buttons { grid-template-columns: 1fr; }
-    .view-button { min-height: 48px; }
   }
 </style>
 </head>
@@ -458,14 +471,14 @@
     </div>
     <form class="control-panel" id="controls">
       <div class="control-grid">
-        <div class="view-control">
-          <label id="view-label">Pohľad</label>
-          <div class="view-buttons" id="view-buttons" role="group" aria-labelledby="view-label">
-            <button type="button" class="view-button" data-view="universities" aria-pressed="true">VVŠ</button>
-            <button type="button" class="view-button" data-view="areas" aria-pressed="false">Oblasti hodnotenia</button>
-            <button type="button" class="view-button" data-view="groups" aria-pressed="false">Skupiny oblastí</button>
-            <button type="button" class="view-button" data-view="applications" aria-pressed="false">Žiadosti / súčasti</button>
-          </div>
+        <div>
+          <label for="view-select">Pohľad</label>
+          <select id="view-select">
+            <option value="universities">VVŠ</option>
+            <option value="areas">Oblasti hodnotenia</option>
+            <option value="groups">Skupiny oblastí</option>
+            <option value="applications">Žiadosti / súčasti</option>
+          </select>
         </div>
         <div>
           <label for="sort-select">Triedenie</label>
@@ -494,6 +507,10 @@
 </header>
 
 <main class="shell">
+  <section class="quick-views" aria-label="Rýchle pohľady">
+    <div class="quick-view-grid" id="quick-views"></div>
+  </section>
+
   <section class="stats" aria-label="Súhrn">
     <div class="stat-grid" id="stat-grid"></div>
   </section>
@@ -580,6 +597,12 @@ const VIEW_LABELS = {
   areas: "Oblasti hodnotenia",
   groups: "Skupiny oblastí",
   applications: "Žiadosti / súčasti",
+};
+const VIEW_HINTS = {
+  universities: "verejné vysoké školy",
+  areas: "oblasti hodnotenia",
+  groups: "skupiny oblastí",
+  applications: "žiadosti a súčasti",
 };
 const VIEW_KEYS = new Set(Object.keys(VIEW_LABELS));
 const SORT_KEYS = new Set([
@@ -700,6 +723,13 @@ function writeUrlState() {
   history.replaceState(null, "", query ? `${location.pathname}?${query}` : location.pathname);
 }
 
+function viewUrl(viewKey) {
+  const params = new URLSearchParams();
+  if (viewKey !== "universities") params.set("view", viewKey);
+  const query = params.toString();
+  return query ? `${location.pathname}?${query}` : location.pathname;
+}
+
 function readUrlState() {
   const params = new URLSearchParams(location.search);
   if (VIEW_KEYS.has(params.get("view")) && payload.views[params.get("view")]) {
@@ -711,11 +741,22 @@ function readUrlState() {
 }
 
 function applyControls() {
-  document.querySelectorAll(".view-button[data-view]").forEach((button) => {
-    button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
-  });
+  document.getElementById("view-select").value = state.view;
   document.getElementById("sort-select").value = state.sortKey;
   document.getElementById("search").value = state.search;
+}
+
+function renderQuickViews() {
+  document.getElementById("quick-views").innerHTML = Object.keys(VIEW_LABELS).map((viewKey) => {
+    const view = payload.views[viewKey] || { rows: [] };
+    const active = viewKey === state.view;
+    return `
+      <a class="quick-view" href="${esc(viewUrl(viewKey))}" data-view="${esc(viewKey)}" ${active ? 'aria-current="page"' : ""}>
+        <strong>${esc(VIEW_LABELS[viewKey])}</strong>
+        <span>${(view.rows || []).length.toLocaleString("sk-SK")} ${esc(VIEW_HINTS[viewKey])}</span>
+      </a>
+    `;
+  }).join("");
 }
 
 function renderStats(rows) {
@@ -796,6 +837,7 @@ function render() {
   document.getElementById("rows-heading").textContent = state.view === "universities" ? "Riadky 2026" : "Riadky 22/26";
   document.getElementById("view-note").textContent =
     `${rows.length} z ${(view.rows || []).length} položiek · váhy ${payload.method.quality_weights.join("/")}`;
+  renderQuickViews();
   renderStats(rows);
   renderTable(rows);
 }
@@ -824,10 +866,21 @@ document.addEventListener("DOMContentLoaded", () => {
     event.preventDefault();
   });
 
-  document.getElementById("view-buttons").addEventListener("click", (event) => {
-    const button = event.target.closest(".view-button[data-view]");
-    if (!button) return;
-    state.view = button.dataset.view;
+  document.getElementById("view-select").addEventListener("change", (event) => {
+    state.view = event.target.value;
+    applyControls();
+    writeUrlState();
+    render();
+  });
+
+  document.getElementById("quick-views").addEventListener("click", (event) => {
+    const link = event.target.closest(".quick-view[data-view]");
+    if (!link) return;
+    event.preventDefault();
+    state.view = link.dataset.view;
+    state.sortKey = "amount_delta_eur";
+    state.sortAsc = false;
+    state.search = "";
     applyControls();
     writeUrlState();
     render();
