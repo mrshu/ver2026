@@ -704,6 +704,205 @@
     line-height: 1.2;
   }
 
+  .cake-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .cake-section-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 12px;
+  }
+
+  .cake-section-head h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 24px;
+    line-height: 1.05;
+  }
+
+  .cake-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .cake-card {
+    border-top: 1px solid var(--line);
+    padding: 14px 0 0;
+  }
+
+  .cake-card:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .cake-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: start;
+    margin-bottom: 10px;
+  }
+
+  .cake-card h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    line-height: 1.05;
+  }
+
+  .cake-card-head p {
+    margin: 0;
+    max-width: 390px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: right;
+  }
+
+  .cake-body {
+    display: grid;
+    grid-template-columns: minmax(520px, 1.35fr) minmax(250px, 0.65fr);
+    gap: 14px;
+    align-items: center;
+  }
+
+  .cake-svg-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    background: #f8fbf8;
+  }
+
+  .cake-svg {
+    display: block;
+    width: 100%;
+    min-width: 520px;
+    height: auto;
+  }
+
+  .cake-year-label {
+    fill: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .cake-slice {
+    cursor: help;
+    stroke: #fffffb;
+    stroke-width: 1.2;
+    transition: opacity 140ms ease, stroke-width 140ms ease;
+  }
+
+  .cake-slice:hover,
+  .cake-slice:focus {
+    opacity: 0.88;
+    outline: none;
+    stroke: #263039;
+    stroke-width: 3;
+  }
+
+  .cake-hole {
+    fill: #fffffb;
+    stroke: #d8e1dd;
+    stroke-width: 1;
+  }
+
+  .cake-center-kicker {
+    fill: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .cake-center-year {
+    fill: var(--ink);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 24px;
+    font-weight: 900;
+  }
+
+  .cake-center-note {
+    fill: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .cake-midline {
+    stroke: #c7d2ce;
+    stroke-width: 1;
+    stroke-dasharray: 4 5;
+  }
+
+  .cake-legend {
+    align-self: stretch;
+    border-left: 1px solid var(--line);
+    padding-left: 14px;
+  }
+
+  .cake-legend strong {
+    display: block;
+    color: #263039;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .cake-legend ol {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .cake-legend li {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr) max-content;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .cake-swatch {
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgba(38, 48, 57, 0.24);
+  }
+
+  .cake-name {
+    min-width: 0;
+    color: #263039;
+    font-size: 12px;
+    font-weight: 850;
+    line-height: 1.18;
+  }
+
+  .cake-values {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .cake-more {
+    margin: 10px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
   .board {
     padding: 10px 0 26px;
   }
@@ -971,6 +1170,26 @@
       grid-template-columns: 1fr;
     }
 
+    .cake-card-head {
+      display: block;
+    }
+
+    .cake-card-head p {
+      max-width: none;
+      margin-top: 6px;
+      text-align: left;
+    }
+
+    .cake-body {
+      grid-template-columns: 1fr;
+    }
+
+    .cake-legend {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+      padding: 12px 0 0;
+    }
+
     .hint {
       margin-top: 7px;
     }
@@ -1131,6 +1350,18 @@
         <button type="button" class="chart-mode" data-chart-mode="scatter" aria-pressed="false">Podiel vs. počet zam.</button>
       </div>
       <div class="chart-wrap" id="area-chart"></div>
+      <div class="cake-section" aria-labelledby="cake-title">
+        <div class="cake-section-head">
+          <div>
+            <p class="eyebrow">Koláč T14a</p>
+            <h3 id="cake-title">Koláč 2022 a koláč 2026 vedľa seba</h3>
+          </div>
+          <p class="hint">
+            Tri pohľady v rovnakom poradí. Každý rok ide od najväčšieho dielu po najmenší; farby ostávajú podľa položky.
+          </p>
+        </div>
+        <div class="cake-grid" id="cake-charts"></div>
+      </div>
       <div class="chart-report-card" id="chart-report-card" hidden></div>
     </div>
   </section>
@@ -1165,6 +1396,36 @@ const VIEW_HINTS = {
 const VIEW_KEYS = new Set(Object.keys(VIEW_LABELS));
 const CHART_MODES = new Set(["ledger", "change-map", "amount-map", "scatter"]);
 const CHART_SCATTER_FOCUS_PER_DIRECTION = 3;
+const CAKE_VIEWS = [
+  {
+    key: "areas",
+    title: "Oblasti hodnotenia",
+    unit: "oblastí hodnotenia",
+    kicker: "Koláč: oblasť hodnotenia",
+    legendLimit: 8,
+  },
+  {
+    key: "groups",
+    title: "Skupiny oblastí",
+    unit: "skupín oblastí",
+    kicker: "Koláč: skupina oblastí",
+    legendLimit: 7,
+  },
+  {
+    key: "universities",
+    title: "Verejné vysoké školy",
+    unit: "verejných vysokých škôl",
+    kicker: "Koláč: VVŠ",
+    legendLimit: 8,
+  },
+];
+const CAKE_PALETTE = [
+  "#245e74", "#b9822c", "#1f6f4a", "#9b1c31", "#6f6a2d", "#7b5c96",
+  "#c15c32", "#3f7d7a", "#8d5a44", "#476a9b", "#bf7d2b", "#2f8a5d",
+  "#aa3c3c", "#5c738c", "#d0a74f", "#2d6a61", "#99713d", "#b55a79",
+  "#4c5e2b", "#628c9f", "#8f704e", "#315e55", "#7c6c86", "#b35f1a",
+  "#577b55", "#c29447", "#6f4b3b", "#3a7d88", "#9a6a23", "#a0445f",
+];
 const SORT_KEYS = new Set([
   "label",
   "old_amount_eur",
@@ -1340,6 +1601,158 @@ function trimChartLabel(value, max = 42) {
   return text.length > max ? text.slice(0, max - 1) + "…" : text;
 }
 
+function polarPoint(cx, cy, radius, angle) {
+  return {
+    x: cx + radius * Math.cos(angle),
+    y: cy + radius * Math.sin(angle),
+  };
+}
+
+function donutPath(cx, cy, outerRadius, innerRadius, startAngle, endAngle) {
+  const outerStart = polarPoint(cx, cy, outerRadius, startAngle);
+  const outerEnd = polarPoint(cx, cy, outerRadius, endAngle);
+  const innerStart = polarPoint(cx, cy, innerRadius, startAngle);
+  const innerEnd = polarPoint(cx, cy, innerRadius, endAngle);
+  const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+  return [
+    `M ${outerStart.x.toFixed(2)} ${outerStart.y.toFixed(2)}`,
+    `A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${outerEnd.x.toFixed(2)} ${outerEnd.y.toFixed(2)}`,
+    `L ${innerEnd.x.toFixed(2)} ${innerEnd.y.toFixed(2)}`,
+    `A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${innerStart.x.toFixed(2)} ${innerStart.y.toFixed(2)}`,
+    "Z",
+  ].join(" ");
+}
+
+function cakeRows(viewKey) {
+  return (payload.views[viewKey]?.rows || [])
+    .slice()
+    .sort((a, b) => (b.new_share_pct || 0) - (a.new_share_pct || 0));
+}
+
+function cakeRowsByShare(rows, shareKey) {
+  return rows
+    .slice()
+    .sort((a, b) =>
+      ((b[shareKey] || 0) - (a[shareKey] || 0)) ||
+      a.label.localeCompare(b.label, "sk")
+    );
+}
+
+function cakeColor(index) {
+  return CAKE_PALETTE[index % CAKE_PALETTE.length];
+}
+
+function cakeColorMap(rows) {
+  return new Map(rows.map((row, index) => [row.key, cakeColor(index)]));
+}
+
+function cakeSegments(rows, shareKey) {
+  const total = rows.reduce((sum, row) => sum + Math.max(0, row[shareKey] || 0), 0) || 1;
+  let angle = -Math.PI / 2;
+  return rows
+    .map((row, index) => {
+      const share = Math.max(0, row[shareKey] || 0);
+      const nextAngle = angle + share / total * Math.PI * 2;
+      const segment = { row, index, startAngle: angle, endAngle: nextAngle };
+      angle = nextAngle;
+      return segment;
+    })
+    .filter((segment) => segment.endAngle - segment.startAngle > 0.0001);
+}
+
+function renderCakeDonut(rows, viewKey, shareKey, amountKey, yearLabel, yearShort, cx, colorByKey) {
+  const cy = 143;
+  const outer = 96;
+  const inner = 55;
+  const segments = cakeSegments(rows, shareKey).map(({ row, index, startAngle, endAngle }) => {
+    const aria = `${row.label}: ${yearLabel} ${pct(row[shareKey])}, ${money(row[amountKey])}, zmena ${signedPct(row.share_delta_pct, " p. b.")}`;
+    return `
+      <path
+        class="cake-slice"
+        d="${donutPath(cx, cy, outer, inner, startAngle, endAngle)}"
+        fill="${colorByKey.get(row.key) || cakeColor(index)}"
+        data-cake-view="${esc(viewKey)}"
+        data-cake-key="${esc(row.key)}"
+        tabindex="0"
+        role="img"
+        aria-label="${esc(aria)}"
+      />
+    `;
+  }).join("");
+
+  return `
+    <g>
+      <text class="cake-year-label" x="${cx}" y="30" text-anchor="middle">${esc(yearLabel)}</text>
+      ${segments}
+      <circle class="cake-hole" cx="${cx}" cy="${cy}" r="${inner - 2}" />
+      <text class="cake-center-kicker" x="${cx}" y="${cy - 10}" text-anchor="middle">VER</text>
+      <text class="cake-center-year" x="${cx}" y="${cy + 16}" text-anchor="middle">${esc(yearShort)}</text>
+      <text class="cake-center-note" x="${cx}" y="${cy + 34}" text-anchor="middle">100 % koláča</text>
+    </g>
+  `;
+}
+
+function renderCakeSvg(config, rows, colorByKey) {
+  const oldRows = cakeRowsByShare(rows, "old_share_pct");
+  const newRows = cakeRowsByShare(rows, "new_share_pct");
+  return `
+    <svg class="cake-svg" viewBox="0 0 560 290" role="img" aria-labelledby="cake-${esc(config.key)}-title cake-${esc(config.key)}-desc">
+      <desc id="cake-${esc(config.key)}-desc">Dva donutové grafy porovnávajú podiely T14a vo VER 2022 a simulácii VER 2026 pre pohľad ${esc(config.title)}. Každý rok je zoradený od najväčšieho dielu po najmenší.</desc>
+      <rect x="0" y="0" width="560" height="290" fill="#f8fbf8" />
+      <line class="cake-midline" x1="280" y1="44" x2="280" y2="244" />
+      ${renderCakeDonut(oldRows, config.key, "old_share_pct", "old_amount_eur", "VER 2022", "2022", 140, colorByKey)}
+      ${renderCakeDonut(newRows, config.key, "new_share_pct", "new_amount_eur", "VER 2026 simulácia", "2026", 420, colorByKey)}
+    </svg>
+  `;
+}
+
+function renderCakeLegend(config, rows, colorByKey) {
+  const listed = rows.slice(0, config.legendLimit);
+  const extra = rows.length - listed.length;
+  return `
+    <div class="cake-legend">
+      <strong>Najväčšie diely v 2026</strong>
+      <ol>
+        ${listed.map((row, index) => `
+          <li>
+            <span class="cake-swatch" style="background:${colorByKey.get(row.key) || cakeColor(index)}"></span>
+            <span class="cake-name">${esc(row.label)}</span>
+            <span class="cake-values">${pct(row.new_share_pct, 1)} · ${signedPct(row.share_delta_pct, " p. b.")}</span>
+          </li>
+        `).join("")}
+      </ol>
+      ${extra > 0 ? `<p class="cake-more">+ ${extra.toLocaleString("sk-SK")} menších dielov je stále v koláči; pre detail prejdi myšou cez výsek.</p>` : ""}
+    </div>
+  `;
+}
+
+function renderCakeCharts() {
+  document.getElementById("cake-charts").innerHTML = CAKE_VIEWS.map((config) => {
+    const rows = cakeRows(config.key);
+    const colorByKey = cakeColorMap(rows);
+    const biggest = rows[0];
+    const mover = rows.slice().sort((a, b) => Math.abs(b.share_delta_pct || 0) - Math.abs(a.share_delta_pct || 0))[0];
+    return `
+      <article class="cake-card" aria-labelledby="cake-${esc(config.key)}-title">
+        <div class="cake-card-head">
+          <div>
+            <p class="eyebrow">${rows.length.toLocaleString("sk-SK")} ${esc(config.unit)}</p>
+            <h3 id="cake-${esc(config.key)}-title">${esc(config.title)}</h3>
+          </div>
+          <p>
+            Najväčší diel 2026: ${biggest ? `${esc(biggest.label)} ${pct(biggest.new_share_pct, 1)}` : "-"}.
+            Najväčší presun: ${mover ? `${esc(mover.label)} ${signedPct(mover.share_delta_pct, " p. b.")}` : "-"}.
+          </p>
+        </div>
+        <div class="cake-body">
+          <div class="cake-svg-wrap">${renderCakeSvg(config, rows, colorByKey)}</div>
+          ${renderCakeLegend(config, rows, colorByKey)}
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
 function renderChartControls() {
   document.querySelectorAll("[data-chart-mode]").forEach((button) => {
     const active = button.dataset.chartMode === state.chartMode;
@@ -1436,14 +1849,18 @@ function rowForAreaKey(key) {
   return (payload?.views?.areas?.rows || []).find((row) => row.key === key);
 }
 
-function renderReportCard(row) {
+function rowForViewKey(viewKey, key) {
+  return (payload?.views?.[viewKey]?.rows || []).find((row) => row.key === key);
+}
+
+function renderReportCard(row, kicker = "Karta oblasti") {
   const empDelta = employeeDelta(row);
   const empPct = employeeDeltaPct(row);
   const shareTone = chartTone(row);
   const empTone = deltaTone(empDelta);
   const moneyTone = row.amount_delta_eur > 0 ? "gain" : row.amount_delta_eur < 0 ? "loss" : "neutral";
   return `
-    <p class="report-kicker">Karta oblasti</p>
+    <p class="report-kicker">${esc(kicker)}</p>
     <h3 class="report-title">${esc(row.label)}</h3>
     <p class="report-subtitle">${esc(row.subtitle)}</p>
     <div class="report-grid">
@@ -1493,10 +1910,10 @@ function moveReportCard(clientX, clientY) {
   card.style.top = `${Math.max(margin, top)}px`;
 }
 
-function showReportCard(row, clientX, clientY) {
+function showReportCard(row, clientX, clientY, kicker = "Karta oblasti") {
   if (!row) return;
   const card = document.getElementById("chart-report-card");
-  card.innerHTML = renderReportCard(row);
+  card.innerHTML = renderReportCard(row, kicker);
   card.hidden = false;
   moveReportCard(clientX, clientY);
 }
@@ -1869,11 +2286,9 @@ function renderAreaScatter(rows, allRows) {
       : row.label === "Strojárske vedy"
         ? newY + 16
         : newY - 8;
-    const title = `${row.label}\nVER 2022: ${Math.round(row.old_employees).toLocaleString("sk-SK")} zam., ${pct(row.old_share_pct)}, ${money(row.old_amount_eur)}\nVER 2026: ${Math.round(row.new_employees).toLocaleString("sk-SK")} zam., ${pct(row.new_share_pct)}, ${money(row.new_amount_eur)}`;
     const aria = `${row.label}: VER 2022 ${Math.round(row.old_employees).toLocaleString("sk-SK")} zamestnancov a ${pct(row.old_share_pct)}, VER 2026 ${Math.round(row.new_employees).toLocaleString("sk-SK")} zamestnancov a ${pct(row.new_share_pct)}`;
     return `
       <g data-area-key="${esc(row.key)}" tabindex="0" role="img" aria-label="${esc(aria)}">
-        <title>${esc(title)}</title>
         <line class="chart-connector" x1="${oldX}" y1="${oldY}" x2="${newX}" y2="${newY}" />
         <circle class="chart-point old" cx="${oldX}" cy="${oldY}" r="4" />
         <circle class="chart-point new" cx="${newX}" cy="${newY}" r="6" />
@@ -1976,6 +2391,7 @@ function render() {
   document.getElementById("view-note").textContent =
     `${rows.length} z ${(view.rows || []).length} položiek`;
   renderQuickViews();
+  renderCakeCharts();
   renderAreaChart();
   renderStats(rows);
   renderTable(rows);
@@ -2043,6 +2459,42 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!button || !CHART_MODES.has(button.dataset.chartMode)) return;
     state.chartMode = button.dataset.chartMode;
     renderAreaChart();
+  });
+
+  document.getElementById("cake-charts").addEventListener("pointermove", (event) => {
+    const target = event.target.closest("[data-cake-key]");
+    if (!target) {
+      hideReportCard();
+      return;
+    }
+    const config = CAKE_VIEWS.find((item) => item.key === target.dataset.cakeView);
+    showReportCard(
+      rowForViewKey(target.dataset.cakeView, target.dataset.cakeKey),
+      event.clientX,
+      event.clientY,
+      config?.kicker || "Koláč"
+    );
+  });
+
+  document.getElementById("cake-charts").addEventListener("pointerleave", () => {
+    hideReportCard();
+  });
+
+  document.getElementById("cake-charts").addEventListener("focusin", (event) => {
+    const target = event.target.closest("[data-cake-key]");
+    if (!target) return;
+    const rect = target.getBoundingClientRect();
+    const config = CAKE_VIEWS.find((item) => item.key === target.dataset.cakeView);
+    showReportCard(
+      rowForViewKey(target.dataset.cakeView, target.dataset.cakeKey),
+      rect.left + rect.width / 2,
+      rect.top + rect.height / 2,
+      config?.kicker || "Koláč"
+    );
+  });
+
+  document.getElementById("cake-charts").addEventListener("focusout", () => {
+    hideReportCard();
   });
 
   document.getElementById("area-chart").addEventListener("pointermove", (event) => {
