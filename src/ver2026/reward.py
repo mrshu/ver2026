@@ -216,6 +216,19 @@ def _old_university_row_counts(ws) -> dict[str, int]:
     return dict(counts)
 
 
+def _old_university_employees(ws) -> dict[str, float]:
+    employees: dict[str, float] = defaultdict(float)
+    for row in ws.iter_rows(min_row=10, values_only=True):
+        abbr = row[0] if len(row) > 0 else None
+        area = row[2] if len(row) > 2 else None
+        if not abbr or not area or normalize(area) == "priemer":
+            continue
+        employees[OLD_ABBR_ALIASES.get(str(abbr).strip(), str(abbr).strip())] += (
+            to_float(row[9] if len(row) > 9 else None) or 0.0
+        )
+    return dict(employees)
+
+
 def _new_dimensions(
     path: str | Path,
     *,
@@ -224,6 +237,7 @@ def _new_dimensions(
 ) -> tuple[
     dict[str, dict[str, float]],
     dict[str, dict[str, int]],
+    dict[str, dict[str, float]],
     dict[str, dict[str, str]],
     dict[str, dict[str, str]],
     dict[str, str],
@@ -242,6 +256,12 @@ def _new_dimensions(
         "areas": defaultdict(int),
         "groups": defaultdict(int),
         "applications": defaultdict(int),
+    }
+    employees = {
+        "universities": defaultdict(float),
+        "areas": defaultdict(float),
+        "groups": defaultdict(float),
+        "applications": defaultdict(float),
     }
     labels = {
         "universities": {},
@@ -269,34 +289,40 @@ def _new_dimensions(
         area_label = clean_label(row[COL_NEW_AREA])
         group_label = clean_label(row[COL_NEW_GROUP])
         component = clean_component(row[COL_NEW_LEVEL])
+        employee_count = to_float(row[COL_NEW_EMPLOYEES]) or 0.0
         levels = row[COL_NEW_OVERALL_START : COL_NEW_OVERALL_START + 5]
-        volume = weighted_volume(levels, row[COL_NEW_EMPLOYEES], _area_cost(row[COL_NEW_AREA], area_costs))
+        volume = weighted_volume(levels, employee_count, _area_cost(row[COL_NEW_AREA], area_costs))
 
         volumes["universities"][abbr] += volume
         row_counts["universities"][abbr] += 1
+        employees["universities"][abbr] += employee_count
         labels["universities"][abbr] = abbr
         subtitles["universities"][abbr] = clean_label(institution)
 
         volumes["areas"][area_key] += volume
         row_counts["areas"][area_key] += 1
+        employees["areas"][area_key] += employee_count
         labels["areas"][area_key] = area_label
         subtitles["areas"][area_key] = group_label
         area_to_group[area_key] = group_label
 
         volumes["groups"][group_key] += volume
         row_counts["groups"][group_key] += 1
+        employees["groups"][group_key] += employee_count
         labels["groups"][group_key] = group_label
         subtitles["groups"][group_key] = "Skupina oblastí hodnotenia"
 
         app_key = application_key(abbr, row[COL_NEW_AREA], component)
         volumes["applications"][app_key] += volume
         row_counts["applications"][app_key] += 1
+        employees["applications"][app_key] += employee_count
         labels["applications"][app_key] = f"{abbr} / {component}"
         subtitles["applications"][app_key] = f"{area_label} · {clean_label(institution)}"
 
     return (
         {name: dict(items) for name, items in volumes.items()},
         {name: dict(items) for name, items in row_counts.items()},
+        {name: dict(items) for name, items in employees.items()},
         labels,
         subtitles,
         area_to_group,
@@ -307,9 +333,10 @@ def _old_application_volumes(
     ws,
     *,
     abbr_to_name: dict[str, str],
-) -> tuple[dict[str, float], dict[str, int], dict[str, str], dict[str, str]]:
+) -> tuple[dict[str, float], dict[str, int], dict[str, float], dict[str, str], dict[str, str]]:
     volumes: dict[str, float] = defaultdict(float)
     row_counts: dict[str, int] = defaultdict(int)
+    employees: dict[str, float] = defaultdict(float)
     labels: dict[str, str] = {}
     subtitles: dict[str, str] = {}
 
@@ -322,17 +349,22 @@ def _old_application_volumes(
         canonical_abbr = OLD_ABBR_ALIASES.get(str(abbr).strip(), str(abbr).strip())
         component_label = clean_component(component)
         key = application_key(canonical_abbr, area, component_label)
-        volume = weighted_volume(row[4:9], row[9] if len(row) > 9 else None, row[3] if len(row) > 3 else None)
+        employee_count = to_float(row[9] if len(row) > 9 else None) or 0.0
+        volume = weighted_volume(row[4:9], employee_count, row[3] if len(row) > 3 else None)
 
         volumes[key] += volume
         row_counts[key] += 1
+        employees[key] += employee_count
         labels[key] = f"{canonical_abbr} / {component_label}"
         subtitles[key] = f"{clean_label(area)} · {abbr_to_name.get(canonical_abbr, canonical_abbr)}"
 
-    return dict(volumes), dict(row_counts), labels, subtitles
+    return dict(volumes), dict(row_counts), dict(employees), labels, subtitles
 
 
-def _old_category_volumes(ws, area_to_group: dict[str, str]) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, int]], dict[str, dict[str, str]]]:
+def _old_category_volumes(
+    ws,
+    area_to_group: dict[str, str],
+) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, int]], dict[str, dict[str, float]], dict[str, dict[str, str]]]:
     volumes = {
         "areas": defaultdict(float),
         "groups": defaultdict(float),
@@ -340,6 +372,10 @@ def _old_category_volumes(ws, area_to_group: dict[str, str]) -> tuple[dict[str, 
     row_counts = {
         "areas": defaultdict(int),
         "groups": defaultdict(int),
+    }
+    employees = {
+        "areas": defaultdict(float),
+        "groups": defaultdict(float),
     }
     labels = {
         "areas": {},
@@ -358,14 +394,17 @@ def _old_category_volumes(ws, area_to_group: dict[str, str]) -> tuple[dict[str, 
         if not group_key:
             missing_groups.append(clean_label(area))
             continue
-        volume = weighted_volume(row[4:9], row[9] if len(row) > 9 else None, row[3] if len(row) > 3 else None)
+        employee_count = to_float(row[9] if len(row) > 9 else None) or 0.0
+        volume = weighted_volume(row[4:9], employee_count, row[3] if len(row) > 3 else None)
 
         volumes["areas"][area_key] += volume
         row_counts["areas"][area_key] += 1
+        employees["areas"][area_key] += employee_count
         labels["areas"][area_key] = clean_label(area)
 
         volumes["groups"][group_key] += volume
         row_counts["groups"][group_key] += 1
+        employees["groups"][group_key] += employee_count
         labels["groups"][group_key] = group_label
 
     _require(
@@ -376,6 +415,7 @@ def _old_category_volumes(ws, area_to_group: dict[str, str]) -> tuple[dict[str, 
     return (
         {name: dict(items) for name, items in volumes.items()},
         {name: dict(items) for name, items in row_counts.items()},
+        {name: dict(items) for name, items in employees.items()},
         labels,
     )
 
@@ -403,6 +443,8 @@ def _comparison_rows(
     subtitles: dict[str, str] | None = None,
     old_row_counts: dict[str, int] | None = None,
     new_row_counts: dict[str, int] | None = None,
+    old_employees: dict[str, float] | None = None,
+    new_employees: dict[str, float] | None = None,
     abbr_to_name: dict[str, str] | None = None,
     require_matching_keys: bool = True,
 ) -> list[dict]:
@@ -451,6 +493,8 @@ def _comparison_rows(
             "amount_delta_pct": (amount_delta_eur / old_amount_eur * 100.0) if old_amount_eur else None,
             "ver2022_rows": (old_row_counts or {}).get(key, 0),
             "ver2026_rows": (new_row_counts or {}).get(key, 0),
+            "old_employees": (old_employees or {}).get(key, 0.0),
+            "new_employees": (new_employees or {}).get(key, 0.0),
             "comparison_status": "matched"
             if key in old_metrics and key in new_volumes
             else "new_only"
@@ -481,15 +525,19 @@ def build_reward_comparison(ver2022_path: str | Path, ver2026_path: str | Path) 
     _validate_old_sheet(old_ws)
     pool_eur, old_summary = _load_old_summary(old_ws)
     old_university_counts = _old_university_row_counts(old_ws)
+    old_university_employees = _old_university_employees(old_ws)
     area_costs = _load_area_costs(old_ws)
     name_to_abbr, abbr_to_name = _load_university_names(old_wb)
-    new_volumes, new_row_counts, new_labels, new_subtitles, area_to_group = _new_dimensions(
+    new_volumes, new_row_counts, new_employees, new_labels, new_subtitles, area_to_group = _new_dimensions(
         ver2026_path,
         area_costs=area_costs,
         name_to_abbr=name_to_abbr,
     )
-    old_category_volumes, old_category_counts, old_category_labels = _old_category_volumes(old_ws, area_to_group)
-    old_application_volumes, old_application_counts, old_application_labels, old_application_subtitles = (
+    old_category_volumes, old_category_counts, old_category_employees, old_category_labels = _old_category_volumes(
+        old_ws,
+        area_to_group,
+    )
+    old_application_volumes, old_application_counts, old_application_employees, old_application_labels, old_application_subtitles = (
         _old_application_volumes(old_ws, abbr_to_name=abbr_to_name)
     )
 
@@ -501,6 +549,8 @@ def build_reward_comparison(ver2022_path: str | Path, ver2026_path: str | Path) 
         subtitles=new_subtitles["universities"],
         old_row_counts=old_university_counts,
         new_row_counts=new_row_counts["universities"],
+        old_employees=old_university_employees,
+        new_employees=new_employees["universities"],
         abbr_to_name=abbr_to_name,
     )
     area_labels = {**old_category_labels["areas"], **new_labels["areas"]}
@@ -512,6 +562,8 @@ def build_reward_comparison(ver2022_path: str | Path, ver2026_path: str | Path) 
         subtitles=new_subtitles["areas"],
         old_row_counts=old_category_counts["areas"],
         new_row_counts=new_row_counts["areas"],
+        old_employees=old_category_employees["areas"],
+        new_employees=new_employees["areas"],
     )
     group_labels = {**old_category_labels["groups"], **new_labels["groups"]}
     group_rows = _comparison_rows(
@@ -522,6 +574,8 @@ def build_reward_comparison(ver2022_path: str | Path, ver2026_path: str | Path) 
         subtitles=new_subtitles["groups"],
         old_row_counts=old_category_counts["groups"],
         new_row_counts=new_row_counts["groups"],
+        old_employees=old_category_employees["groups"],
+        new_employees=new_employees["groups"],
     )
     application_labels = {**old_application_labels, **new_labels["applications"]}
     application_subtitles = {**old_application_subtitles, **new_subtitles["applications"]}
@@ -533,6 +587,8 @@ def build_reward_comparison(ver2022_path: str | Path, ver2026_path: str | Path) 
         subtitles=application_subtitles,
         old_row_counts=old_application_counts,
         new_row_counts=new_row_counts["applications"],
+        old_employees=old_application_employees,
+        new_employees=new_employees["applications"],
         require_matching_keys=False,
     )
 

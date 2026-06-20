@@ -245,8 +245,12 @@ def test_reward_comparison_uses_trnava_ttu_alias(tmp_path):
     assert row["abbr"] == "TTU"
     assert row["ver2026_rows"] == 1
     assert row["new_amount_eur"] == pytest.approx(1000)
+    assert row["old_employees"] == pytest.approx(10)
+    assert row["new_employees"] == pytest.approx(20)
     assert comparison["views"]["areas"]["rows"][0]["label"] == "Matematické vedy"
     assert comparison["views"]["areas"]["rows"][0]["new_amount_eur"] == pytest.approx(1000)
+    assert comparison["views"]["areas"]["rows"][0]["old_employees"] == pytest.approx(10)
+    assert comparison["views"]["areas"]["rows"][0]["new_employees"] == pytest.approx(20)
     assert comparison["views"]["groups"]["rows"][0]["label"] == "Prírodné vedy"
     assert comparison["views"]["applications"]["rows"][0]["label"] == "TTU / Za celú inštitúciu"
     assert comparison["views"]["applications"]["rows"][0]["comparison_status"] == "matched"
@@ -274,6 +278,12 @@ def test_generated_reward_json_has_all_views_and_fixed_pool():
     assert economics["amount_delta_eur"] == pytest.approx(4_990_777.530739086)
     assert economics["ver2022_rows"] == 23
     assert economics["ver2026_rows"] == 14
+    assert economics["old_employees"] == pytest.approx(914)
+    assert economics["new_employees"] == pytest.approx(977)
+
+    area_rows = payload["views"]["areas"]["rows"]
+    assert sum(row["old_employees"] for row in area_rows) == pytest.approx(8_307)
+    assert sum(row["new_employees"] for row in area_rows) == pytest.approx(8_330)
 
     social = next(row for row in payload["views"]["groups"]["rows"] if row["label"] == "Spoločenské vedy")
     assert social["amount_delta_eur"] == pytest.approx(5_451_489.845603522)

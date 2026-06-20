@@ -244,6 +244,419 @@
     text-transform: uppercase;
   }
 
+  .chart-section {
+    padding: 10px 0 20px;
+  }
+
+  .chart-panel {
+    position: relative;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 16px;
+  }
+
+  .chart-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: end;
+    margin-bottom: 10px;
+  }
+
+  .chart-head h2 {
+    font-size: 24px;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .legend-dot.old { background: var(--gold); }
+  .legend-dot.new { background: var(--blue); }
+  .legend-dot.gain { background: var(--gain); }
+  .legend-dot.loss { background: var(--loss); }
+  .legend-dot.neutral { background: var(--muted); }
+
+  .chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .chart-controls span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .chart-mode {
+    border: 1px solid var(--line-strong);
+    background: #fff;
+    color: #263039;
+    padding: 8px 11px;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .chart-mode.is-active {
+    border-color: #263039;
+    background: #263039;
+    color: #fff;
+  }
+
+  .chart-readout {
+    display: grid;
+    grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(150px, 1fr));
+    gap: 12px;
+    align-items: stretch;
+    margin: 12px 0 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .chart-readout p {
+    margin: 0;
+    color: #39434c;
+    font-size: 13px;
+  }
+
+  .chart-readout strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  .chart-readout b {
+    display: block;
+    margin-bottom: 2px;
+    color: #263039;
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .chart-fact {
+    border-left: 4px solid var(--line-strong);
+    padding-left: 10px;
+  }
+
+  .chart-fact.gain { border-left-color: var(--gain); }
+  .chart-fact.loss { border-left-color: var(--loss); }
+  .chart-fact.group { border-left-color: var(--gold); }
+
+  .chart-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    background: #f8fbf8;
+  }
+
+  .area-chart-svg {
+    display: block;
+    width: 100%;
+    min-width: 900px;
+    height: auto;
+  }
+
+  .chart-grid-line {
+    stroke: #d8e1dd;
+    stroke-width: 1;
+  }
+
+  .chart-axis {
+    stroke: #82908b;
+    stroke-width: 1.5;
+  }
+
+  .chart-tick {
+    fill: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .chart-axis-label {
+    fill: #263039;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .chart-area-label {
+    fill: #263039;
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .chart-quadrant {
+    fill: rgba(104, 114, 125, 0.035);
+  }
+
+  .chart-quadrant.gain {
+    fill: rgba(31, 111, 74, 0.045);
+  }
+
+  .chart-quadrant.loss {
+    fill: rgba(155, 28, 49, 0.04);
+  }
+
+  .chart-quadrant-label {
+    fill: rgba(38, 48, 57, 0.54);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .chart-zero-line {
+    stroke: #82908b;
+    stroke-width: 1.6;
+    stroke-dasharray: 5 5;
+  }
+
+  .chart-connector {
+    stroke: rgba(36, 94, 116, 0.36);
+    stroke-width: 1.5;
+  }
+
+  .chart-mode-scatter .chart-connector {
+    stroke-width: 2;
+  }
+
+  .chart-row-bg {
+    fill: transparent;
+  }
+
+  .chart-row:nth-child(even) .chart-row-bg {
+    fill: rgba(36, 94, 116, 0.035);
+  }
+
+  .chart-row:hover .chart-row-bg {
+    fill: rgba(155, 28, 49, 0.07);
+  }
+
+  .chart-row-label {
+    fill: #263039;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .chart-row-sub {
+    fill: var(--muted);
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  .chart-col-head {
+    fill: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .chart-share-rail,
+  .chart-emp-delta-rail {
+    stroke: #d8e1dd;
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+
+  .chart-emp-zero {
+    stroke: #82908b;
+    stroke-width: 1;
+  }
+
+  .chart-change-line {
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+
+  .chart-change-line.gain { stroke: rgba(31, 111, 74, 0.7); }
+  .chart-change-line.loss { stroke: rgba(155, 28, 49, 0.65); }
+  .chart-change-line.neutral { stroke: rgba(104, 114, 125, 0.55); }
+
+  .chart-delta {
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .chart-delta.gain { fill: var(--gain); }
+  .chart-delta.loss { fill: var(--loss); }
+  .chart-delta.neutral { fill: var(--muted); }
+
+  .chart-money,
+  .chart-employees {
+    fill: #263039;
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  .chart-emp-delta-fill.gain { fill: rgba(31, 111, 74, 0.78); }
+  .chart-emp-delta-fill.loss { fill: rgba(155, 28, 49, 0.72); }
+  .chart-emp-delta-fill.neutral { fill: rgba(104, 114, 125, 0.58); }
+
+  .chart-emp-pct-badge.gain { fill: rgba(31, 111, 74, 0.12); stroke: rgba(31, 111, 74, 0.36); }
+  .chart-emp-pct-badge.loss { fill: rgba(155, 28, 49, 0.11); stroke: rgba(155, 28, 49, 0.34); }
+  .chart-emp-pct-badge.neutral { fill: rgba(104, 114, 125, 0.11); stroke: rgba(104, 114, 125, 0.32); }
+
+  .chart-emp-pct {
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  .chart-emp-pct.gain { fill: var(--gain); }
+  .chart-emp-pct.loss { fill: var(--loss); }
+  .chart-emp-pct.neutral { fill: var(--muted); }
+
+  .chart-point {
+    cursor: help;
+  }
+
+  .chart-point.old {
+    fill: var(--gold);
+    stroke: #5f3f13;
+    stroke-width: 1;
+  }
+
+  .chart-point.new {
+    fill: var(--blue);
+    stroke: #143947;
+    stroke-width: 1;
+  }
+
+  .chart-point:hover {
+    stroke: var(--loss);
+    stroke-width: 3;
+  }
+
+  .chart-map-point {
+    cursor: help;
+    stroke: #fff;
+    stroke-width: 2;
+    filter: drop-shadow(0 2px 4px rgba(23, 29, 34, 0.18));
+    transition: r 120ms ease, stroke-width 120ms ease;
+  }
+
+  .chart-map-point.gain { fill: var(--gain); }
+  .chart-map-point.loss { fill: var(--loss); }
+  .chart-map-point.neutral { fill: var(--muted); }
+
+  .chart-map-hit:focus {
+    outline: none;
+  }
+
+  .chart-map-hit:hover .chart-map-point,
+  .chart-map-hit:focus .chart-map-point {
+    stroke: #fff;
+    stroke-width: 4;
+  }
+
+  .chart-report-card {
+    position: fixed;
+    z-index: 20;
+    width: min(360px, calc(100vw - 24px));
+    border: 1px solid #263039;
+    border-left: 6px solid var(--blue);
+    background: #fffffb;
+    box-shadow: 0 18px 60px rgba(23, 29, 34, 0.2);
+    padding: 12px;
+    pointer-events: none;
+  }
+
+  .chart-report-card[hidden] {
+    display: none;
+  }
+
+  .report-kicker {
+    margin: 0 0 4px;
+    color: var(--loss);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .report-title {
+    margin: 0;
+    color: var(--ink);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .report-subtitle {
+    margin: 4px 0 10px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .report-cell {
+    border-top: 1px solid var(--line);
+    padding-top: 7px;
+  }
+
+  .report-cell span,
+  .report-cell b {
+    display: block;
+  }
+
+  .report-cell span {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .report-cell b {
+    margin-top: 2px;
+    color: #263039;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .report-cell b.gain { color: var(--gain); }
+  .report-cell b.loss { color: var(--loss); }
+
+  .report-cell small {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
   .board {
     padding: 10px 0 26px;
   }
@@ -468,6 +881,18 @@
       display: block;
     }
 
+    .chart-head {
+      display: block;
+    }
+
+    .chart-legend {
+      margin-top: 10px;
+    }
+
+    .chart-readout {
+      grid-template-columns: 1fr;
+    }
+
     .hint {
       margin-top: 7px;
     }
@@ -603,6 +1028,34 @@
       </dd>
     </dl>
   </details>
+
+  <section class="chart-section" aria-labelledby="area-chart-title">
+    <div class="chart-panel">
+      <div class="chart-head">
+        <div>
+          <p class="eyebrow">Oblasti hodnotenia</p>
+          <h2 id="area-chart-title">Kto by získal a stratil pri prepočte podľa VER 2026?</h2>
+        </div>
+        <div class="chart-legend" id="chart-legend" aria-label="Legenda">
+          <span class="legend-item"><span class="legend-dot old"></span>VER 2022</span>
+          <span class="legend-item"><span class="legend-dot new"></span>VER 2026 simulácia</span>
+        </div>
+      </div>
+      <p class="hint">
+        Zmena podielu z rovnakého objemu T14a oproti VER 2022. Hodnoty sú simulácia, nie oficiálny rozpis.
+      </p>
+      <div class="chart-readout" id="area-chart-readout"></div>
+      <div class="chart-controls" id="chart-controls" role="group" aria-label="Typ grafu">
+        <span>Graf</span>
+        <button type="button" class="chart-mode is-active" data-chart-mode="ledger" aria-pressed="true">Zmeny po oblastiach</button>
+        <button type="button" class="chart-mode" data-chart-mode="change-map" aria-pressed="false">Mapa podielu</button>
+        <button type="button" class="chart-mode" data-chart-mode="amount-map" aria-pressed="false">Mapa sumy</button>
+        <button type="button" class="chart-mode" data-chart-mode="scatter" aria-pressed="false">Podiel vs. počet zam.</button>
+      </div>
+      <div class="chart-wrap" id="area-chart"></div>
+      <div class="chart-report-card" id="chart-report-card" hidden></div>
+    </div>
+  </section>
 </main>
 
 <footer class="footer">
@@ -632,6 +1085,8 @@ const VIEW_HINTS = {
   applications: "žiadosti a súčasti",
 };
 const VIEW_KEYS = new Set(Object.keys(VIEW_LABELS));
+const CHART_MODES = new Set(["ledger", "change-map", "amount-map", "scatter"]);
+const CHART_SCATTER_FOCUS_PER_DIRECTION = 3;
 const SORT_KEYS = new Set([
   "label",
   "old_amount_eur",
@@ -647,6 +1102,7 @@ const state = {
   sortKey: "amount_delta_eur",
   sortAsc: false,
   search: "",
+  chartMode: "ledger",
 };
 
 let payload = null;
@@ -679,6 +1135,19 @@ function compactMoney(value) {
   }) + " mil. €";
 }
 
+function decimal(value, digits = 1) {
+  return value == null ? "-" : value.toLocaleString("sk-SK", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+function signedCompactMoney(value) {
+  if (value == null) return "-";
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  return sign + compactMoney(Math.abs(value));
+}
+
 function pct(value, digits = 2) {
   return value == null ? "-" : value.toLocaleString("sk-SK", {
     minimumFractionDigits: digits,
@@ -693,6 +1162,12 @@ function signedPct(value, suffix = " %") {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }) + suffix;
+}
+
+function signedCount(value) {
+  if (value == null) return "-";
+  const sign = value > 0 ? "+" : "";
+  return sign + Math.round(value).toLocaleString("sk-SK");
 }
 
 function compareRows(a, b) {
@@ -726,6 +1201,217 @@ function biggest(rows, direction) {
       ? row.amount_delta_eur > best.amount_delta_eur ? row : best
       : row.amount_delta_eur < best.amount_delta_eur ? row : best;
   }, rows[0]);
+}
+
+function uniqueRows(rows) {
+  return Array.from(new Map(rows.map((row) => [row.key, row])).values());
+}
+
+function scatterRows(allRows) {
+  const gains = allRows
+    .filter((row) => (row.share_delta_pct || 0) > 0)
+    .slice()
+    .sort((a, b) => (b.share_delta_pct || 0) - (a.share_delta_pct || 0))
+    .slice(0, CHART_SCATTER_FOCUS_PER_DIRECTION);
+  const losses = allRows
+    .filter((row) => (row.share_delta_pct || 0) < 0)
+    .slice()
+    .sort((a, b) => (a.share_delta_pct || 0) - (b.share_delta_pct || 0))
+    .slice(0, CHART_SCATTER_FOCUS_PER_DIRECTION);
+
+  return uniqueRows([...gains, ...losses])
+    .sort((a, b) => Math.abs(b.share_delta_pct || 0) - Math.abs(a.share_delta_pct || 0));
+}
+
+function ledgerRows(allRows) {
+  return allRows
+    .slice()
+    .sort((a, b) => (b.share_delta_pct || 0) - (a.share_delta_pct || 0));
+}
+
+function chartTone(row) {
+  const delta = row.share_delta_pct || 0;
+  if (delta > 0.05) return "gain";
+  if (delta < -0.05) return "loss";
+  return "neutral";
+}
+
+function moneyTone(row) {
+  const delta = row?.amount_delta_eur || 0;
+  if (delta > 0.5) return "gain";
+  if (delta < -0.5) return "loss";
+  return "neutral";
+}
+
+function deltaTone(value) {
+  if (value > 0.5) return "gain";
+  if (value < -0.5) return "loss";
+  return "neutral";
+}
+
+function employeeDelta(row) {
+  return (row?.new_employees || 0) - (row?.old_employees || 0);
+}
+
+function employeeDeltaPct(row) {
+  return row?.old_employees ? employeeDelta(row) / row.old_employees * 100 : null;
+}
+
+function trimChartLabel(value, max = 42) {
+  const text = String(value || "");
+  return text.length > max ? text.slice(0, max - 1) + "…" : text;
+}
+
+function renderChartControls() {
+  document.querySelectorAll("[data-chart-mode]").forEach((button) => {
+    const active = button.dataset.chartMode === state.chartMode;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+
+  const legend = state.chartMode === "scatter"
+    ? [
+        ["old", "VER 2022"],
+        ["new", "VER 2026 simulácia"],
+      ]
+    : state.chartMode === "amount-map"
+      ? [
+          ["gain", "suma rastie"],
+          ["loss", "suma klesá"],
+          ["neutral", "takmer bez zmeny"],
+        ]
+    : state.chartMode === "change-map"
+      ? [
+          ["gain", "získava podiel"],
+          ["loss", "stráca podiel"],
+          ["neutral", "takmer bez zmeny"],
+        ]
+      : [
+          ["old", "VER 2022"],
+          ["new", "VER 2026 simulácia"],
+          ["gain", "získava podiel"],
+          ["loss", "stráca podiel"],
+        ];
+
+  document.getElementById("chart-legend").innerHTML = legend.map(([tone, label]) => `
+    <span class="legend-item"><span class="legend-dot ${tone}"></span>${esc(label)}</span>
+  `).join("");
+}
+
+function renderChartReadout(allRows, visibleRows) {
+  const gain = allRows.reduce((best, row) =>
+    !best || (row.share_delta_pct || 0) > (best.share_delta_pct || 0) ? row : best, null);
+  const loss = allRows.reduce((best, row) =>
+    !best || (row.share_delta_pct || 0) < (best.share_delta_pct || 0) ? row : best, null);
+  const groups = payload.views.groups.rows || [];
+  const groupGain = groups.reduce((best, row) =>
+    !best || (row.share_delta_pct || 0) > (best.share_delta_pct || 0) ? row : best, null);
+  const groupLoss = groups.reduce((best, row) =>
+    !best || (row.share_delta_pct || 0) < (best.share_delta_pct || 0) ? row : best, null);
+  const amountMode = state.chartMode === "amount-map";
+  const scope = state.chartMode === "scatter"
+    ? `Podiel financovania vs. počet zamestnancov je zúžený na ${visibleRows.length.toLocaleString("sk-SK")} najväčších posunov, aby sa body neprekrývali; prejdenie myšou zobrazí kartu oblasti.`
+    : state.chartMode === "amount-map"
+      ? `Každý bod je oblasť. Doprava znamená vyššiu sumu v eurách oproti VER 2022, hore percentuálny rast počtu zamestnancov; prejdenie myšou zobrazí kartu oblasti.`
+      : state.chartMode === "change-map"
+        ? `Každý bod je oblasť. Doprava znamená rast podielu peňazí v percentuálnych bodoch, hore percentuálny rast počtu zamestnancov; prejdenie myšou zobrazí kartu oblasti.`
+        : `Každá oblasť je samostatný riadok; hore sú nárasty podielu, dole poklesy.`;
+
+  document.getElementById("area-chart-readout").innerHTML = `
+    <div>
+      <strong>Čo to hovorí</strong>
+      <p>${esc(scope)} Najväčší presun ide najmä od strojárskych a elektrotechnických oblastí smerom k ekonomickým, poľnohospodárskym a chemickým vedám.</p>
+    </div>
+    <div class="chart-fact gain">
+      <b>${gain ? amountMode ? signedCompactMoney(gain.amount_delta_eur) : signedPct(gain.share_delta_pct, " p. b.") : "-"}</b>
+      <strong>${gain ? esc(gain.label) : "Najväčší nárast"}</strong>
+      <p>${gain ? amountMode ? `${signedPct(gain.amount_delta_pct)} oproti VER 2022.` : `${signedMoney(gain.amount_delta_eur)} pri rovnakom objeme.` : "-"}</p>
+    </div>
+    <div class="chart-fact loss">
+      <b>${loss ? amountMode ? signedCompactMoney(loss.amount_delta_eur) : signedPct(loss.share_delta_pct, " p. b.") : "-"}</b>
+      <strong>${loss ? esc(loss.label) : "Najväčší pokles"}</strong>
+      <p>${loss ? amountMode ? `${signedPct(loss.amount_delta_pct)} oproti VER 2022.` : `${signedMoney(loss.amount_delta_eur)} pri rovnakom objeme.` : "-"}</p>
+    </div>
+    <div class="chart-fact group">
+      <b>${groupGain ? signedPct(groupGain.share_delta_pct, " p. b.") : "-"}</b>
+      <strong>${groupGain ? esc(groupGain.label) : "Skupiny oblastí"}</strong>
+      <p>${groupLoss ? `${esc(groupLoss.label)} ${signedPct(groupLoss.share_delta_pct, " p. b.")}` : "Súhrn po skupinách oblastí."}</p>
+    </div>
+  `;
+}
+
+function rowForAreaKey(key) {
+  return (payload?.views?.areas?.rows || []).find((row) => row.key === key);
+}
+
+function renderReportCard(row) {
+  const empDelta = employeeDelta(row);
+  const empPct = employeeDeltaPct(row);
+  const shareTone = chartTone(row);
+  const empTone = deltaTone(empDelta);
+  const moneyTone = row.amount_delta_eur > 0 ? "gain" : row.amount_delta_eur < 0 ? "loss" : "neutral";
+  return `
+    <p class="report-kicker">Karta oblasti</p>
+    <h3 class="report-title">${esc(row.label)}</h3>
+    <p class="report-subtitle">${esc(row.subtitle)}</p>
+    <div class="report-grid">
+      <div class="report-cell">
+        <span>Podiel peňazí</span>
+        <b class="${shareTone}">${signedPct(row.share_delta_pct, " p. b.")}</b>
+        <small>${pct(row.old_share_pct)} -> ${pct(row.new_share_pct)}</small>
+      </div>
+      <div class="report-cell">
+        <span>Suma</span>
+        <b class="${moneyTone}">${signedCompactMoney(row.amount_delta_eur)} / ${signedPct(row.amount_delta_pct)}</b>
+        <small>${money(row.old_amount_eur)} -> ${money(row.new_amount_eur)}</small>
+      </div>
+      <div class="report-cell">
+        <span>Zamestnanci</span>
+        <b class="${empTone}">${signedCount(empDelta)} / ${signedPct(empPct)}</b>
+        <small>${Math.round(row.old_employees).toLocaleString("sk-SK")} -> ${Math.round(row.new_employees).toLocaleString("sk-SK")}</small>
+      </div>
+      <div class="report-cell">
+        <span>Vážený objem X</span>
+        <b>${decimal(row.old_weighted_volume)} -> ${decimal(row.new_weighted_volume)}</b>
+        <small>kvalita × zamestnanci × náročnosť</small>
+      </div>
+      <div class="report-cell">
+        <span>Riadky</span>
+        <b>${(row.ver2022_rows || 0).toLocaleString("sk-SK")} -> ${(row.ver2026_rows || 0).toLocaleString("sk-SK")}</b>
+        <small>VER 2022 -> VER 2026</small>
+      </div>
+      <div class="report-cell">
+        <span>Skupina / stav</span>
+        <b>${esc(row.subtitle)}</b>
+        <small>${row.comparison_status === "matched" ? "spárované medzi rokmi" : esc(row.comparison_status || "bez označenia")}</small>
+      </div>
+    </div>
+  `;
+}
+
+function moveReportCard(clientX, clientY) {
+  const card = document.getElementById("chart-report-card");
+  const margin = 12;
+  const rect = card.getBoundingClientRect();
+  let left = clientX + 16;
+  let top = clientY + 16;
+  if (left + rect.width > window.innerWidth - margin) left = clientX - rect.width - 16;
+  if (top + rect.height > window.innerHeight - margin) top = clientY - rect.height - 16;
+  card.style.left = `${Math.max(margin, left)}px`;
+  card.style.top = `${Math.max(margin, top)}px`;
+}
+
+function showReportCard(row, clientX, clientY) {
+  if (!row) return;
+  const card = document.getElementById("chart-report-card");
+  card.innerHTML = renderReportCard(row);
+  card.hidden = false;
+  moveReportCard(clientX, clientY);
+}
+
+function hideReportCard() {
+  const card = document.getElementById("chart-report-card");
+  if (card) card.hidden = true;
 }
 
 function rowCount(row) {
@@ -784,6 +1470,331 @@ function renderQuickViews() {
       </a>
     `;
   }).join("");
+}
+
+function niceMax(value, step) {
+  return Math.max(step, Math.ceil(value / step) * step);
+}
+
+function renderAreaChart() {
+  const allRows = payload.views.areas.rows || [];
+  const visibleRows = state.chartMode === "scatter" ? scatterRows(allRows) : allRows;
+  hideReportCard();
+  renderChartControls();
+  renderChartReadout(allRows, visibleRows);
+
+  if (state.chartMode === "scatter") {
+    renderAreaScatter(visibleRows, allRows);
+  } else if (state.chartMode === "amount-map") {
+    renderAreaAmountMap(allRows);
+  } else if (state.chartMode === "change-map") {
+    renderAreaChangeMap(allRows);
+  } else {
+    renderAreaLedger(allRows);
+  }
+}
+
+function renderAreaLedger(allRows) {
+  const rows = ledgerRows(allRows);
+  const xMax = niceMax(Math.max(...allRows.flatMap((row) => [row.old_share_pct || 0, row.new_share_pct || 0])), 2);
+  const empDeltaMax = niceMax(Math.max(...allRows.map((row) =>
+    Math.abs((row.new_employees || 0) - (row.old_employees || 0))
+  )), 50);
+  const width = 1240;
+  const rowH = 28;
+  const margin = { top: 72, bottom: 32 };
+  const height = margin.top + rows.length * rowH + margin.bottom;
+  const labelX = 18;
+  const railX = 355;
+  const railW = 390;
+  const deltaX = 775;
+  const moneyX = 855;
+  const empTextX = 965;
+  const empBarX = 1074;
+  const empBarW = 84;
+  const empBarMid = empBarX + empBarW / 2;
+  const empPctX = 1168;
+  const empPctW = 56;
+  const rowStartY = margin.top;
+  const shareX = (value) => railX + (value || 0) / xMax * railW;
+  const empDeltaW = (value) => Math.abs(value || 0) / empDeltaMax * (empBarW / 2);
+  const ticks = Array.from({ length: 5 }, (_, index) => xMax / 4 * index);
+
+  const grid = ticks.map((tick) => `
+    <line class="chart-grid-line" x1="${shareX(tick)}" y1="${margin.top - 28}" x2="${shareX(tick)}" y2="${height - margin.bottom + 8}" />
+    <text class="chart-tick" x="${shareX(tick)}" y="${margin.top - 36}" text-anchor="middle">${pct(tick, tick % 1 ? 1 : 0)}</text>
+  `).join("");
+
+  const series = rows.map((row, index) => {
+    const y = rowStartY + index * rowH;
+    const oldX = shareX(row.old_share_pct);
+    const newX = shareX(row.new_share_pct);
+    const tone = chartTone(row);
+    const empDelta = (row.new_employees || 0) - (row.old_employees || 0);
+    const empPct = row.old_employees ? empDelta / row.old_employees * 100 : null;
+    const empTone = deltaTone(empDelta);
+    const empWidth = empDeltaW(empDelta);
+    const empDeltaX = empDelta >= 0 ? empBarMid : empBarMid - empWidth;
+    const title = `${row.label}\nVER 2022: ${pct(row.old_share_pct)}, ${money(row.old_amount_eur)}, ${Math.round(row.old_employees).toLocaleString("sk-SK")} zam.\nVER 2026: ${pct(row.new_share_pct)}, ${money(row.new_amount_eur)}, ${Math.round(row.new_employees).toLocaleString("sk-SK")} zam.\nZmena: ${signedPct(row.share_delta_pct, " p. b.")}, ${signedMoney(row.amount_delta_eur)}, ${signedCount(empDelta)} zam. (${signedPct(empPct)})`;
+    return `
+      <g class="chart-row" tabindex="0">
+        <title>${esc(title)}</title>
+        <rect class="chart-row-bg" x="0" y="${y - 16}" width="${width}" height="${rowH}" />
+        <text class="chart-row-label" x="${labelX}" y="${y - 2}">${esc(trimChartLabel(row.label))}</text>
+        <text class="chart-row-sub" x="${labelX}" y="${y + 11}">${esc(row.subtitle)}</text>
+        <line class="chart-share-rail" x1="${railX}" y1="${y}" x2="${railX + railW}" y2="${y}" />
+        <line class="chart-change-line ${tone}" x1="${oldX}" y1="${y}" x2="${newX}" y2="${y}" />
+        <circle class="chart-point old" cx="${oldX}" cy="${y}" r="4.5" />
+        <circle class="chart-point new" cx="${newX}" cy="${y}" r="5.5" />
+        <text class="chart-delta ${tone}" x="${deltaX}" y="${y + 4}" text-anchor="end">${signedPct(row.share_delta_pct, " p. b.")}</text>
+        <text class="chart-money" x="${moneyX}" y="${y + 4}">${signedCompactMoney(row.amount_delta_eur)}</text>
+        <text class="chart-employees" x="${empTextX}" y="${y + 4}">${Math.round(row.old_employees).toLocaleString("sk-SK")} -> ${Math.round(row.new_employees).toLocaleString("sk-SK")} (${signedCount(empDelta)})</text>
+        <line class="chart-emp-delta-rail" x1="${empBarX}" y1="${y}" x2="${empBarX + empBarW}" y2="${y}" />
+        <line class="chart-emp-zero" x1="${empBarMid}" y1="${y - 7}" x2="${empBarMid}" y2="${y + 7}" />
+        <rect class="chart-emp-delta-fill ${empTone}" x="${empDeltaX}" y="${y - 4}" width="${Math.max(2, empWidth)}" height="8" />
+        <rect class="chart-emp-pct-badge ${empTone}" x="${empPctX}" y="${y - 8}" width="${empPctW}" height="16" rx="6" />
+        <text class="chart-emp-pct ${empTone}" x="${empPctX + empPctW / 2}" y="${y + 4}" text-anchor="middle">${signedPct(empPct)}</text>
+      </g>
+    `;
+  }).join("");
+
+  document.getElementById("area-chart").innerHTML = `
+    <svg class="area-chart-svg chart-mode-ledger" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="area-chart-title area-chart-desc">
+      <desc id="area-chart-desc">Riadkový graf porovnáva všetkých ${rows.length} oblastí hodnotenia podľa zmeny podielu financovania, sumy a počtu zamestnancov.</desc>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbf8" />
+      ${grid}
+      <text class="chart-col-head" x="${labelX}" y="24">Oblasť hodnotenia</text>
+      <text class="chart-col-head" x="${railX}" y="24">Podiel koláča</text>
+      <text class="chart-col-head" x="${deltaX}" y="24" text-anchor="end">Zmena</text>
+      <text class="chart-col-head" x="${moneyX}" y="24">Suma</text>
+      <text class="chart-col-head" x="${empTextX}" y="24">Zamestnanci</text>
+      <text class="chart-col-head" x="${empBarX}" y="24">Zmena zam.</text>
+      <text class="chart-col-head" x="${empPctX + empPctW / 2}" y="24" text-anchor="middle">Zmena %</text>
+      <line class="chart-axis" x1="${railX}" y1="${margin.top - 20}" x2="${railX + railW}" y2="${margin.top - 20}" />
+      <line class="chart-emp-delta-rail" x1="${empBarX}" y1="${margin.top - 20}" x2="${empBarX + empBarW}" y2="${margin.top - 20}" />
+      <line class="chart-emp-zero" x1="${empBarMid}" y1="${margin.top - 27}" x2="${empBarMid}" y2="${margin.top - 13}" />
+      ${series}
+    </svg>
+  `;
+}
+
+function renderAreaChangeMap(allRows) {
+  const rows = allRows.slice();
+  const xMax = niceMax(Math.max(...rows.map((row) => Math.abs(row.share_delta_pct || 0))) * 1.05, 1);
+  const yMax = niceMax(Math.max(...rows.map((row) => Math.abs(employeeDeltaPct(row) || 0))) * 1.05, 20);
+  const amountMax = Math.max(...rows.map((row) => Math.abs(row.amount_delta_eur || 0)), 1);
+  const width = 980;
+  const height = 470;
+  const margin = { top: 42, right: 34, bottom: 70, left: 82 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+  const x = (value) => margin.left + ((value || 0) + xMax) / (2 * xMax) * plotW;
+  const y = (value) => margin.top + (yMax - (value || 0)) / (2 * yMax) * plotH;
+  const zeroX = x(0);
+  const zeroY = y(0);
+  const xTicks = [-xMax, -xMax / 2, 0, xMax / 2, xMax];
+  const yTicks = [-yMax, -yMax / 2, 0, yMax / 2, yMax];
+
+  const grid = [
+    ...xTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${x(tick)}" y1="${margin.top}" x2="${x(tick)}" y2="${margin.top + plotH}" />
+      <text class="chart-tick" x="${x(tick)}" y="${height - 42}" text-anchor="middle">${signedPct(tick, " p. b.")}</text>
+    `),
+    ...yTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${margin.left}" y1="${y(tick)}" x2="${margin.left + plotW}" y2="${y(tick)}" />
+      <text class="chart-tick" x="${margin.left - 10}" y="${y(tick) + 4}" text-anchor="end">${signedPct(tick)}</text>
+    `),
+  ].join("");
+
+  const points = rows
+    .slice()
+    .sort((a, b) => Math.abs(a.amount_delta_eur || 0) - Math.abs(b.amount_delta_eur || 0))
+    .map((row) => {
+      const empPct = employeeDeltaPct(row);
+      const shareDelta = row.share_delta_pct || 0;
+      const tone = chartTone(row);
+      const radius = 4.5 + Math.sqrt(Math.abs(row.amount_delta_eur || 0) / amountMax) * 5.5;
+      const aria = `${row.label}: zamestnanci ${signedPct(empPct)}, podiel ${signedPct(shareDelta, " p. b.")}, suma ${signedCompactMoney(row.amount_delta_eur)}`;
+      return `
+        <g class="chart-map-hit" data-area-key="${esc(row.key)}" tabindex="0" role="img" aria-label="${esc(aria)}">
+          <circle class="chart-map-point ${tone}" cx="${x(shareDelta)}" cy="${y(empPct)}" r="${radius.toFixed(2)}" />
+        </g>
+      `;
+    }).join("");
+
+  const chart = document.getElementById("area-chart");
+  chart.innerHTML = `
+    <svg class="area-chart-svg chart-mode-change-map" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="area-chart-title area-chart-desc">
+      <desc id="area-chart-desc">Mapa zmien zobrazuje všetkých ${rows.length} oblastí. Os x je zmena podielu financovania v percentuálnych bodoch, os y je percentuálna zmena počtu zamestnancov a veľkosť bodu je absolútny rozdiel v eurách.</desc>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbf8" />
+      <rect class="chart-quadrant gain" x="${zeroX}" y="${margin.top}" width="${margin.left + plotW - zeroX}" height="${zeroY - margin.top}" />
+      <rect class="chart-quadrant loss" x="${margin.left}" y="${margin.top}" width="${zeroX - margin.left}" height="${zeroY - margin.top}" />
+      <rect class="chart-quadrant loss" x="${margin.left}" y="${zeroY}" width="${zeroX - margin.left}" height="${margin.top + plotH - zeroY}" />
+      <rect class="chart-quadrant gain" x="${zeroX}" y="${zeroY}" width="${margin.left + plotW - zeroX}" height="${margin.top + plotH - zeroY}" />
+      ${grid}
+      <line class="chart-zero-line" x1="${zeroX}" y1="${margin.top}" x2="${zeroX}" y2="${margin.top + plotH}" />
+      <line class="chart-zero-line" x1="${margin.left}" y1="${zeroY}" x2="${margin.left + plotW}" y2="${zeroY}" />
+      <text class="chart-quadrant-label" x="${zeroX + 12}" y="${margin.top + 18}">viac peňazí / viac zam.</text>
+      <text class="chart-quadrant-label" x="${margin.left + 12}" y="${margin.top + 18}">menej peňazí / viac zam.</text>
+      <text class="chart-quadrant-label" x="${margin.left + 12}" y="${margin.top + plotH - 12}">menej peňazí / menej zam.</text>
+      <text class="chart-quadrant-label" x="${zeroX + 12}" y="${margin.top + plotH - 12}">viac peňazí / menej zam.</text>
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top + plotH}" x2="${margin.left + plotW}" y2="${margin.top + plotH}" />
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotH}" />
+      <text class="chart-axis-label" x="${margin.left + plotW / 2}" y="${height - 14}" text-anchor="middle">Zmena podielu financovania (p. b.)</text>
+      <text class="chart-axis-label" x="18" y="${margin.top + plotH / 2}" text-anchor="middle" transform="rotate(-90 18 ${margin.top + plotH / 2})">Zmena počtu zamestnancov (%)</text>
+      <text class="chart-col-head" x="${margin.left}" y="24">Veľkosť bodu = absolútny rozdiel v eurách; hover = karta oblasti</text>
+      ${points}
+    </svg>
+  `;
+  if (chart.scrollWidth > chart.clientWidth) {
+    chart.scrollLeft = (chart.scrollWidth - chart.clientWidth) / 2;
+  }
+}
+
+function renderAreaAmountMap(allRows) {
+  const rows = allRows.slice();
+  const amountMaxMillions = niceMax(Math.max(...rows.map((row) => Math.abs(row.amount_delta_eur || 0))) / 1_000_000 * 1.05, 1);
+  const yMax = niceMax(Math.max(...rows.map((row) => Math.abs(employeeDeltaPct(row) || 0))) * 1.05, 20);
+  const newAmountMax = Math.max(...rows.map((row) => row.new_amount_eur || 0), 1);
+  const width = 980;
+  const height = 470;
+  const margin = { top: 42, right: 34, bottom: 70, left: 82 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+  const x = (valueMillions) => margin.left + ((valueMillions || 0) + amountMaxMillions) / (2 * amountMaxMillions) * plotW;
+  const y = (value) => margin.top + (yMax - (value || 0)) / (2 * yMax) * plotH;
+  const zeroX = x(0);
+  const zeroY = y(0);
+  const xTicks = [-amountMaxMillions, -amountMaxMillions / 2, 0, amountMaxMillions / 2, amountMaxMillions];
+  const yTicks = [-yMax, -yMax / 2, 0, yMax / 2, yMax];
+
+  const grid = [
+    ...xTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${x(tick)}" y1="${margin.top}" x2="${x(tick)}" y2="${margin.top + plotH}" />
+      <text class="chart-tick" x="${x(tick)}" y="${height - 42}" text-anchor="middle">${signedCompactMoney(tick * 1_000_000)}</text>
+    `),
+    ...yTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${margin.left}" y1="${y(tick)}" x2="${margin.left + plotW}" y2="${y(tick)}" />
+      <text class="chart-tick" x="${margin.left - 10}" y="${y(tick) + 4}" text-anchor="end">${signedPct(tick)}</text>
+    `),
+  ].join("");
+
+  const points = rows
+    .slice()
+    .sort((a, b) => (a.new_amount_eur || 0) - (b.new_amount_eur || 0))
+    .map((row) => {
+      const empPct = employeeDeltaPct(row);
+      const amountDeltaMillions = (row.amount_delta_eur || 0) / 1_000_000;
+      const tone = moneyTone(row);
+      const radius = 4.5 + Math.sqrt((row.new_amount_eur || 0) / newAmountMax) * 6.5;
+      const aria = `${row.label}: suma ${signedCompactMoney(row.amount_delta_eur)}, zamestnanci ${signedPct(empPct)}, podiel ${signedPct(row.share_delta_pct, " p. b.")}`;
+      return `
+        <g class="chart-map-hit" data-area-key="${esc(row.key)}" tabindex="0" role="img" aria-label="${esc(aria)}">
+          <circle class="chart-map-point ${tone}" cx="${x(amountDeltaMillions)}" cy="${y(empPct)}" r="${radius.toFixed(2)}" />
+        </g>
+      `;
+    }).join("");
+
+  const chart = document.getElementById("area-chart");
+  chart.innerHTML = `
+    <svg class="area-chart-svg chart-mode-amount-map" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="area-chart-title area-chart-desc">
+      <desc id="area-chart-desc">Mapa sumy zobrazuje všetkých ${rows.length} oblastí. Os x je zmena sumy v eurách, os y je percentuálna zmena počtu zamestnancov a veľkosť bodu je simulovaná suma VER 2026.</desc>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbf8" />
+      <rect class="chart-quadrant gain" x="${zeroX}" y="${margin.top}" width="${margin.left + plotW - zeroX}" height="${zeroY - margin.top}" />
+      <rect class="chart-quadrant loss" x="${margin.left}" y="${margin.top}" width="${zeroX - margin.left}" height="${zeroY - margin.top}" />
+      <rect class="chart-quadrant loss" x="${margin.left}" y="${zeroY}" width="${zeroX - margin.left}" height="${margin.top + plotH - zeroY}" />
+      <rect class="chart-quadrant gain" x="${zeroX}" y="${zeroY}" width="${margin.left + plotW - zeroX}" height="${margin.top + plotH - zeroY}" />
+      ${grid}
+      <line class="chart-zero-line" x1="${zeroX}" y1="${margin.top}" x2="${zeroX}" y2="${margin.top + plotH}" />
+      <line class="chart-zero-line" x1="${margin.left}" y1="${zeroY}" x2="${margin.left + plotW}" y2="${zeroY}" />
+      <text class="chart-quadrant-label" x="${zeroX + 12}" y="${margin.top + 18}">viac € / viac zam.</text>
+      <text class="chart-quadrant-label" x="${margin.left + 12}" y="${margin.top + 18}">menej € / viac zam.</text>
+      <text class="chart-quadrant-label" x="${margin.left + 12}" y="${margin.top + plotH - 12}">menej € / menej zam.</text>
+      <text class="chart-quadrant-label" x="${zeroX + 12}" y="${margin.top + plotH - 12}">viac € / menej zam.</text>
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top + plotH}" x2="${margin.left + plotW}" y2="${margin.top + plotH}" />
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotH}" />
+      <text class="chart-axis-label" x="${margin.left + plotW / 2}" y="${height - 14}" text-anchor="middle">Zmena sumy oproti VER 2022</text>
+      <text class="chart-axis-label" x="18" y="${margin.top + plotH / 2}" text-anchor="middle" transform="rotate(-90 18 ${margin.top + plotH / 2})">Zmena počtu zamestnancov (%)</text>
+      <text class="chart-col-head" x="${margin.left}" y="24">Veľkosť bodu = simulovaná suma VER 2026; hover = karta oblasti</text>
+      ${points}
+    </svg>
+  `;
+  if (chart.scrollWidth > chart.clientWidth) {
+    chart.scrollLeft = (chart.scrollWidth - chart.clientWidth) / 2;
+  }
+}
+
+function renderAreaScatter(rows, allRows) {
+
+  const xMax = niceMax(Math.max(...allRows.flatMap((row) => [row.old_employees || 0, row.new_employees || 0])), 100);
+  const yMax = niceMax(Math.max(...allRows.flatMap((row) => [row.old_share_pct || 0, row.new_share_pct || 0])), 2);
+  const width = 980;
+  const height = 440;
+  const margin = { top: 26, right: 34, bottom: 62, left: 76 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+  const x = (value) => margin.left + (value || 0) / xMax * plotW;
+  const y = (value) => margin.top + plotH - (value || 0) / yMax * plotH;
+  const xTicks = Array.from({ length: 5 }, (_, index) => Math.round(xMax / 4 * index));
+  const yTicks = Array.from({ length: 5 }, (_, index) => yMax / 4 * index);
+  const labelKeys = new Set(
+    rows
+      .slice()
+      .sort((a, b) => Math.abs(b.share_delta_pct || 0) - Math.abs(a.share_delta_pct || 0))
+      .slice(0, 4)
+      .map((row) => row.key)
+  );
+
+  const grid = [
+    ...xTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${x(tick)}" y1="${margin.top}" x2="${x(tick)}" y2="${margin.top + plotH}" />
+      <text class="chart-tick" x="${x(tick)}" y="${height - 36}" text-anchor="middle">${tick.toLocaleString("sk-SK")}</text>
+    `),
+    ...yTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${margin.left}" y1="${y(tick)}" x2="${margin.left + plotW}" y2="${y(tick)}" />
+      <text class="chart-tick" x="${margin.left - 10}" y="${y(tick) + 4}" text-anchor="end">${pct(tick, tick % 1 ? 1 : 0)}</text>
+    `),
+  ].join("");
+
+  const series = rows.map((row) => {
+    const oldX = x(row.old_employees);
+    const oldY = y(row.old_share_pct);
+    const newX = x(row.new_employees);
+    const newY = y(row.new_share_pct);
+    const labelOnLeft = newX > margin.left + plotW - 170;
+    const labelX = labelOnLeft ? newX - 8 : newX + 8;
+    const labelAnchor = labelOnLeft ? "end" : "start";
+    const labelY = row.label === "Poľnohospodárske, lesnícke a veterinárske vedy"
+      ? newY - 18
+      : row.label === "Strojárske vedy"
+        ? newY + 16
+        : newY - 8;
+    const title = `${row.label}\nVER 2022: ${Math.round(row.old_employees).toLocaleString("sk-SK")} zam., ${pct(row.old_share_pct)}, ${money(row.old_amount_eur)}\nVER 2026: ${Math.round(row.new_employees).toLocaleString("sk-SK")} zam., ${pct(row.new_share_pct)}, ${money(row.new_amount_eur)}`;
+    const aria = `${row.label}: VER 2022 ${Math.round(row.old_employees).toLocaleString("sk-SK")} zamestnancov a ${pct(row.old_share_pct)}, VER 2026 ${Math.round(row.new_employees).toLocaleString("sk-SK")} zamestnancov a ${pct(row.new_share_pct)}`;
+    return `
+      <g data-area-key="${esc(row.key)}" tabindex="0" role="img" aria-label="${esc(aria)}">
+        <title>${esc(title)}</title>
+        <line class="chart-connector" x1="${oldX}" y1="${oldY}" x2="${newX}" y2="${newY}" />
+        <circle class="chart-point old" cx="${oldX}" cy="${oldY}" r="4" />
+        <circle class="chart-point new" cx="${newX}" cy="${newY}" r="6" />
+        ${labelKeys.has(row.key) ? `<text class="chart-area-label" x="${labelX}" y="${labelY}" text-anchor="${labelAnchor}">${esc(row.label)}</text>` : ""}
+      </g>
+    `;
+  }).join("");
+
+  document.getElementById("area-chart").innerHTML = `
+    <svg class="area-chart-svg chart-mode-scatter" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="area-chart-title area-chart-desc">
+      <desc id="area-chart-desc">Bodový graf porovnáva ${rows.length} oblastí hodnotenia podľa počtu zamestnancov a podielu financovania vo VER 2022 a simulácii VER 2026.</desc>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbf8" />
+      ${grid}
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top + plotH}" x2="${margin.left + plotW}" y2="${margin.top + plotH}" />
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotH}" />
+      <text class="chart-col-head" x="${margin.left}" y="18">Podiel financovania vs. počet zamestnancov; hover = karta oblasti</text>
+      <text class="chart-axis-label" x="${margin.left + plotW / 2}" y="${height - 12}" text-anchor="middle">Počet zamestnancov v oblasti</text>
+      <text class="chart-axis-label" x="18" y="${margin.top + plotH / 2}" text-anchor="middle" transform="rotate(-90 18 ${margin.top + plotH / 2})">Podiel financovania zo škálovaného objemu</text>
+      ${series}
+    </svg>
+  `;
 }
 
 function renderStats(rows) {
@@ -865,6 +1876,7 @@ function render() {
   document.getElementById("view-note").textContent =
     `${rows.length} z ${(view.rows || []).length} položiek · váhy ${payload.method.quality_weights.join("/")}`;
   renderQuickViews();
+  renderAreaChart();
   renderStats(rows);
   renderTable(rows);
 }
@@ -924,6 +1936,37 @@ document.addEventListener("DOMContentLoaded", () => {
     state.search = event.target.value;
     writeUrlState();
     render();
+  });
+
+  document.getElementById("chart-controls").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-chart-mode]");
+    if (!button || !CHART_MODES.has(button.dataset.chartMode)) return;
+    state.chartMode = button.dataset.chartMode;
+    renderAreaChart();
+  });
+
+  document.getElementById("area-chart").addEventListener("pointermove", (event) => {
+    const target = event.target.closest("[data-area-key]");
+    if (!target) {
+      hideReportCard();
+      return;
+    }
+    showReportCard(rowForAreaKey(target.dataset.areaKey), event.clientX, event.clientY);
+  });
+
+  document.getElementById("area-chart").addEventListener("pointerleave", () => {
+    hideReportCard();
+  });
+
+  document.getElementById("area-chart").addEventListener("focusin", (event) => {
+    const target = event.target.closest("[data-area-key]");
+    if (!target) return;
+    const rect = target.getBoundingClientRect();
+    showReportCard(rowForAreaKey(target.dataset.areaKey), rect.left + rect.width / 2, rect.top + rect.height / 2);
+  });
+
+  document.getElementById("area-chart").addEventListener("focusout", () => {
+    hideReportCard();
   });
 
   document.querySelectorAll("th[data-sort]").forEach((th) => {
