@@ -743,6 +743,37 @@
     font-size: 12px;
   }
 
+  .year-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .item .year-pill {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    border: 1px solid var(--line-strong);
+    padding: 3px 7px;
+    color: #263039;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .year-pill.old {
+    border-color: rgba(185, 130, 44, 0.55);
+    background: rgba(185, 130, 44, 0.12);
+  }
+
+  .year-pill.new {
+    border-color: rgba(36, 94, 116, 0.5);
+    background: rgba(36, 94, 116, 0.12);
+  }
+
   .delta {
     min-width: 250px;
   }
@@ -1419,11 +1450,19 @@ function rowCount(row) {
   return `${row.ver2022_rows || 0} / ${row.ver2026_rows || 0}`;
 }
 
-function statusLabel(row) {
+function yearPills(row) {
   if (state.view !== "applications") return "";
-  if (row.comparison_status === "new_only") return "iba VER 2026";
-  if (row.comparison_status === "old_only") return "iba VER 2022";
-  return "";
+  const hasOld = (row.ver2022_rows || 0) > 0;
+  const hasNew = (row.ver2026_rows || 0) > 0;
+  const matched = hasOld && hasNew;
+  const pills = [];
+  if (hasOld) {
+    pills.push(`<span class="year-pill old">${matched ? "VER 2022" : "iba VER 2022"}</span>`);
+  }
+  if (hasNew) {
+    pills.push(`<span class="year-pill new">${matched ? "VER 2026" : "iba VER 2026"}</span>`);
+  }
+  return pills.length ? `<span class="year-pills">${pills.join("")}</span>` : "";
 }
 
 function writeUrlState() {
@@ -1842,7 +1881,7 @@ function renderTable(rows) {
         <td class="item">
           <strong>${esc(row.label)}</strong>
           <span>${esc(row.subtitle)}</span>
-          ${statusLabel(row) ? `<span>${esc(statusLabel(row))}</span>` : ""}
+          ${yearPills(row)}
         </td>
         <td class="num">${money(row.old_amount_eur)}</td>
         <td class="num"><strong>${money(row.new_amount_eur)}</strong></td>
@@ -1874,7 +1913,7 @@ function render() {
     state.view === "universities" ? "VVŠ" : state.view === "applications" ? "Žiadosť / súčasť" : "Kategória";
   document.getElementById("rows-heading").textContent = state.view === "universities" ? "Riadky 2026" : "Riadky 22/26";
   document.getElementById("view-note").textContent =
-    `${rows.length} z ${(view.rows || []).length} položiek · váhy ${payload.method.quality_weights.join("/")}`;
+    `${rows.length} z ${(view.rows || []).length} položiek`;
   renderQuickViews();
   renderAreaChart();
   renderStats(rows);
