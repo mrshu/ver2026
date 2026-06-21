@@ -492,6 +492,31 @@
     stroke-width: 2;
   }
 
+  .chart-mode-scatter [data-area-key] {
+    transition: opacity 120ms ease;
+  }
+
+  .chart-mode-scatter [data-area-key].is-dimmed {
+    opacity: 0.18;
+  }
+
+  .chart-mode-scatter [data-area-key].is-selected {
+    opacity: 1;
+  }
+
+  .chart-mode-scatter [data-area-key]:hover .chart-connector,
+  .chart-mode-scatter [data-area-key]:focus .chart-connector {
+    stroke: var(--loss);
+    stroke-width: 5;
+    stroke-opacity: 0.95;
+  }
+
+  .chart-mode-scatter [data-area-key]:hover .chart-point,
+  .chart-mode-scatter [data-area-key]:focus .chart-point {
+    stroke: var(--loss);
+    stroke-width: 3;
+  }
+
   .chart-row-bg {
     fill: transparent;
   }
@@ -1324,8 +1349,10 @@
       </dd>
       <dt>Zdroje</dt>
       <dd>
-        VER 2026 profily kvality XLSX a rozpis dotácií VVŠ 2026 XLSX, hárok
-        <code>T14a-ver2022</code>.
+        <a href="https://www.minedu.sk/data/att/b00/36762.f7eba0.xlsx">VER 2026 profily kvality XLSX</a>,
+        <a href="https://www.minedu.sk/data/att/7c5/35059.48a629.xlsx">rozpis dotácií VVŠ 2026 XLSX</a>,
+        hárok <code>T14a-ver2022</code>, a
+        <a href="https://www.minedu.sk/metodicke-usmernenie-k-pouzitiu-vysledkov-periodickeho-hodnotenia-ver-2022-pre-ucely-posudenia-kvality-urovne-tvorivej-cinnosti-pri-standardoch-pre-studijny-program/">metodické usmernenie k použitiu VER 2022</a>.
       </dd>
     </dl>
   </details>
@@ -1906,6 +1933,29 @@ function hideReportCard() {
   if (card) card.hidden = true;
 }
 
+function liftScatterVector(target) {
+  if (target?.closest(".chart-mode-scatter") && target.parentNode) {
+    target.parentNode.appendChild(target);
+  }
+}
+
+function setScatterVectorSelection(target) {
+  const scatter = target?.closest(".chart-mode-scatter");
+  if (!scatter) return;
+  scatter.querySelectorAll("[data-area-key]").forEach((item) => {
+    const selected = item === target;
+    item.classList.toggle("is-selected", selected);
+    item.classList.toggle("is-dimmed", !selected);
+  });
+}
+
+function clearScatterVectorSelection() {
+  document.querySelectorAll(".chart-mode-scatter [data-area-key].is-selected, .chart-mode-scatter [data-area-key].is-dimmed")
+    .forEach((item) => {
+      item.classList.remove("is-selected", "is-dimmed");
+    });
+}
+
 function rowCount(row) {
   if (state.view === "universities") return String(row.ver2026_rows || 0);
   return `${row.ver2022_rows || 0} / ${row.ver2026_rows || 0}`;
@@ -2483,13 +2533,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("area-chart").addEventListener("pointermove", (event) => {
     const target = event.target.closest("[data-area-key]");
     if (!target) {
+      clearScatterVectorSelection();
       hideReportCard();
       return;
     }
+    liftScatterVector(target);
+    setScatterVectorSelection(target);
     showReportCard(rowForAreaKey(target.dataset.areaKey), event.clientX, event.clientY);
   });
 
   document.getElementById("area-chart").addEventListener("pointerleave", () => {
+    clearScatterVectorSelection();
     hideReportCard();
   });
 
@@ -2497,10 +2551,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const target = event.target.closest("[data-area-key]");
     if (!target) return;
     const rect = target.getBoundingClientRect();
+    liftScatterVector(target);
+    setScatterVectorSelection(target);
     showReportCard(rowForAreaKey(target.dataset.areaKey), rect.left + rect.width / 2, rect.top + rect.height / 2);
   });
 
   document.getElementById("area-chart").addEventListener("focusout", () => {
+    clearScatterVectorSelection();
     hideReportCard();
   });
 
