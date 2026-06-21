@@ -1301,8 +1301,12 @@
         <code>E</code> = neuspokojivá. Kvalita je
         <code>8×A + 5×B + 3×C + 1×D + 0×E</code>.
       </dd>
-      <dt>Objem</dt>
-      <dd><code>kvalita × počet zamestnancov × koeficient nákladov oblasti</code>.</dd>
+      <dt>Výpočtový objem</dt>
+      <dd>
+        Medzivýsledok na výpočet podielu:
+        <code>kvalita × počet zamestnancov × koeficient nákladov oblasti</code>.
+        Nie je to samostatná suma peňazí.
+      </dd>
       <dt>Podiel</dt>
       <dd>Podiel položky na súčte objemov v aktuálnom pohľade.</dd>
       <dt>Suma</dt>
@@ -1395,7 +1399,6 @@ const VIEW_HINTS = {
 };
 const VIEW_KEYS = new Set(Object.keys(VIEW_LABELS));
 const CHART_MODES = new Set(["ledger", "change-map", "amount-map", "scatter"]);
-const CHART_SCATTER_FOCUS_PER_DIRECTION = 3;
 const CAKE_VIEWS = [
   {
     key: "areas",
@@ -1540,26 +1543,6 @@ function biggest(rows, direction) {
       ? row.amount_delta_eur > best.amount_delta_eur ? row : best
       : row.amount_delta_eur < best.amount_delta_eur ? row : best;
   }, rows[0]);
-}
-
-function uniqueRows(rows) {
-  return Array.from(new Map(rows.map((row) => [row.key, row])).values());
-}
-
-function scatterRows(allRows) {
-  const gains = allRows
-    .filter((row) => (row.share_delta_pct || 0) > 0)
-    .slice()
-    .sort((a, b) => (b.share_delta_pct || 0) - (a.share_delta_pct || 0))
-    .slice(0, CHART_SCATTER_FOCUS_PER_DIRECTION);
-  const losses = allRows
-    .filter((row) => (row.share_delta_pct || 0) < 0)
-    .slice()
-    .sort((a, b) => (a.share_delta_pct || 0) - (b.share_delta_pct || 0))
-    .slice(0, CHART_SCATTER_FOCUS_PER_DIRECTION);
-
-  return uniqueRows([...gains, ...losses])
-    .sort((a, b) => Math.abs(b.share_delta_pct || 0) - Math.abs(a.share_delta_pct || 0));
 }
 
 function ledgerRows(allRows) {
@@ -1804,7 +1787,7 @@ function renderChartReadout(allRows, visibleRows) {
   const groupValue = (row) => amountMode ? signedCompactMoney(row.amount_delta_eur) : signedPct(row.share_delta_pct, " p. b.");
   const groupMetricLabel = amountMode ? "zmenu sumy" : "zmenu podielu";
   const scope = state.chartMode === "scatter"
-    ? `Podiel financovania vs. počet zamestnancov je zúžený na ${visibleRows.length.toLocaleString("sk-SK")} najväčších posunov, aby sa body neprekrývali; prejdenie myšou zobrazí kartu oblasti.`
+    ? `Podiel financovania vs. počet zamestnancov zobrazuje všetkých ${visibleRows.length.toLocaleString("sk-SK")} oblastí; popisky sú len pri najväčších posunoch a prejdenie myšou zobrazí kartu oblasti.`
     : state.chartMode === "amount-map"
       ? `Každý bod je oblasť. Doprava znamená vyššiu sumu v eurách oproti VER 2022, hore percentuálny rast počtu zamestnancov; prejdenie myšou zobrazí kartu oblasti.`
       : state.chartMode === "change-map"
@@ -1880,9 +1863,9 @@ function renderReportCard(row, kicker = "Karta oblasti") {
         <small>${Math.round(row.old_employees).toLocaleString("sk-SK")} -> ${Math.round(row.new_employees).toLocaleString("sk-SK")}</small>
       </div>
       <div class="report-cell">
-        <span>Vážený objem X</span>
+        <span>Výpočtový objem</span>
         <b>${decimal(row.old_weighted_volume)} -> ${decimal(row.new_weighted_volume)}</b>
-        <small>kvalita × zamestnanci × náročnosť</small>
+        <small>medzivýsledok na výpočet podielu</small>
       </div>
       <div class="report-cell">
         <span>Riadky</span>
@@ -1995,7 +1978,7 @@ function niceMax(value, step) {
 
 function renderAreaChart() {
   const allRows = payload.views.areas.rows || [];
-  const visibleRows = state.chartMode === "scatter" ? scatterRows(allRows) : allRows;
+  const visibleRows = allRows;
   hideReportCard();
   renderChartControls();
   renderChartReadout(allRows, visibleRows);
