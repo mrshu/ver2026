@@ -246,6 +246,7 @@
 
   .chart-section {
     padding: 10px 0 20px;
+    scroll-margin-top: 16px;
   }
 
   .chart-panel {
@@ -1357,7 +1358,7 @@
     </dl>
   </details>
 
-  <section class="chart-section" aria-labelledby="area-chart-title">
+  <section class="chart-section" id="area-chart-section" aria-labelledby="area-chart-title">
     <div class="chart-panel">
       <div class="chart-head">
         <div>
@@ -1379,6 +1380,7 @@
         <button type="button" class="chart-mode" data-chart-mode="change-map" aria-pressed="false">Mapa podielu</button>
         <button type="button" class="chart-mode" data-chart-mode="amount-map" aria-pressed="false">Mapa sumy</button>
         <button type="button" class="chart-mode" data-chart-mode="scatter" aria-pressed="false">Podiel vs. počet zam.</button>
+        <button type="button" class="chart-mode" data-chart-mode="per-employee" aria-pressed="false">€ na zam.</button>
       </div>
       <div class="chart-wrap" id="area-chart"></div>
       <div class="cake-section" aria-labelledby="cake-title">
@@ -1425,7 +1427,8 @@ const VIEW_HINTS = {
   applications: "žiadosti a súčasti",
 };
 const VIEW_KEYS = new Set(Object.keys(VIEW_LABELS));
-const CHART_MODES = new Set(["ledger", "change-map", "amount-map", "scatter"]);
+const CHART_MODES = new Set(["ledger", "change-map", "amount-map", "scatter", "per-employee"]);
+const CHART_SECTION_ID = "area-chart-section";
 const CAKE_VIEWS = [
   {
     key: "areas",
@@ -1494,6 +1497,16 @@ function signedMoney(value) {
   if (value == null) return "-";
   const sign = value > 0 ? "+" : value < 0 ? "-" : "";
   return sign + Math.round(Math.abs(value)).toLocaleString("sk-SK") + " €";
+}
+
+function moneyPerEmployee(value) {
+  return value == null ? "-" : Math.round(value).toLocaleString("sk-SK") + " € / zam.";
+}
+
+function signedMoneyPerEmployee(value) {
+  if (value == null) return "-";
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  return sign + Math.round(Math.abs(value)).toLocaleString("sk-SK") + " € / zam.";
 }
 
 function compactMoney(value) {
@@ -1604,6 +1617,16 @@ function employeeDelta(row) {
 
 function employeeDeltaPct(row) {
   return row?.old_employees ? employeeDelta(row) / row.old_employees * 100 : null;
+}
+
+function amountPerEmployee(row, amountKey, employeesKey) {
+  return row?.[employeesKey] ? (row[amountKey] || 0) / row[employeesKey] : null;
+}
+
+function amountPerEmployeeDelta(row) {
+  const oldValue = amountPerEmployee(row, "old_amount_eur", "old_employees");
+  const newValue = amountPerEmployee(row, "new_amount_eur", "new_employees");
+  return oldValue == null || newValue == null ? null : newValue - oldValue;
 }
 
 function trimChartLabel(value, max = 42) {
@@ -1770,7 +1793,8 @@ function renderChartControls() {
     button.setAttribute("aria-pressed", String(active));
   });
 
-  const legend = state.chartMode === "scatter"
+  const vectorMode = state.chartMode === "scatter" || state.chartMode === "per-employee";
+  const legend = vectorMode
     ? [
         ["old", "VER 2022"],
         ["new", "VER 2026 simulácia"],
@@ -1800,21 +1824,40 @@ function renderChartControls() {
 }
 
 function renderChartReadout(allRows, visibleRows) {
-  const gain = allRows.reduce((best, row) =>
-    !best || (row.share_delta_pct || 0) > (best.share_delta_pct || 0) ? row : best, null);
-  const loss = allRows.reduce((best, row) =>
-    !best || (row.share_delta_pct || 0) < (best.share_delta_pct || 0) ? row : best, null);
   const amountMode = state.chartMode === "amount-map";
+  const perEmployeeMode = state.chartMode === "per-employee";
+  const metric = (row) => amountMode
+    ? (row.amount_delta_eur || 0)
+    : perEmployeeMode
+      ? (amountPerEmployeeDelta(row) || 0)
+      : (row.share_delta_pct || 0);
+  const metricValue = (row) => amountMode
+    ? signedCompactMoney(row.amount_delta_eur)
+    : perEmployeeMode
+      ? signedMoneyPerEmployee(amountPerEmployeeDelta(row))
+      : signedPct(row.share_delta_pct, " p. b.");
+  const metricDetail = (row) => {
+    if (!row) return "-";
+    if (amountMode) return `${signedPct(row.amount_delta_pct)} oproti VER 2022.`;
+    if (perEmployeeMode) {
+      return `${moneyPerEmployee(amountPerEmployee(row, "old_amount_eur", "old_employees"))} -> ${moneyPerEmployee(amountPerEmployee(row, "new_amount_eur", "new_employees"))}.`;
+    }
+    return `${signedMoney(row.amount_delta_eur)} pri rovnakom objeme.`;
+  };
+  const gain = allRows.reduce((best, row) =>
+    !best || metric(row) > metric(best) ? row : best, null);
+  const loss = allRows.reduce((best, row) =>
+    !best || metric(row) < metric(best) ? row : best, null);
   const groups = payload.views.groups.rows || [];
-  const groupMetric = (row) => amountMode ? (row.amount_delta_eur || 0) : (row.share_delta_pct || 0);
   const groupGain = groups.reduce((best, row) =>
-    !best || groupMetric(row) > groupMetric(best) ? row : best, null);
+    !best || metric(row) > metric(best) ? row : best, null);
   const groupLoss = groups.reduce((best, row) =>
-    !best || groupMetric(row) < groupMetric(best) ? row : best, null);
-  const groupValue = (row) => amountMode ? signedCompactMoney(row.amount_delta_eur) : signedPct(row.share_delta_pct, " p. b.");
-  const groupMetricLabel = amountMode ? "zmenu sumy" : "zmenu podielu";
-  const scope = state.chartMode === "scatter"
-    ? `Podiel financovania vs. počet zamestnancov zobrazuje všetkých ${visibleRows.length.toLocaleString("sk-SK")} oblastí; popisky sú len pri najväčších posunoch a prejdenie myšou zobrazí kartu oblasti.`
+    !best || metric(row) < metric(best) ? row : best, null);
+  const groupMetricLabel = amountMode ? "zmenu sumy" : perEmployeeMode ? "zmenu sumy na zamestnanca" : "zmenu podielu";
+  const scope = state.chartMode === "per-employee"
+    ? `Graf ukazuje všetkých ${visibleRows.length.toLocaleString("sk-SK")} oblastí podľa počtu zamestnancov a sumy na zamestnanca; vektor vedie z VER 2022 do simulácie VER 2026.`
+    : state.chartMode === "scatter"
+      ? `Podiel financovania vs. počet zamestnancov zobrazuje všetkých ${visibleRows.length.toLocaleString("sk-SK")} oblastí; popisky sú len pri najväčších posunoch a prejdenie myšou zobrazí kartu oblasti.`
     : state.chartMode === "amount-map"
       ? `Každý bod je oblasť. Doprava znamená vyššiu sumu v eurách oproti VER 2022, hore percentuálny rast počtu zamestnancov; prejdenie myšou zobrazí kartu oblasti.`
       : state.chartMode === "change-map"
@@ -1827,26 +1870,26 @@ function renderChartReadout(allRows, visibleRows) {
       <p>${esc(scope)} Najväčší presun ide najmä od strojárskych a elektrotechnických oblastí smerom k ekonomickým, poľnohospodárskym a chemickým vedám.</p>
     </div>
     <div class="chart-fact gain">
-      <b>${gain ? amountMode ? signedCompactMoney(gain.amount_delta_eur) : signedPct(gain.share_delta_pct, " p. b.") : "-"}</b>
+      <b>${gain ? metricValue(gain) : "-"}</b>
       <strong>${gain ? esc(gain.label) : "Najväčší nárast"}</strong>
-      <p>${gain ? amountMode ? `${signedPct(gain.amount_delta_pct)} oproti VER 2022.` : `${signedMoney(gain.amount_delta_eur)} pri rovnakom objeme.` : "-"}</p>
+      <p>${metricDetail(gain)}</p>
     </div>
     <div class="chart-fact loss">
-      <b>${loss ? amountMode ? signedCompactMoney(loss.amount_delta_eur) : signedPct(loss.share_delta_pct, " p. b.") : "-"}</b>
+      <b>${loss ? metricValue(loss) : "-"}</b>
       <strong>${loss ? esc(loss.label) : "Najväčší pokles"}</strong>
-      <p>${loss ? amountMode ? `${signedPct(loss.amount_delta_pct)} oproti VER 2022.` : `${signedMoney(loss.amount_delta_eur)} pri rovnakom objeme.` : "-"}</p>
+      <p>${metricDetail(loss)}</p>
     </div>
     <div class="chart-fact group">
       <strong>Agregované po skupinách oblastí</strong>
       <div class="chart-pair" aria-label="Najväčšia skupinová zmena">
         <div class="chart-pair-row">
           <span>získava</span>
-          <b class="gain">${groupGain ? groupValue(groupGain) : "-"}</b>
+          <b class="gain">${groupGain ? metricValue(groupGain) : "-"}</b>
           <em>${groupGain ? esc(groupGain.label) : "-"}</em>
         </div>
         <div class="chart-pair-row">
           <span>stráca</span>
-          <b class="loss">${groupLoss ? groupValue(groupLoss) : "-"}</b>
+          <b class="loss">${groupLoss ? metricValue(groupLoss) : "-"}</b>
           <em>${groupLoss ? esc(groupLoss.label) : "-"}</em>
         </div>
       </div>
@@ -1869,6 +1912,10 @@ function renderReportCard(row, kicker = "Karta oblasti") {
   const shareTone = chartTone(row);
   const empTone = deltaTone(empDelta);
   const moneyTone = row.amount_delta_eur > 0 ? "gain" : row.amount_delta_eur < 0 ? "loss" : "neutral";
+  const oldPerEmployee = amountPerEmployee(row, "old_amount_eur", "old_employees");
+  const newPerEmployee = amountPerEmployee(row, "new_amount_eur", "new_employees");
+  const perEmployeeDelta = amountPerEmployeeDelta(row);
+  const perEmployeeTone = deltaTone(perEmployeeDelta || 0);
   return `
     <p class="report-kicker">${esc(kicker)}</p>
     <h3 class="report-title">${esc(row.label)}</h3>
@@ -1888,6 +1935,11 @@ function renderReportCard(row, kicker = "Karta oblasti") {
         <span>Zamestnanci</span>
         <b class="${empTone}">${signedCount(empDelta)} / ${signedPct(empPct)}</b>
         <small>${Math.round(row.old_employees).toLocaleString("sk-SK")} -> ${Math.round(row.new_employees).toLocaleString("sk-SK")}</small>
+      </div>
+      <div class="report-cell">
+        <span>Suma na zam.</span>
+        <b class="${perEmployeeTone}">${signedMoneyPerEmployee(perEmployeeDelta)}</b>
+        <small>${moneyPerEmployee(oldPerEmployee)} -> ${moneyPerEmployee(newPerEmployee)}</small>
       </div>
       <div class="report-cell">
         <span>Výpočtový objem</span>
@@ -1976,14 +2028,16 @@ function yearPills(row) {
   return pills.length ? `<span class="year-pills">${pills.join("")}</span>` : "";
 }
 
-function writeUrlState() {
+function writeUrlState({ scrollToChart = false } = {}) {
   const params = new URLSearchParams();
   if (state.view !== "universities") params.set("view", state.view);
   if (state.sortKey !== "amount_delta_eur") params.set("sort", state.sortKey);
   if (state.sortAsc) params.set("dir", "asc");
   if (state.search) params.set("q", state.search);
+  if (state.chartMode !== "ledger") params.set("chart", state.chartMode);
   const query = params.toString();
-  history.replaceState(null, "", query ? `${location.pathname}?${query}` : location.pathname);
+  const hash = scrollToChart || location.hash === `#${CHART_SECTION_ID}` ? `#${CHART_SECTION_ID}` : "";
+  history.replaceState(null, "", `${query ? `${location.pathname}?${query}` : location.pathname}${hash}`);
 }
 
 function viewUrl(viewKey) {
@@ -1999,8 +2053,21 @@ function readUrlState() {
     state.view = params.get("view");
   }
   if (SORT_KEYS.has(params.get("sort"))) state.sortKey = params.get("sort");
+  if (CHART_MODES.has(params.get("chart"))) state.chartMode = params.get("chart");
   state.sortAsc = params.get("dir") === "asc";
   state.search = params.get("q") || "";
+}
+
+function shouldScrollToChartFromUrl() {
+  const params = new URLSearchParams(location.search);
+  return location.hash === `#${CHART_SECTION_ID}` || CHART_MODES.has(params.get("chart"));
+}
+
+function scrollToChart({ smooth = false } = {}) {
+  document.getElementById(CHART_SECTION_ID)?.scrollIntoView({
+    behavior: smooth ? "smooth" : "auto",
+    block: "start",
+  });
 }
 
 function applyControls() {
@@ -2035,6 +2102,8 @@ function renderAreaChart() {
 
   if (state.chartMode === "scatter") {
     renderAreaScatter(visibleRows, allRows);
+  } else if (state.chartMode === "per-employee") {
+    renderAreaPerEmployeeScatter(visibleRows, allRows);
   } else if (state.chartMode === "amount-map") {
     renderAreaAmountMap(allRows);
   } else if (state.chartMode === "change-map") {
@@ -2345,6 +2414,66 @@ function renderAreaScatter(rows, allRows) {
   `;
 }
 
+function renderAreaPerEmployeeScatter(rows, allRows) {
+
+  const xMax = niceMax(Math.max(...allRows.flatMap((row) => [row.old_employees || 0, row.new_employees || 0])), 100);
+  const yMax = niceMax(Math.max(...allRows.flatMap((row) => [
+    amountPerEmployee(row, "old_amount_eur", "old_employees") || 0,
+    amountPerEmployee(row, "new_amount_eur", "new_employees") || 0,
+  ])), 5_000);
+  const width = 980;
+  const height = 440;
+  const margin = { top: 26, right: 34, bottom: 62, left: 76 };
+  const plotW = width - margin.left - margin.right;
+  const plotH = height - margin.top - margin.bottom;
+  const x = (value) => margin.left + (value || 0) / xMax * plotW;
+  const y = (value) => margin.top + plotH - (value || 0) / yMax * plotH;
+  const xTicks = Array.from({ length: 5 }, (_, index) => Math.round(xMax / 4 * index));
+  const yTicks = Array.from({ length: 5 }, (_, index) => yMax / 4 * index);
+
+  const grid = [
+    ...xTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${x(tick)}" y1="${margin.top}" x2="${x(tick)}" y2="${margin.top + plotH}" />
+      <text class="chart-tick" x="${x(tick)}" y="${height - 36}" text-anchor="middle">${tick.toLocaleString("sk-SK")}</text>
+    `),
+    ...yTicks.map((tick) => `
+      <line class="chart-grid-line" x1="${margin.left}" y1="${y(tick)}" x2="${margin.left + plotW}" y2="${y(tick)}" />
+      <text class="chart-tick" x="${margin.left - 10}" y="${y(tick) + 4}" text-anchor="end">${money(tick)}</text>
+    `),
+  ].join("");
+
+  const series = rows.map((row) => {
+    const oldPerEmployee = amountPerEmployee(row, "old_amount_eur", "old_employees");
+    const newPerEmployee = amountPerEmployee(row, "new_amount_eur", "new_employees");
+    const oldX = x(row.old_employees);
+    const oldY = y(oldPerEmployee);
+    const newX = x(row.new_employees);
+    const newY = y(newPerEmployee);
+    const aria = `${row.label}: VER 2022 ${Math.round(row.old_employees).toLocaleString("sk-SK")} zamestnancov a ${moneyPerEmployee(oldPerEmployee)}, VER 2026 ${Math.round(row.new_employees).toLocaleString("sk-SK")} zamestnancov a ${moneyPerEmployee(newPerEmployee)}`;
+    return `
+      <g data-area-key="${esc(row.key)}" tabindex="0" role="img" aria-label="${esc(aria)}">
+        <line class="chart-connector" x1="${oldX}" y1="${oldY}" x2="${newX}" y2="${newY}" />
+        <circle class="chart-point old" cx="${oldX}" cy="${oldY}" r="4" />
+        <circle class="chart-point new" cx="${newX}" cy="${newY}" r="6" />
+      </g>
+    `;
+  }).join("");
+
+  document.getElementById("area-chart").innerHTML = `
+    <svg class="area-chart-svg chart-mode-scatter chart-mode-per-employee" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="area-chart-title area-chart-desc">
+      <desc id="area-chart-desc">Bodový graf porovnáva ${rows.length} oblastí hodnotenia podľa počtu zamestnancov a sumy na zamestnanca vo VER 2022 a simulácii VER 2026.</desc>
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#f8fbf8" />
+      ${grid}
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top + plotH}" x2="${margin.left + plotW}" y2="${margin.top + plotH}" />
+      <line class="chart-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotH}" />
+      <text class="chart-col-head" x="${margin.left}" y="18">Suma na zamestnanca vs. počet zamestnancov; hover = karta oblasti</text>
+      <text class="chart-axis-label" x="${margin.left + plotW / 2}" y="${height - 12}" text-anchor="middle">Počet zamestnancov v oblasti</text>
+      <text class="chart-axis-label" x="18" y="${margin.top + plotH / 2}" text-anchor="middle" transform="rotate(-90 18 ${margin.top + plotH / 2})">Suma na zamestnanca</text>
+      ${series}
+    </svg>
+  `;
+}
+
 function renderStats(rows) {
   const gain = biggest(rows, "gain");
   const drop = biggest(rows, "drop");
@@ -2439,6 +2568,9 @@ async function load() {
     applyControls();
     renderSources();
     render();
+    if (shouldScrollToChartFromUrl()) {
+      requestAnimationFrame(() => scrollToChart());
+    }
   } catch (error) {
     document.querySelector("main").insertAdjacentHTML("afterbegin", `
       <div class="error">Dáta sa nepodarilo načítať. Spustite statický server v priečinku <code>web</code>.</div>
@@ -2492,6 +2624,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!button || !CHART_MODES.has(button.dataset.chartMode)) return;
     state.chartMode = button.dataset.chartMode;
     renderAreaChart();
+    writeUrlState({ scrollToChart: true });
+    scrollToChart({ smooth: true });
   });
 
   document.getElementById("cake-charts").addEventListener("pointermove", (event) => {
